@@ -21,7 +21,9 @@ class StatsService {
 
       const playersData = response.data;
       let formattedData = this._formatData(sport, playersData);
-      
+      if(sport === 'NBA') {
+        console.log(playersData[0]);
+      }
       await models[sport].deleteMany({});
       await models[sport].insertMany(formattedData);
       
@@ -62,7 +64,7 @@ class StatsService {
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.NBA[player.Team] || "#000000",
-      points: player.Points,
+      points: player.GamesPlayed ? Number(player.Points / player.GamesPlayed).toFixed(1) : 0,
       rebounds: player.Rebounds,
       assists: player.Assists,
       ftPercentage: player.FreeThrowsPercentage,
