@@ -21,9 +21,6 @@ class StatsService {
 
       const playersData = response.data;
       let formattedData = this._formatData(sport, playersData);
-      if(sport === 'NBA') {
-        console.log(playersData[0]);
-      }
       await models[sport].deleteMany({});
       await models[sport].insertMany(formattedData);
       
