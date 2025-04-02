@@ -64,7 +64,7 @@ class StatsService {
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.NBA[player.Team] || "#000000",
-      points: player.GamesPlayed ? Number(player.Points / player.GamesPlayed).toFixed(1) : 0,
+      points: player.Games ? Number((player.Points || 0) / player.Games).toFixed(1) : 0,
       rebounds: player.Rebounds,
       assists: player.Assists,
       ftPercentage: player.FreeThrowsPercentage,
