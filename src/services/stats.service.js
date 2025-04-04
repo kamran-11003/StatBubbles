@@ -23,7 +23,6 @@ class StatsService {
       let formattedData = this._formatData(sport, playersData);
       await models[sport].deleteMany({});
       await models[sport].insertMany(formattedData);
-      
     } catch (error) {
       console.error(`Error for ${sport}:`, error.response ? error.response.status : error.message);
       throw error;
@@ -50,9 +49,9 @@ class StatsService {
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.NHL[player.Team] || "#000000",
-      goals: player.Goals || 0,
-      assists: player.Assists || 0,
-      plusMinus: player.PlusMinus || 0
+      goals: player.Games ? Number((player.Goals || 0) / player.Games).toFixed(2) : 0,
+      assists: player.Games ? Number((player.Assists || 0) / player.Games).toFixed(2) : 0,
+      plusMinus: player.Games ? Number((player.PlusMinus || 0) / player.Games).toFixed(2) : 0
     }));
   }
 
@@ -62,8 +61,8 @@ class StatsService {
       team: player.Team,
       teamColor: TEAM_COLORS.NBA[player.Team] || "#000000",
       points: player.Games ? Number((player.Points || 0) / player.Games).toFixed(1) : 0,
-      rebounds: player.Rebounds,
-      assists: player.Assists,
+      rebounds: player.Games ? Number((player.Rebounds || 0) / player.Games).toFixed(1) : 0,
+      assists: player.Games ? Number((player.Assists || 0) / player.Games).toFixed(1) : 0,
       ftPercentage: player.FreeThrowsPercentage,
       shootingPercentage: player.FieldGoalsPercentage
     }));
@@ -75,8 +74,8 @@ class StatsService {
       team: player.Team,
       teamColor: TEAM_COLORS.MLB[player.Team] || "#000000",
       battingAverage: Number(player.BattingAverage || 0).toFixed(3),
-      homeRuns: player.HomeRuns || 0,
-      rbis: player.RunsBattedIn || 0,
+      homeRuns: player.Games ? Number((player.HomeRuns || 0) / player.Games).toFixed(2) : 0,
+      rbis: player.Games ? Number((player.RunsBattedIn || 0) / player.Games).toFixed(2) : 0,
       ops: Number(player.OnBasePlusSlugging || 0).toFixed(3)
     }));
   }
@@ -86,10 +85,10 @@ class StatsService {
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.NFL[player.Team] || "#000000",
-      touchdowns: Number((player.PassingTouchdowns || 0) + (player.RushingTouchdowns || 0) + (player.ReceivingTouchdowns || 0)).toFixed(1),
-      interceptions: player.PassingInterceptions || 0,
-      passingYards: player.PassingYards || 0,
-      rushingYards: player.RushingYards || 0,
+      touchdowns: player.Played ? Number((player.PassingTouchdowns || 0) + (player.RushingTouchdowns || 0) + (player.ReceivingTouchdowns || 0) / player.Played).toFixed(1) : 0,
+      interceptions: player.Played ? Number((player.PassingInterceptions || 0) / player.Played).toFixed(1) : 0,
+      passingYards: player.Played ? Number((player.PassingYards || 0) / player.Played).toFixed(1) : 0,
+      rushingYards: player.Played ? Number((player.RushingYards || 0) / player.Played).toFixed(1) : 0,
       completionPercentage: Number(player.PassingCompletionPercentage || 0).toFixed(1)
     }));
   }
