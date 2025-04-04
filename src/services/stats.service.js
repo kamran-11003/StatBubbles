@@ -85,7 +85,9 @@ class StatsService {
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.NFL[player.Team] || "#000000",
-      touchdowns: player.Played ? Number((player.PassingTouchdowns || 0) + (player.RushingTouchdowns || 0) + (player.ReceivingTouchdowns || 0) / player.Played).toFixed(1) : 0,
+      touchdowns: player.Played 
+        ? Number(((player.PassingTouchdowns || 0) + (player.RushingTouchdowns || 0) + (player.ReceivingTouchdowns || 0)) / player.Played).toFixed(1)
+        : 0,
       interceptions: player.Played ? Number((player.PassingInterceptions || 0) / player.Played).toFixed(1) : 0,
       passingYards: player.Played ? Number((player.PassingYards || 0) / player.Played).toFixed(1) : 0,
       rushingYards: player.Played ? Number((player.RushingYards || 0) / player.Played).toFixed(1) : 0,
