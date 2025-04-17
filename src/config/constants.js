@@ -1,10 +1,10 @@
 require('dotenv').config();
 
 const API_KEYS = {
-  NHL: process.env.NHL_API_KEY,
-  NBA: process.env.NBA_API_KEY,
-  MLB: process.env.MLB_API_KEY,
-  NFL: process.env.NFL_API_KEY
+  NHL: process.env.SPORTSDATAIO_API_KEY,
+  NBA: process.env.SPORTSDATAIO_API_KEY,
+  MLB: process.env.SPORTSDATAIO_API_KEY,
+  NFL: process.env.SPORTSDATAIO_API_KEY
 };
 
 const currentYear = new Date().getFullYear();

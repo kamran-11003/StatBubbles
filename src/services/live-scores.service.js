@@ -20,7 +20,7 @@ class LiveScoresService {
 
         const today = format(zonedDate, 'yyyy-MMM-dd').toUpperCase();
       const url = `${SCORES_URLS[sport]}/${"today"}`;
-      
+      console.log(API_KEYS[sport]);
       const response = await axios.get(url, {
         headers: { "Ocp-Apim-Subscription-Key": API_KEYS[sport] }
       });
@@ -35,7 +35,7 @@ class LiveScoresService {
   async checkAndUpdateGames() {
     const allCurrentGames = new Map(); // Track all current games by sport
     
-    for (const sport of ["NHL", "NBA", "MLB", "NFL"]) {
+    for (const sport of ["NBA", "MLB", "NFL"]) {
       const games = await this.fetchLiveScores(sport);
       
       // Group games by sport
