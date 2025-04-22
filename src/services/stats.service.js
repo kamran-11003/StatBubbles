@@ -56,6 +56,9 @@ class StatsService {
   }
 
   _formatNBAData(playersData) {
+    const MIN_FREE_THROWS = 125; // Minimum free throws to qualify for FT%
+    const MIN_FIELD_GOALS = 300; // Minimum field goals to qualify for FG%
+    
     return playersData.map(player => ({
       name: player.Name,
       team: player.Team,
@@ -63,20 +66,21 @@ class StatsService {
       points: player.Games ? Number((player.Points || 0) / player.Games).toFixed(1) : 0,
       rebounds: player.Games ? Number((player.Rebounds || 0) / player.Games).toFixed(1) : 0,
       assists: player.Games ? Number((player.Assists || 0) / player.Games).toFixed(1) : 0,
-      ftPercentage: player.FreeThrowsPercentage,
-      shootingPercentage: player.FieldGoalsPercentage
+      ftPercentage: player.FreeThrowsAttempted >= MIN_FREE_THROWS ? player.FreeThrowsPercentage : null,
+      shootingPercentage: player.FieldGoalsAttempted >= MIN_FIELD_GOALS ? player.FieldGoalsPercentage : null
     }));
   }
 
   _formatMLBData(playersData) {
+    const MIN_PLATE_APPEARANCES = 70;
     return playersData.map(player => ({
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.MLB[player.Team] || "#000000",
-      battingAverage: Number(player.BattingAverage || 0).toFixed(3),
-      homeRuns: player.Games ? Number((player.HomeRuns || 0) / player.Games).toFixed(2) : 0,
-      rbis: player.Games ? Number((player.RunsBattedIn || 0) / player.Games).toFixed(2) : 0,
-      ops: Number(player.OnBasePlusSlugging || 0).toFixed(3)
+      battingAverage: player.PlateAppearances >= MIN_PLATE_APPEARANCES ? Number(player.BattingAverage || 0).toFixed(3) : null,
+      homeRuns: Number(player.HomeRuns || 0),
+      rbis: Number(player.RunsBattedIn || 0),
+      ops: player.PlateAppearances >= MIN_PLATE_APPEARANCES ? Number(player.OnBasePlusSlugging || 0).toFixed(3) : null
     }));
   }
 
@@ -85,13 +89,11 @@ class StatsService {
       name: player.Name,
       team: player.Team,
       teamColor: TEAM_COLORS.NFL[player.Team] || "#000000",
-      touchdowns: player.Played 
-        ? Number(((player.PassingTouchdowns || 0) + (player.RushingTouchdowns || 0) + (player.ReceivingTouchdowns || 0)) / player.Played).toFixed(1)
-        : 0,
-      interceptions: player.Played ? Number((player.PassingInterceptions || 0) / player.Played).toFixed(1) : 0,
-      passingYards: player.Played ? Number((player.PassingYards || 0) / player.Played).toFixed(1) : 0,
-      rushingYards: player.Played ? Number((player.RushingYards || 0) / player.Played).toFixed(1) : 0,
-      completionPercentage: Number(player.PassingCompletionPercentage || 0).toFixed(1)
+      touchdowns: Number((player.PassingTouchdowns || 0)),
+      interceptions: Number(player.PassingInterceptions || 0),
+      passingYards: Number(player.PassingYards || 0),
+      rushingYards: Number(player.RushingYards || 0),
+      completionPercentage: player.PassingAttempts > 200 ? Number(player.PassingCompletionPercentage || 0).toFixed(1) : null
     }));
   }
 

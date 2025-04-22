@@ -13,7 +13,7 @@ const BASE_URLS = {
   NHL: `https://api.sportsdata.io/v3/nhl/stats/json/PlayerSeasonStats/${currentYear}`,
   NBA: `https://api.sportsdata.io/v3/nba/stats/json/PlayerSeasonStats/${currentYear}`,
   MLB: `https://api.sportsdata.io/v3/mlb/stats/json/PlayerSeasonStats/${currentYear}`,
-  NFL: `https://api.sportsdata.io/v3/nfl/stats/json/PlayerSeasonStats/${currentYear-1}REG`
+  NFL: `https://api.sportsdata.io/v3/nfl/stats/json/PlayerSeasonStats/${currentYear-1}`
 };
 
 const SCORES_URLS = {
