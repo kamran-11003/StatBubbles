@@ -31,7 +31,6 @@ class StatsController {
   async searchPlayers(req, res) {
     const { sport } = req.params;
     const { name } = req.query;
-
     if (!validSports.includes(sport)) {
       return res.status(400).json({ 
         error: `Invalid sport. Valid options: ${validSports.join(', ')}` 
