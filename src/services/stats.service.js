@@ -101,6 +101,17 @@ class StatsService {
     const model = models[sport];
     return await model.find().sort({ [statType]: -1 }).limit(100);
   }
+
+  async searchPlayers(sport, searchTerm) {
+    const model = models[sport];
+    if (!model) {
+      throw new Error(`Invalid sport: ${sport}`);
+    }
+
+    // Case-insensitive search for player names
+    const regex = new RegExp(searchTerm, 'i');
+    return await model.find({ name: regex });
+  }
 }
 
 module.exports = new StatsService();
