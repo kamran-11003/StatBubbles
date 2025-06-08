@@ -4,12 +4,14 @@ const NHLPlayer = require('../models/nhl.model');
 const NBAPlayer = require('../models/nba.model');
 const MLBPlayer = require('../models/mlb.model');
 const NFLPlayer = require('../models/nfl.model');
+const WNBAPlayer = require('../models/wnba.model');
 
 const models = {
   NHL: NHLPlayer,
   NBA: NBAPlayer,
   MLB: MLBPlayer,
-  NFL: NFLPlayer
+  NFL: NFLPlayer,
+  WNBA: WNBAPlayer
 };
 
 class StatsService {
@@ -39,6 +41,8 @@ class StatsService {
         return this._formatMLBData(playersData);
       case 'NFL':
         return this._formatNFLData(playersData);
+      case 'WNBA':
+        return this._formatWNBAData(playersData);
       default:
         throw new Error(`Invalid sport: ${sport}`);
     }
@@ -94,6 +98,25 @@ class StatsService {
       passingYards: Number(player.PassingYards || 0),
       rushingYards: Number(player.RushingYards || 0),
       completionPercentage: player.PassingAttempts > 200 ? Number(player.PassingCompletionPercentage || 0).toFixed(1) : null
+    }));
+  }
+
+  _formatWNBAData(playersData) {
+    const MIN_GAMES = 0; // Minimum games to qualify for stats
+    
+    return playersData.map(player => ({
+      name: player.Name,
+      team: player.Team,
+      teamColor: TEAM_COLORS.WNBA?.[player.Team] || "#BE185D", // Default to WNBA pink if team color not found
+      pointsPerGame: player.Games >= MIN_GAMES ? Number((player.Points || 0) / player.Games).toFixed(1) : null,
+      reboundsPerGame: player.Games >= MIN_GAMES ? Number((player.Rebounds || 0) / player.Games).toFixed(1) : null,
+      assistsPerGame: player.Games >= MIN_GAMES ? Number((player.Assists || 0) / player.Games).toFixed(1) : null,
+      blocksPerGame: player.Games >= MIN_GAMES ? Number((player.Blocks || 0) / player.Games).toFixed(1) : null,
+      stealsPerGame: player.Games >= MIN_GAMES ? Number((player.Steals || 0) / player.Games).toFixed(1) : null,
+      fieldGoalPercentage: player.FieldGoalsAttempted >= 100 ? Number(player.FieldGoalsPercentage || 0).toFixed(1) : null,
+      threePointersMade: Number(player.ThreePointersMade || 0),
+      threePointPercentage: player.ThreePointersAttempted >= 50 ? Number(player.ThreePointersPercentage || 0).toFixed(1) : null,
+      fantasyPointsPerGame: player.Games >= MIN_GAMES ? Number((player.FantasyPoints || 0) / player.Games).toFixed(1) : null
     }));
   }
 

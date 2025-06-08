@@ -30,9 +30,9 @@ socketService.initialize(httpServer);
 // Function to refresh stats for all sports
 async function refreshAllStats() {
   try {
-    for (const sport of ["NHL", "NBA", "MLB", "NFL"]) {
+   /* for (const sport of ["NHL", "NBA", "MLB", "NFL", "WNBA"]) {
       await StatsService.fetchAndSaveStats(sport);
-    }
+    }*/
     
     // Broadcast updates to connected clients
     await socketService.broadcastUpdates();
@@ -52,7 +52,7 @@ async function initialize() {
     await refreshAllStats();
     
     // Start live scores monitoring
-    await LiveScoresService.startMonitoring();
+   // await LiveScoresService.startMonitoring();
     
     // Set up periodic refresh (every 6 hours)
     setInterval(refreshAllStats, 6 * 60 * 60 * 1000);

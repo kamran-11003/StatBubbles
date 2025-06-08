@@ -4,10 +4,21 @@ const validStats = {
   NHL: ['goals', 'assists', 'plusMinus'],
   NBA: ['points', 'rebounds', 'assists', 'ftPercentage', 'shootingPercentage'],
   MLB: ['battingAverage', 'homeRuns', 'rbis', 'ops'],
-  NFL: ['touchdowns', 'interceptions', 'passingYards', 'rushingYards', 'completionPercentage']
+  NFL: ['touchdowns', 'interceptions', 'passingYards', 'rushingYards', 'completionPercentage'],
+  WNBA: [
+    'pointsPerGame',
+    'reboundsPerGame',
+    'assistsPerGame',
+    'blocksPerGame',
+    'stealsPerGame',
+    'fieldGoalPercentage',
+    'threePointersMade',
+    'threePointPercentage',
+    'fantasyPointsPerGame'
+  ]
 };
 
-const validSports = ['NHL', 'NBA', 'MLB', 'NFL'];
+const validSports = ['NBA', 'MLB', 'NFL'];
 
 class StatsController {
   async getStats(req, res) {
