@@ -83,7 +83,7 @@ async function initialize() {
     
      
      // Set up periodic refresh (every 6 hours)
-     setInterval(refreshAllStats, 6 * 60 * 60 * 1000);
+     //setInterval(refreshAllStats, 6 * 60 * 60 * 1000);
      
   } catch (error) {
     console.error('Failed to initialize:', error);
