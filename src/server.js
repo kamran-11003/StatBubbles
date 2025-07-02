@@ -45,7 +45,7 @@ socketService.initialize(httpServer);
 async function refreshAllStats() {
   try {
     const db = mongoose.connection.db;
-     await nbaTeamsService.processNbaData(db);
+    await nbaTeamsService.processNbaData(db);
     await wnbaTeamsService.processWnbaData(db);
     await mlbTeamsService.processMlbData(db);
    await nflTeamsService.processNflData(db);
@@ -70,19 +70,21 @@ async function initialize() {
     // Connect to MongoDB
     await connectDB();
 
-    // Initial stats fetch
-    await refreshAllStats();
-    
-    // Start live scores monitoring
-   await LiveScoresService.startMonitoring();
-    
-    // Set up periodic refresh (every 6 hours)
-    setInterval(refreshAllStats, 6 * 60 * 60 * 1000);
-    
+   
+     // Start live scores monitoring
+     await LiveScoresService.startMonitoring();
     // Start server
     httpServer.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
+    
+     // Initial stats fetch
+     await refreshAllStats();
+    
+     
+     // Set up periodic refresh (every 6 hours)
+     setInterval(refreshAllStats, 6 * 60 * 60 * 1000);
+     
   } catch (error) {
     console.error('Failed to initialize:', error);
     process.exit(1);
