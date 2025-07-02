@@ -45,13 +45,13 @@ socketService.initialize(httpServer);
 async function refreshAllStats() {
   try {
     const db = mongoose.connection.db;
-     await nbaTeamsService.processNbaData(db);
-    await wnbaTeamsService.processWnbaData(db);
-    await mlbTeamsService.processMlbData(db);
-   await nflTeamsService.processNflData(db);
-   await nhlTeamsService.processNhlData(db);
-   await nbaPlayerStatsService.processNbaPlayersWithStats(db);
-  await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
+    // await nbaTeamsService.processNbaData(db);
+    //await wnbaTeamsService.processWnbaData(db);
+    //await mlbTeamsService.processMlbData(db);
+   //await nflTeamsService.processNflData(db);
+   //await nhlTeamsService.processNhlData(db);
+   //await nbaPlayerStatsService.processNbaPlayersWithStats(db);
+  //await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
   await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
    await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
    await nhlPlayerStatsService.processNhlPlayersWithStats(db);
