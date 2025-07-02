@@ -52,8 +52,8 @@ async function refreshAllStats() {
    //await nhlTeamsService.processNhlData(db);
    //await nbaPlayerStatsService.processNbaPlayersWithStats(db);
   //await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
-  await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
-   await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
+  //await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
+  // await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
    await nhlPlayerStatsService.processNhlPlayersWithStats(db);
     
     // Broadcast updates to connected clients
