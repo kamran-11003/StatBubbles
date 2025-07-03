@@ -741,7 +741,7 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         defaultStat = 'points';
         break;
       case 'WNBA':
-        defaultStat = 'points';
+        defaultStat = 'avgPoints';
         break;
       case 'NHL':
         defaultStat = 'goals';

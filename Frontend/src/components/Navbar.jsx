@@ -40,8 +40,8 @@ const Navbar = ({
 
   const leagueStats = {
     NBA: [
-      { label: 'Points', key: 'points' },
       { label: 'Avg Points', key: 'avgPoints' },
+      { label: 'Points', key: 'points' },
       { label: 'Rebounds', key: 'rebounds' },
       { label: 'Avg Rebounds', key: 'avgRebounds' },
       { label: 'Offensive Rebounds', key: 'offensiveRebounds' },
@@ -153,8 +153,8 @@ const Navbar = ({
       { label: 'Rush Attempts', key: 'rushingAttempts' }
     ],
     WNBA: [
-      { label: 'Points', key: 'points' },
       { label: 'Avg Points', key: 'avgPoints' },
+      { label: 'Points', key: 'points' },
       { label: 'Rebounds', key: 'rebounds' },
       { label: 'Avg Rebounds', key: 'avgRebounds' },
       { label: 'Offensive Rebounds', key: 'offensiveRebounds' },

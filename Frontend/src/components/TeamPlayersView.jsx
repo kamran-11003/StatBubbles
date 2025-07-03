@@ -35,7 +35,7 @@ const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, pla
       try {
         setLoading(true);
         const teamId = team.teamId || team.teamAbbreviation || team.teamDisplayName;
-        let url = `http://localhost:3000/api/stats/${activeLeague}/team/${teamId}/${selectedStat}`;
+        let url = `/api/stats/${activeLeague}/team/${teamId}/${selectedStat}`;
         if (playerCount) {
           url += `?limit=${playerCount}`;
         }
