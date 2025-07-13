@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import ComingSoonModal from './ComingSoonModal';
 
 const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   const chartRef = useRef(null);
@@ -7,6 +8,8 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   const backgroundSimulationRef = useRef(null);
   const leagueSimulationRef = useRef(null);
   const [hoveredLeague, setHoveredLeague] = useState(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [comingSoonLeague, setComingSoonLeague] = useState('');
 
   // League data with colors and stat info
   const leagueData = [
@@ -60,9 +63,23 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       value: 100,
       description: 'Baseball player statistics',
       stats: [
-        'gamesPlayed', 'gamesStarted', 'completeGames', 'shutouts',
-        'innings', 'hits', 'runs', 'earnedRuns', 'homeRuns',
-        'walks', 'strikeouts'
+        // Batting stats
+        'batting_gamesPlayed', 'batting_atBats', 'batting_runs', 'batting_hits',
+        'batting_doubles', 'batting_triples', 'batting_homeRuns', 'batting_RBIs',
+        'batting_stolenBases', 'batting_caughtStealing', 'batting_walks', 'batting_strikeouts',
+        'batting_avg', 'batting_onBasePct', 'batting_slugAvg', 'batting_OPS',
+        
+        // Fielding stats
+        'fielding_gamesPlayed', 'fielding_fullInningsPlayed', 'fielding_totalChances',
+        'fielding_putouts', 'fielding_assists', 'fielding_errors', 'fielding_fieldingPct',
+        'fielding_doublePlays', 'fielding_triplePlays',
+        
+        // Pitching stats
+        'pitching_gamesPlayed', 'pitching_gamesStarted', 'pitching_completeGames', 'pitching_shutouts',
+        'pitching_innings', 'pitching_hits', 'pitching_runs', 'pitching_earnedRuns',
+        'pitching_homeRuns', 'pitching_walks', 'pitching_strikeouts', 'pitching_wins',
+        'pitching_losses', 'pitching_saves', 'pitching_holds', 'pitching_blownSaves',
+        'pitching_ERA', 'pitching_WHIP'
       ]
     },
     { 
@@ -734,23 +751,24 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   }, [leagueData]); // Add full leagueData dependency
 
   const handleLeagueSelect = (leagueName) => {
+    // Show coming soon modal for NBA, NFL, and NHL
+    if (['NBA', 'NFL', 'NHL'].includes(leagueName)) {
+      setComingSoonLeague(leagueName);
+      setShowComingSoon(true);
+      return;
+    }
+    
     // Set default stats based on league before navigating
     let defaultStat;
     switch (leagueName) {
-      case 'NBA':
-        defaultStat = 'points';
-        break;
       case 'WNBA':
         defaultStat = 'avgPoints';
         break;
-      case 'NHL':
-        defaultStat = 'goals';
-        break;
       case 'MLB':
-        defaultStat = 'strikeouts';
+        defaultStat = 'batting_gamesPlayed';
         break;
-      case 'NFL':
-        defaultStat = 'touchdowns';
+      default:
+        defaultStat = 'points';
         break;
     }
     
@@ -837,6 +855,14 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
           </p>
         </div>
       </div>
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        leagueName={comingSoonLeague}
+        isDark={isDark}
+      />
     </div>
   );
 };

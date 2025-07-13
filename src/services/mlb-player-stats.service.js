@@ -14,6 +14,38 @@ function getDefaultStats() {
   }, {});
 }
 
+// Function to calculate MLB player qualifications
+function calculateQualifications(stats) {
+  const qualifications = {
+    qualifiedBatting: false,
+    qualifiedFielding: false,
+    qualifiedPitching: false
+  };
+
+  // Get team games played (used for both batting/fielding and pitching calculations)
+  const teamGamesPlayed = stats.batting_teamGamesPlayed || stats.fielding_teamGamesPlayed || stats.pitching_teamGamesPlayed || 162; // Default to 162 if not available
+
+  // Batting and Fielding qualification: 3.1 PA/game
+  const plateAppearances = stats.batting_plateAppearances || 0;
+  const battingGamesPlayed = stats.batting_gamesPlayed || 0;
+  const fieldingGamesPlayed = stats.fielding_gamesPlayed || 0;
+
+  if (teamGamesPlayed > 0) {
+    const paPerGame = plateAppearances / teamGamesPlayed;
+    qualifications.qualifiedBatting = paPerGame >= 3.1 && battingGamesPlayed > 0;
+    qualifications.qualifiedFielding = paPerGame >= 3.1 && fieldingGamesPlayed > 0;
+  }
+
+  // Pitching qualification: 1 IP/game
+  const inningsPitched = stats.pitching_innings || 0;
+  if (teamGamesPlayed > 0) {
+    const ipPerGame = inningsPitched / teamGamesPlayed;
+    qualifications.qualifiedPitching = ipPerGame >= 1.0;
+  }
+
+  return qualifications;
+}
+
 async function getLatestSeasonId() {
   const seasonsUrl = `https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/seasons`;
   try {
@@ -58,12 +90,12 @@ async function processActiveMlbPlayersWithStats(db) {
       let teamColor = null;
       let teamDisplayName = null;
       if (teamId) {
-      try {
-        const teamCollection = db.collection('mlbteams');
-          const team = await teamCollection.findOne({ teamId: teamId });
-          teamColor = team?.color || null;
-          teamDisplayName = team?.displayName || null;
-      } catch (error) {
+        try {
+          const teamCollection = db.collection('mlbteams');
+          const teamData = await teamCollection.findOne({ teamId: teamId });
+          teamColor = teamData?.color || null;
+          teamDisplayName = teamData?.displayName || null;
+        } catch (error) {
           console.log(`Error fetching team data for team ID: ${teamId}`);
         }
       }
@@ -90,6 +122,9 @@ async function processActiveMlbPlayersWithStats(db) {
               }
             : null,
           stats: {}, // will be filled below
+          qualifiedBatting: false,
+          qualifiedFielding: false,
+          qualifiedPitching: false,
           statsUpdatedAt: new Date(),
           createdAt: new Date(),
           updatedAt: new Date()
@@ -144,7 +179,15 @@ async function processActiveMlbPlayersWithStats(db) {
           console.log(`❌ Error fetching stats for ${player.displayName}: ${error.message}`);
         }
 
-        console.log(`✔ ${player.displayName} — ${statsFound ? 'Stats loaded' : 'No stats'}`);
+        // Calculate qualifications based on collected stats
+        if (statsFound) {
+          const qualifications = calculateQualifications(playerDoc.stats);
+          playerDoc.qualifiedBatting = qualifications.qualifiedBatting;
+          playerDoc.qualifiedFielding = qualifications.qualifiedFielding;
+          playerDoc.qualifiedPitching = qualifications.qualifiedPitching;
+        }
+
+        console.log(`✔ ${player.displayName} — ${statsFound ? 'Stats loaded' : 'No stats'} — Batting: ${playerDoc.qualifiedBatting ? '✓' : '✗'}, Fielding: ${playerDoc.qualifiedFielding ? '✓' : '✗'}, Pitching: ${playerDoc.qualifiedPitching ? '✓' : '✗'}`);
 
         await collection.updateOne(
           { athleteId },
@@ -162,10 +205,27 @@ async function processActiveMlbPlayersWithStats(db) {
 
 async function getTopPlayers(statType, limit = 50) {
   try {
-    const players = await MLBPlayer.find()
+    // Check if this is a batting, fielding, or pitching stat
+    const isBattingStat = statType.startsWith('batting_');
+    const isFieldingStat = statType.startsWith('fielding_');
+    const isPitchingStat = statType.startsWith('pitching_');
+    
+    let query = {};
+    
+    // Apply qualification filter based on stat type
+    if (isBattingStat) {
+      query.qualifiedBatting = true;
+    } else if (isFieldingStat) {
+      query.qualifiedFielding = true;
+    } else if (isPitchingStat) {
+      query.qualifiedPitching = true;
+    }
+    
+    const players = await MLBPlayer.find(query)
       .sort({ [`stats.${statType}`]: -1 })
       .limit(limit);
-    console.log(`Found ${players.length} MLB players sorted by ${statType}`);
+    
+    console.log(`Found ${players.length} MLB players sorted by ${statType}${isBattingStat ? ' (qualified batting only)' : isFieldingStat ? ' (qualified fielding only)' : isPitchingStat ? ' (qualified pitching only)' : ''}`);
     return players;
   } catch (error) {
     console.error('Error fetching MLB players:', error);
@@ -178,6 +238,7 @@ async function getTeamPlayers(teamId, statType, limit = 50) {
     const players = await MLBPlayer.find({ teamId: teamId })
       .sort({ [`stats.${statType}`]: -1 })
       .limit(limit);
+    
     console.log(`Found ${players.length} MLB players for team ${teamId} sorted by ${statType}`);
     return players;
   } catch (error) {

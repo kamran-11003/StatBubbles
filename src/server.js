@@ -45,23 +45,59 @@ socketService.initialize(httpServer);
 async function refreshAllStats() {
   try {
     const db = mongoose.connection.db;
-    await nbaTeamsService.processNbaData(db);
+   // Teams data processing
+   //await nbaTeamsService.processNbaData(db);
     await wnbaTeamsService.processWnbaData(db);
     await mlbTeamsService.processMlbData(db);
-   await nflTeamsService.processNflData(db);
-   await nhlTeamsService.processNhlData(db);
-   await nbaPlayerStatsService.processNbaPlayersWithStats(db);
-  await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
-  await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
-   await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
-   await nhlPlayerStatsService.processNhlPlayersWithStats(db);
-    
+   //await nflTeamsService.processNflData(db);
+   //await nhlTeamsService.processNhlData(db);
+
+   // Player stats processing 
+   //await nbaPlayerStatsService.processNbaPlayersWithStats(db);
+   await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
+   await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
+   //await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
+   //await nhlPlayerStatsService.processNhlPlayersWithStats(db);
     // Broadcast updates to connected clients
     await socketService.broadcastUpdates();
     
   } catch (error) {
     console.error('Error refreshing stats:', error);
   }
+}
+
+// Function to schedule refresh at midnight US Eastern Time
+function scheduleMidnightRefresh() {
+  const getTimeUntilMidnight = () => {
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+    const midnight = new Date(easternTime);
+    midnight.setHours(24, 0, 0, 0); // Next midnight
+    
+    // Convert back to local time for comparison
+    const localMidnight = new Date(midnight.toLocaleString("en-US", {timeZone: "America/New_York"}));
+    const timeUntilMidnight = localMidnight.getTime() - now.getTime();
+    
+    return timeUntilMidnight;
+  };
+
+  const scheduleNextRefresh = () => {
+    const timeUntilMidnight = getTimeUntilMidnight();
+    
+    console.log(`Scheduling next stats refresh for midnight US Eastern Time (in ${Math.round(timeUntilMidnight / 1000 / 60)} minutes)`);
+    
+    setTimeout(async () => {
+      console.log('🕛 Running scheduled midnight stats refresh...');
+      await refreshAllStats();
+      console.log('✅ Midnight stats refresh completed');
+      
+      // Schedule the next refresh (24 hours later)
+      scheduleNextRefresh();
+    }, timeUntilMidnight);
+  };
+
+  // Start the scheduling
+  scheduleNextRefresh();
 }
 
 // Initialize function
@@ -81,9 +117,8 @@ async function initialize() {
      // Initial stats fetch
      await refreshAllStats();
     
-     
-     // Set up periodic refresh (every 6 hours)
-     //setInterval(refreshAllStats, 6 * 60 * 60 * 1000);
+     // Schedule midnight refresh
+     scheduleMidnightRefresh();
      
   } catch (error) {
     console.error('Failed to initialize:', error);

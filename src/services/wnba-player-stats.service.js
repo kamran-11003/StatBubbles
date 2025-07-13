@@ -305,16 +305,55 @@ async function refreshTeamPlayers(teamId, db) {
   }
 }
 
-// Get top WNBA players by a stat
+// Get top WNBA players by a stat with percentage filtering
 async function getTopPlayers(statType, limit = 100) {
-  // statType should be a key in the 'stats' subdocument, e.g., 'avgPoints', 'assists', etc.
-  return WNBAPlayer.find().sort({ ["stats." + statType]: -1 }).limit(limit);
+  // Define percentage stats that need games played filtering
+  const percentageStats = ['fieldGoalPct', 'threePointFieldGoalPct', 'freeThrowPct'];
+  
+  if (percentageStats.includes(statType)) {
+    // For percentage stats, apply games played filter
+    // First, find the maximum games played to calculate the minimum threshold
+    const maxGamesPlayer = await WNBAPlayer.findOne().sort({ 'stats.gamesPlayed': -1 });
+    const maxGamesPlayed = maxGamesPlayer?.stats?.gamesPlayed || 40; // Default to 40 if no data
+    
+    // Calculate minimum games required (25% of max games played, minimum 10)
+    const minGamesRequired = Math.max(10, Math.floor(maxGamesPlayed * 0.25));
+    
+    console.log(`WNBA ${statType} filter: Max games played = ${maxGamesPlayed}, Min games required = ${minGamesRequired}`);
+    
+    return WNBAPlayer.find({
+      'stats.gamesPlayed': { $gte: minGamesRequired }
+    }).sort({ ["stats." + statType]: -1 }).limit(limit);
+  } else {
+    // For non-percentage stats, return all players
+    return WNBAPlayer.find().sort({ ["stats." + statType]: -1 }).limit(limit);
+  }
 }
 
-// Get WNBA players from a specific team by a stat
+// Get WNBA players from a specific team by a stat with percentage filtering
 async function getTeamPlayers(teamId, statType, limit = 100) {
-  // statType should be a key in the 'stats' subdocument, e.g., 'avgPoints', 'assists', etc.
-  return WNBAPlayer.find({ teamId: teamId }).sort({ ["stats." + statType]: -1 }).limit(limit);
+  // Define percentage stats that need games played filtering
+  const percentageStats = ['fieldGoalPct', 'threePointFieldGoalPct', 'freeThrowPct'];
+  
+  if (percentageStats.includes(statType)) {
+    // For percentage stats, apply games played filter
+    // First, find the maximum games played to calculate the minimum threshold
+    const maxGamesPlayer = await WNBAPlayer.findOne().sort({ 'stats.gamesPlayed': -1 });
+    const maxGamesPlayed = maxGamesPlayer?.stats?.gamesPlayed || 40; // Default to 40 if no data
+    
+    // Calculate minimum games required (25% of max games played, minimum 10)
+    const minGamesRequired = Math.max(10, Math.floor(maxGamesPlayed * 0.25));
+    
+    console.log(`WNBA ${statType} filter: Max games played = ${maxGamesPlayed}, Min games required = ${minGamesRequired}`);
+    
+    return WNBAPlayer.find({
+      teamId: teamId,
+      'stats.gamesPlayed': { $gte: minGamesRequired }
+    }).sort({ ["stats." + statType]: -1 }).limit(limit);
+  } else {
+    // For non-percentage stats, return all team players
+    return WNBAPlayer.find({ teamId: teamId }).sort({ ["stats." + statType]: -1 }).limit(limit);
+  }
 }
 
 // Search WNBA players by name (case-insensitive, partial match)

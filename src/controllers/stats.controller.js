@@ -30,22 +30,22 @@ const validStats = {
     'pitching_gamesPlayed', 'pitching_gamesStarted', 'pitching_completeGames', 'pitching_shutouts',
     'pitching_innings', 'pitching_hits', 'pitching_runs', 'pitching_earnedRuns', 'pitching_homeRuns',
     'pitching_walks', 'pitching_strikeouts', 'pitching_wins', 'pitching_losses', 'pitching_saves',
-    'pitching_holds', 'pitching_blownSaves', 'pitching_era', 'pitching_whip', 'pitching_battersFaced',
+    'pitching_holds', 'pitching_blownSaves', 'pitching_ERA', 'pitching_WHIP', 'pitching_battersFaced',
     'pitching_battersHit', 'pitching_wildPitches', 'pitching_balks', 'pitching_intentionalWalks',
     'pitching_groundOuts', 'pitching_airOuts', 'pitching_doublePlays', 'pitching_triplePlays',
     
     // Batting stats
     'batting_gamesPlayed', 'batting_gamesStarted', 'batting_atBats', 'batting_runs', 'batting_hits',
-    'batting_doubles', 'batting_triples', 'batting_homeRuns', 'batting_rbis', 'batting_stolenBases',
-    'batting_caughtStealing', 'batting_walks', 'batting_strikeouts', 'batting_battingAverage',
-    'batting_onBasePercentage', 'batting_sluggingPercentage', 'batting_ops', 'batting_sacrificeFlies',
+    'batting_doubles', 'batting_triples', 'batting_homeRuns', 'batting_RBIs', 'batting_stolenBases',
+    'batting_caughtStealing', 'batting_walks', 'batting_strikeouts', 'batting_avg',
+    'batting_onBasePct', 'batting_slugAvg', 'batting_OPS', 'batting_sacrificeFlies',
     'batting_sacrificeBunts', 'batting_intentionalWalks', 'batting_hitByPitch', 'batting_groundOuts',
     'batting_airOuts', 'batting_groundIntoDoublePlays', 'batting_numberOfPitches', 'batting_plateAppearances',
     'batting_totalBases', 'batting_runsCreated', 'batting_extraBaseHits', 'batting_totalBases',
     
     // Fielding stats
-    'fielding_gamesPlayed', 'fielding_gamesStarted', 'fielding_innings', 'fielding_chances',
-    'fielding_putOuts', 'fielding_assists', 'fielding_errors', 'fielding_fieldingPercentage',
+    'fielding_gamesPlayed', 'fielding_gamesStarted', 'fielding_fullInningsPlayed', 'fielding_totalChances',
+    'fielding_putouts', 'fielding_assists', 'fielding_errors', 'fielding_fieldingPct',
     'fielding_rangeFactorPerGame', 'fielding_rangeFactorPer9Innings', 'fielding_doublePlays',
     'fielding_triplePlays', 'fielding_passedBalls', 'fielding_outfieldAssists', 'fielding_catcherInterference'
   ],

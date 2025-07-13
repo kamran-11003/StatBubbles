@@ -91,6 +91,21 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                   {player.teamDisplayName || player.teamName || player.teamAbbreviation || player.teamId || player.league}
                 </span>
               </h3>
+              
+              {/* MLB Qualification Status */}
+              {player.league === 'MLB' && (
+                <div className="flex gap-2 mt-2">
+                  <span className={`text-xs px-2 py-1 rounded-full ${player.qualifiedBatting ? (isDark ? 'bg-green-600/20 text-green-400' : 'bg-green-100 text-green-800') : (isDark ? 'bg-red-600/20 text-red-400' : 'bg-red-100 text-red-800')}`}>
+                    {player.qualifiedBatting ? '✓ Batting' : '✗ Batting'}
+                  </span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${player.qualifiedFielding ? (isDark ? 'bg-green-600/20 text-green-400' : 'bg-green-100 text-green-800') : (isDark ? 'bg-red-600/20 text-red-400' : 'bg-red-100 text-red-800')}`}>
+                    {player.qualifiedFielding ? '✓ Fielding' : '✗ Fielding'}
+                  </span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${player.qualifiedPitching ? (isDark ? 'bg-green-600/20 text-green-400' : 'bg-green-100 text-green-800') : (isDark ? 'bg-red-600/20 text-red-400' : 'bg-red-100 text-red-800')}`}>
+                    {player.qualifiedPitching ? '✓ Pitching' : '✗ Pitching'}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           <button 

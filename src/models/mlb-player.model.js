@@ -14,6 +14,10 @@ const playerSchema = new mongoose.Schema({
     alt: { type: String }
   },
   stats: { type: mongoose.Schema.Types.Mixed, default: {} },
+  // Qualification fields
+  qualifiedBatting: { type: Boolean, default: false },
+  qualifiedFielding: { type: Boolean, default: false },
+  qualifiedPitching: { type: Boolean, default: false },
   statsUpdatedAt: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

@@ -184,6 +184,31 @@ const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, pla
         </button>
       </div>
 
+      {/* Team Name Display */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-10">
+        <div
+          className={`px-6 py-3 rounded-xl transition-all duration-300 ${
+            isDark 
+              ? 'bg-gray-800/90 text-white' 
+              : 'bg-white/90 text-gray-800'
+          } backdrop-blur-md shadow-xl`}
+          style={{
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            boxShadow: isDark 
+              ? '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1)' 
+              : '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8)',
+            border: isDark 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(255, 255, 255, 0.3)'
+          }}
+        >
+          <h2 className="font-bold text-lg text-center">
+            {team.teamDisplayName || team.teamName || team.displayName || 'Team'}
+          </h2>
+        </div>
+      </div>
+
       {/* Bubble Chart */}
       <div className="w-full h-full bg-transparent overflow-hidden">
         <BubbleChart

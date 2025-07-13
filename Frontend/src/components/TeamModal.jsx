@@ -93,7 +93,7 @@ const TeamModal = ({ team, isDark, onClose, onShowTeamPlayers }) => {
             {Object.entries(team)
               .filter(([key, value]) => {
                 // Filter out non-stat properties and show team stats
-                const excludeKeys = ['_id', '__v', 'teamId', 'uid', 'abbreviation', 'displayName', 'shortDisplayName', 'name', 'nickname', 'location', 'color', 'alternateColor', 'logos', 'createdAt', 'updatedAt', 'standingsUpdatedAt'];
+                const excludeKeys = ['_id', '__v', 'teamId', 'uid', 'abbreviation', 'displayName', 'shortDisplayName', 'name', 'nickname', 'location', 'color', 'alternateColor', 'logos', 'createdAt', 'updatedAt', 'standingsUpdatedAt', 'x', 'y', 'vx', 'vy', 'index'];
                 return !excludeKeys.includes(key) && value !== null && value !== undefined;
               })
               .map(([key, value]) => {
@@ -102,6 +102,9 @@ const TeamModal = ({ team, isDark, onClose, onShowTeamPlayers }) => {
                   .replace(/([A-Z])/g, ' $1') // Add space before capital letters
                   .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
                   .replace(/\b\w/g, l => l.toUpperCase()); // Capitalize first letter of each word
+                
+                // Format record stats (home, away, conference, last ten games)
+                const isRecordStat = ['homeRecord', 'awayRecord', 'conferenceRecord', 'lastTenGames'].includes(key);
                 
                 return (
                   <div 
@@ -114,12 +117,14 @@ const TeamModal = ({ team, isDark, onClose, onShowTeamPlayers }) => {
                   >
                     <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{statLabel}: </span>
                     <span className={isDark ? 'text-white' : 'text-gray-900'}>
-                      {typeof value === 'number' 
-                        ? (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || value < 1
-                            ? value.toFixed(2)
-                            : Math.round(value))
-                        : (value || '0')}
-                      {key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') ? '%' : ''}
+                      {isRecordStat && typeof value === 'string' && value.includes('-') 
+                        ? value // Display record as-is (e.g., "10-10")
+                        : typeof value === 'number' 
+                          ? (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || value < 1
+                              ? value.toFixed(2)
+                              : Math.round(value))
+                          : (value || '0')}
+                      {!isRecordStat && (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct')) ? '%' : ''}
                     </span>
                   </div>
                 );

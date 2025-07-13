@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Moon, Sun, Database, ChevronDown, Users, Menu, X } from 'lucide-react';
 import LiveView from './LiveView';
+import ComingSoonModal from './ComingSoonModal';
 
 const Navbar = ({ 
   selectedStat,
@@ -24,6 +25,8 @@ const Navbar = ({
   const [showLiveInNav, setShowLiveInNav] = useState(false);
   const [currentGameIndex, setCurrentGameIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [comingSoonLeague, setComingSoonLeague] = useState('');
 
   const leagues = [
     { name: 'NBA' },
@@ -88,6 +91,37 @@ const Navbar = ({
       { label: 'Production', key: 'production' }
     ],
     MLB: [
+      // Batting stats
+      { label: 'Games Played', key: 'batting_gamesPlayed', category: 'Batting' },
+      //{ label: 'Games Started', key: 'batting_gamesStarted', category: 'Batting' },
+      { label: 'At Bats', key: 'batting_atBats', category: 'Batting' },
+      { label: 'Runs', key: 'batting_runs', category: 'Batting' },
+      { label: 'Hits', key: 'batting_hits', category: 'Batting' },
+      { label: 'Doubles', key: 'batting_doubles', category: 'Batting' },
+      { label: 'Triples', key: 'batting_triples', category: 'Batting' },
+      { label: 'Home Runs', key: 'batting_homeRuns', category: 'Batting' },
+      { label: 'RBIs', key: 'batting_RBIs', category: 'Batting' },
+      { label: 'Stolen Bases', key: 'batting_stolenBases', category: 'Batting' },
+      { label: 'Caught Stealing', key: 'batting_caughtStealing', category: 'Batting' },
+      { label: 'Walks', key: 'batting_walks', category: 'Batting' },
+      { label: 'Strikeouts', key: 'batting_strikeouts', category: 'Batting' },
+      { label: 'Batting Average', key: 'batting_avg', category: 'Batting' },
+      { label: 'On Base %', key: 'batting_onBasePct', category: 'Batting' },
+      { label: 'Slugging %', key: 'batting_slugAvg', category: 'Batting' },
+      { label: 'OPS', key: 'batting_OPS', category: 'Batting' },
+      
+      // Fielding stats
+      { label: 'Games Played', key: 'fielding_gamesPlayed', category: 'Fielding' },
+     // { label: 'Games Started', key: 'fielding_gamesStarted', category: 'Fielding' },
+      { label: 'Innings', key: 'fielding_fullInningsPlayed', category: 'Fielding' },
+      { label: 'Chances', key: 'fielding_totalChances', category: 'Fielding' },
+      { label: 'Put Outs', key: 'fielding_putouts', category: 'Fielding' },
+      { label: 'Assists', key: 'fielding_assists', category: 'Fielding' },
+      { label: 'Errors', key: 'fielding_errors', category: 'Fielding' },
+      { label: 'Fielding %', key: 'fielding_fieldingPct', category: 'Fielding' },
+      { label: 'Double Plays', key: 'fielding_doublePlays', category: 'Fielding' },
+      { label: 'Triple Plays', key: 'fielding_triplePlays', category: 'Fielding' },
+      
       // Pitching stats
       { label: 'Games Played', key: 'pitching_gamesPlayed', category: 'Pitching' },
       { label: 'Games Started', key: 'pitching_gamesStarted', category: 'Pitching' },
@@ -105,39 +139,8 @@ const Navbar = ({
       { label: 'Saves', key: 'pitching_saves', category: 'Pitching' },
       { label: 'Holds', key: 'pitching_holds', category: 'Pitching' },
       { label: 'Blown Saves', key: 'pitching_blownSaves', category: 'Pitching' },
-      { label: 'ERA', key: 'pitching_era', category: 'Pitching' },
-      { label: 'WHIP', key: 'pitching_whip', category: 'Pitching' },
-      
-      // Batting stats
-      { label: 'Games Played', key: 'batting_gamesPlayed', category: 'Batting' },
-      { label: 'Games Started', key: 'batting_gamesStarted', category: 'Batting' },
-      { label: 'At Bats', key: 'batting_atBats', category: 'Batting' },
-      { label: 'Runs', key: 'batting_runs', category: 'Batting' },
-      { label: 'Hits', key: 'batting_hits', category: 'Batting' },
-      { label: 'Doubles', key: 'batting_doubles', category: 'Batting' },
-      { label: 'Triples', key: 'batting_triples', category: 'Batting' },
-      { label: 'Home Runs', key: 'batting_homeRuns', category: 'Batting' },
-      { label: 'RBIs', key: 'batting_rbis', category: 'Batting' },
-      { label: 'Stolen Bases', key: 'batting_stolenBases', category: 'Batting' },
-      { label: 'Caught Stealing', key: 'batting_caughtStealing', category: 'Batting' },
-      { label: 'Walks', key: 'batting_walks', category: 'Batting' },
-      { label: 'Strikeouts', key: 'batting_strikeouts', category: 'Batting' },
-      { label: 'Batting Average', key: 'batting_battingAverage', category: 'Batting' },
-      { label: 'On Base %', key: 'batting_onBasePercentage', category: 'Batting' },
-      { label: 'Slugging %', key: 'batting_sluggingPercentage', category: 'Batting' },
-      { label: 'OPS', key: 'batting_ops', category: 'Batting' },
-      
-      // Fielding stats
-      { label: 'Games Played', key: 'fielding_gamesPlayed', category: 'Fielding' },
-      { label: 'Games Started', key: 'fielding_gamesStarted', category: 'Fielding' },
-      { label: 'Innings', key: 'fielding_innings', category: 'Fielding' },
-      { label: 'Chances', key: 'fielding_chances', category: 'Fielding' },
-      { label: 'Put Outs', key: 'fielding_putOuts', category: 'Fielding' },
-      { label: 'Assists', key: 'fielding_assists', category: 'Fielding' },
-      { label: 'Errors', key: 'fielding_errors', category: 'Fielding' },
-      { label: 'Fielding %', key: 'fielding_fieldingPercentage', category: 'Fielding' },
-      { label: 'Double Plays', key: 'fielding_doublePlays', category: 'Fielding' },
-      { label: 'Triple Plays', key: 'fielding_triplePlays', category: 'Fielding' }
+      { label: 'ERA', key: 'pitching_ERA', category: 'Pitching' },
+      { label: 'WHIP', key: 'pitching_WHIP', category: 'Pitching' }
     ],
     NFL: [
       { label: 'Touchdowns', key: 'touchdowns' },
@@ -155,28 +158,28 @@ const Navbar = ({
     WNBA: [
       { label: 'Avg Points', key: 'avgPoints' },
       { label: 'Points', key: 'points' },
-      { label: 'Rebounds', key: 'rebounds' },
       { label: 'Avg Rebounds', key: 'avgRebounds' },
+      { label: 'Rebounds', key: 'rebounds' },
       { label: 'Offensive Rebounds', key: 'offensiveRebounds' },
       { label: 'Defensive Rebounds', key: 'defensiveRebounds' },
-      { label: 'Assists', key: 'assists' },
       { label: 'Avg Assists', key: 'avgAssists' },
-      { label: 'Blocks', key: 'blocks' },
+      { label: 'Assists', key: 'assists' },
       { label: 'Avg Blocks', key: 'avgBlocks' },
-      { label: 'Steals', key: 'steals' },
+      { label: 'Blocks', key: 'blocks' },
       { label: 'Avg Steals', key: 'avgSteals' },
-      { label: 'Turnovers', key: 'turnovers' },
+      { label: 'Steals', key: 'steals' },
       { label: 'Avg Turnovers', key: 'avgTurnovers' },
-      { label: 'Fouls', key: 'fouls' },
+      { label: 'Turnovers', key: 'turnovers' },
       { label: 'Avg Fouls', key: 'avgFouls' },
+      { label: 'Fouls', key: 'fouls' },
       { label: 'Field Goals Made', key: 'fieldGoalsMade' },
       { label: 'Field Goals Attempted', key: 'fieldGoalsAttempted' },
       { label: 'Field Goal %', key: 'fieldGoalPct' },
       { label: '3PT Made', key: 'threePointFieldGoalsMade' },
       { label: '3PT Attempted', key: 'threePointFieldGoalsAttempted' },
       { label: '3PT %', key: 'threePointFieldGoalPct' },
-      { label: 'Free Throws Made', key: 'freeThrowsMade' },
       { label: 'Free Throws Attempted', key: 'freeThrowsAttempted' },
+      { label: 'Free Throws Made', key: 'freeThrowsMade' },
       { label: 'Free Throw %', key: 'freeThrowPct' },
       { label: 'Minutes', key: 'minutes' },
       { label: 'Avg Minutes', key: 'avgMinutes' },
@@ -200,7 +203,7 @@ const Navbar = ({
     { label: 'Opponent Points Per Game', key: 'opponentPointsPerGame' },
     { label: 'Point Differential', key: 'pointDifferential' },
     { label: 'Streak', key: 'streak' },
-    { label: 'Last 10 Games', key: 'lastTenGames' }
+    { label: 'Last 10 Games', key: 'lasttengames' }
   ];
 
   // Add team stats for WNBA
@@ -216,7 +219,7 @@ const Navbar = ({
     { label: 'Opponent Points Per Game', key: 'opponentPointsPerGame' },
     { label: 'Point Differential', key: 'pointDifferential' },
     { label: 'Streak', key: 'streak' },
-    { label: 'Last 10 Games', key: 'lastTenGames' }
+    { label: 'Last 10 Games', key: 'lasttengames' }
   ];
 
   // Add team stats for MLB
@@ -309,6 +312,13 @@ const Navbar = ({
   };
 
   const handleLeagueClick = (leagueName) => {
+    // Show coming soon modal for NBA, NFL, and NHL
+    if (['NBA', 'NFL', 'NHL'].includes(leagueName)) {
+      setComingSoonLeague(leagueName);
+      setShowComingSoon(true);
+      return;
+    }
+    
     if (leagueName !== selectedLeague) {
       onLeagueSelect(leagueName);
       const defaultStat = leagueStats[leagueName]?.[0]?.key;
@@ -482,15 +492,67 @@ const Navbar = ({
                         </button>
                         {statsDropdownOpen && (
                           <div className={`absolute left-0 mt-2 py-2 w-44 rounded-md shadow-lg max-h-60 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-10`}>
-                            {leagueStats[selectedLeague]?.map(stat => (
-                              <button
-                                key={stat.key}
-                                className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
-                                onClick={() => handleStatSelect(stat.key)}
-                              >
-                                {stat.label}
-                              </button>
-                            ))}
+                            {selectedLeague === 'MLB' ? (
+                              <>
+                                {/* Batting Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Batting
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Batting').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
+                                {/* Fielding Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Fielding
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Fielding').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
+                                {/* Pitching Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Pitching
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Pitching').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                              </>
+                            ) : (
+                              leagueStats[selectedLeague]?.map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))
+                            )}
                           </div>
                         )}
                       </div>
@@ -566,15 +628,67 @@ const Navbar = ({
                       </button>
                       {statsDropdownOpen && (
                         <div className={`absolute left-0 mt-2 py-2 w-44 rounded-md shadow-lg max-h-60 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-10`}>
-                          {leagueStats[selectedLeague]?.map(stat => (
-                            <button
-                              key={stat.key}
-                              className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
-                              onClick={() => handleStatSelect(stat.key)}
-                            >
-                              {stat.label}
-                            </button>
-                          ))}
+                          {selectedLeague === 'MLB' ? (
+                            <>
+                              {/* Batting Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Batting
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Batting').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
+                              {/* Fielding Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Fielding
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Fielding').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
+                              {/* Pitching Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Pitching
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Pitching').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                            </>
+                          ) : (
+                            leagueStats[selectedLeague]?.map(stat => (
+                              <button
+                                key={stat.key}
+                                className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                onClick={() => handleStatSelect(stat.key)}
+                              >
+                                {stat.label}
+                              </button>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>
@@ -904,30 +1018,6 @@ const Navbar = ({
                                       isDark ? 'bg-gray-800' : 'bg-white'
                                     } ring-1 ring-black ring-opacity-5 z-10`}
                                   >
-                                    {/* Pitching Category */}
-                                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${
-                                        isDark ? 'text-gray-400' : 'text-gray-500'
-                                      }`}>
-                                        Pitching
-                                      </h3>
-                                    </div>
-                                    {leagueStats[selectedLeague]
-                                      .filter(stat => stat.category === 'Pitching')
-                                      .map((stat) => (
-                                        <button
-                                          key={stat.key}
-                                          className={`block w-full text-left px-4 py-2 text-sm ${
-                                            selectedStat === stat.key
-                                              ? isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600'
-                                              : isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
-                                          }`}
-                                          onClick={() => handleStatSelect(stat.key)}
-                                        >
-                                          {stat.label}
-                                        </button>
-                                      ))}
-                                    
                                     {/* Batting Category */}
                                     <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
                                       <h3 className={`text-xs font-semibold uppercase tracking-wide ${
@@ -962,6 +1052,30 @@ const Navbar = ({
                                     </div>
                                     {leagueStats[selectedLeague]
                                       .filter(stat => stat.category === 'Fielding')
+                                      .map((stat) => (
+                                        <button
+                                          key={stat.key}
+                                          className={`block w-full text-left px-4 py-2 text-sm ${
+                                            selectedStat === stat.key
+                                              ? isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600'
+                                              : isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+                                          }`}
+                                          onClick={() => handleStatSelect(stat.key)}
+                                        >
+                                          {stat.label}
+                                        </button>
+                                      ))}
+                                    
+                                    {/* Pitching Category */}
+                                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${
+                                        isDark ? 'text-gray-400' : 'text-gray-500'
+                                      }`}>
+                                        Pitching
+                                      </h3>
+                                    </div>
+                                    {leagueStats[selectedLeague]
+                                      .filter(stat => stat.category === 'Pitching')
                                       .map((stat) => (
                                         <button
                                           key={stat.key}
@@ -1549,6 +1663,14 @@ const Navbar = ({
         showLiveInNav={showLiveInNav}
         onToggleLiveInNav={setShowLiveInNav}
         liveGames={liveGames}
+      />
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        leagueName={comingSoonLeague}
+        isDark={isDark}
       />
     </div>
   );

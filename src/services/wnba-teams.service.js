@@ -67,7 +67,12 @@ async function processWnbaData(db) {
         for (const stat of entry.stats) {
           const fieldName = desiredStats[stat.type];
           if (fieldName) {
-            statsUpdate[fieldName] = stat.value;
+            // Handle special cases for records that use displayValue/summary
+            if (stat.type === 'home' || stat.type === 'road' || stat.type === 'vsconf' || stat.type === 'lasttengames') {
+              statsUpdate[fieldName] = stat.displayValue || stat.summary;
+            } else {
+              statsUpdate[fieldName] = stat.value;
+            }
           }
         }
 

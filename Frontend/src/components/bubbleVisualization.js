@@ -37,7 +37,9 @@ export const createBubbleVisualization = ({
             const wins = parseInt(parts[0]);
             const losses = parseInt(parts[1]);
             if (!isNaN(wins) && !isNaN(losses)) {
-              return wins + losses; // Total games
+              // For ranking purposes, use wins (first number) instead of total games
+              // This allows proper ranking by wins for records like "10-10"
+              return wins;
             }
           }
         }
@@ -498,6 +500,17 @@ export const createBubbleVisualization = ({
       const firstName = nameParts[0];
       const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
       
+      // Check if this is a team and if the stat is a record format
+      const isTeam = d.displayName && d.abbreviation;
+      const isRecordStat = ['homeRecord', 'awayRecord', 'conferenceRecord', 'lasttengames', 'wins', 'losses'].includes(selectedStat);
+      let recordValue = isTeam && isRecordStat ? d[selectedStat] : null;
+      // Special formatting for wins and losses
+      if (isTeam && selectedStat === 'wins' && d.wins !== undefined && d.losses !== undefined) {
+        recordValue = `${d.wins}-${d.losses}`;
+      } else if (isTeam && selectedStat === 'losses' && d.wins !== undefined && d.losses !== undefined) {
+        recordValue = `${d.losses}-${d.wins}`;
+      }
+      
       let tooltipContent = `
         <div class="${isDark ? 'text-gray-100' : 'text-gray-800'}">
           <div class="font-bold mb-1">
@@ -507,9 +520,11 @@ export const createBubbleVisualization = ({
           <div class="text-sm">
             <div class="flex justify-between">
               <span class="${isDark ? 'text-gray-300' : 'text-gray-600'}">${selectedStat}:</span>
-              <span>${selectedStat.toLowerCase() === 'points' 
-                ? Number(getStatValue(d, selectedStat)).toFixed(1)
-                : Number(getStatValue(d, selectedStat)).toFixed(2)}${selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent') ? '%' : ''}</span>
+              <span>${recordValue && typeof recordValue === 'string' && recordValue.includes('-') 
+                ? recordValue 
+                : selectedStat.toLowerCase() === 'points' 
+                  ? Number(getStatValue(d, selectedStat)).toFixed(1)
+                  : Number(getStatValue(d, selectedStat)).toFixed(2)}${!recordValue && (selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent')) ? '%' : ''}</span>
             </div>
           </div>
         </div>
@@ -685,9 +700,29 @@ export const createBubbleVisualization = ({
     .each(function(d) {
       const radius = getBubbleSize(d);
       const fontSize = getTextSize(radius, false);
-      const statValue = `${selectedStat.toLowerCase() === 'points' 
-        ? Number(getStatValue(d, selectedStat)).toFixed(1)
-        : Number(getStatValue(d, selectedStat)).toFixed(2)}${selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent') ? '%' : ''}`;
+      
+      // Check if this is a team and if the stat is a record format
+      const isTeam = d.displayName && d.abbreviation;
+      const isRecordStat = ['homeRecord', 'awayRecord', 'conferenceRecord', 'lasttengames', 'wins', 'losses'].includes(selectedStat);
+      let recordValue = isTeam && isRecordStat ? d[selectedStat] : null;
+      // Special formatting for wins and losses
+      if (isTeam && selectedStat === 'wins' && d.wins !== undefined && d.losses !== undefined) {
+        recordValue = `${d.wins}-${d.losses}`;
+      } else if (isTeam && selectedStat === 'losses' && d.wins !== undefined && d.losses !== undefined) {
+        recordValue = `${d.losses}-${d.wins}`;
+      }
+      
+      let statValue;
+      if (recordValue && typeof recordValue === 'string' && recordValue.includes('-')) {
+        // For record stats, show the full record (e.g., "10-10")
+        statValue = recordValue;
+      } else {
+        // For other stats, format as before
+        statValue = `${selectedStat.toLowerCase() === 'points' 
+          ? Number(getStatValue(d, selectedStat)).toFixed(1)
+          : Number(getStatValue(d, selectedStat)).toFixed(2)}${selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent') ? '%' : ''}`;
+      }
+      
       d3.select(this)
         .style('font-size', `${fontSize}px`)
         .style('font-weight', 'bold')

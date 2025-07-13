@@ -154,18 +154,22 @@ function App() {
   useEffect(() => {
     if (!socketRef.current) return;
 
-    if (activeLeague && selectedStat) {
+    // Only fetch player stats when in Players view mode
+    if (activeLeague && selectedStat && viewMode === 'Players') {
       socketRef.current.emit('subscribe', { sport: activeLeague, statType: selectedStat });
       if (!selectedStat) {
         switch (activeLeague) {
           case 'NBA':
             setSelectedStat('points');
             break;
+          case 'WNBA':
+            setSelectedStat('avgPoints');
+            break;
           case 'NHL':
             setSelectedStat('goals');
             break;
           case 'MLB':
-            setSelectedStat('strikeouts');
+            setSelectedStat('batting_gamesPlayed');
             break;
           case 'NFL':
             setSelectedStat('touchdowns');
@@ -182,7 +186,7 @@ function App() {
         socketRef.current.emit('unsubscribe', { sport: activeLeague, statType: selectedStat });
       }
     };
-  }, [activeLeague, selectedStat]);
+  }, [activeLeague, selectedStat, viewMode]);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -210,13 +214,13 @@ function App() {
         setSelectedStat('points');
         break;
       case 'WNBA':
-        setSelectedStat('points');
+        setSelectedStat('avgPoints');
         break;
       case 'NHL':
         setSelectedStat('goals');
         break;
       case 'MLB':
-        setSelectedStat('strikeouts');
+        setSelectedStat('batting_gamesPlayed');
         break;
       case 'NFL':
         setSelectedStat('touchdowns');
@@ -291,6 +295,25 @@ function App() {
     return filtered;
   }, [teams, searchQuery]);
 
+  // Helper function to get stat value for a player (similar to bubbleVisualization.js)
+  const getPlayerStatValue = (player, statKey) => {
+    if (!player || !statKey) return 0;
+    
+    // For players, check both direct properties and nested stats object
+    let value = player[statKey]; // Check direct property first (for NFL players)
+    if (value === undefined || value === null) {
+      value = player.stats?.[statKey]; // Check nested stats object (for NBA/WNBA/MLB players)
+    }
+    
+    if (typeof value === 'number') {
+      return value;
+    } else if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
   const filteredPlayers = useMemo(() => {
     let filtered = [];
     try {
@@ -321,6 +344,39 @@ function App() {
         });
       } catch (error) {
         console.error('Error filtering players by search:', error);
+      }
+    } else {
+      // When not searching, filter out players with zero stats and check qualifications for MLB
+      try {
+        filtered = filtered.filter((player) => {
+          if (!player || typeof player !== 'object') {
+            return false;
+          }
+          
+          const statValue = getPlayerStatValue(player, selectedStat);
+          
+          // For MLB, check qualification based on stat type (only for league-wide stats, not team players)
+          if (activeLeague === 'MLB' && navContext !== 'teamPlayers') {
+            const isBattingStat = selectedStat.startsWith('batting_');
+            const isFieldingStat = selectedStat.startsWith('fielding_');
+            const isPitchingStat = selectedStat.startsWith('pitching_');
+            
+            // Check qualification requirements
+            if (isBattingStat && !player.qualifiedBatting) {
+              return false;
+            }
+            if (isFieldingStat && !player.qualifiedFielding) {
+              return false;
+            }
+            if (isPitchingStat && !player.qualifiedPitching) {
+              return false;
+            }
+          }
+          
+          return statValue > 0; // Only show players with non-zero stats
+        });
+      } catch (error) {
+        console.error('Error filtering players by zero stats:', error);
       }
     }
     
@@ -353,7 +409,7 @@ function App() {
         defaultPlayerStat = 'goals';
         break;
       case 'MLB':
-        defaultPlayerStat = 'strikeouts';
+        defaultPlayerStat = 'batting_gamesPlayed';
         break;
       case 'NFL':
         defaultPlayerStat = 'touchdowns';
@@ -361,7 +417,13 @@ function App() {
     }
     // If the current stat is not a player stat, set it
     const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards'];
-    if (!playerStats.includes(selectedStat)) {
+    
+    // Add MLB-specific stats to the player stats list
+    const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
+    
+    const allPlayerStats = [...playerStats, ...mlbPlayerStats];
+    
+    if (!allPlayerStats.includes(selectedStat)) {
       setSelectedStat(defaultPlayerStat);
     }
     setTeamPlayersViewTeam(team);
@@ -371,6 +433,37 @@ function App() {
   const closeTeamPlayersView = () => {
     setTeamPlayersViewTeam(null);
     setNavContext(viewMode === 'Teams' ? 'teams' : 'players');
+    
+    // If returning to players view, ensure a default player stat is set
+    if (viewMode === 'Players' && activeLeague) {
+      // Check if current stat is a valid player stat for the league
+      const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards'];
+      
+      // Add MLB-specific stats to the player stats list
+      const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
+      
+      const allPlayerStats = [...playerStats, ...mlbPlayerStats];
+      
+      if (!allPlayerStats.includes(selectedStat)) {
+        let defaultPlayerStat = '';
+        switch (activeLeague) {
+          case 'NBA':
+          case 'WNBA':
+            defaultPlayerStat = 'points';
+            break;
+          case 'NHL':
+            defaultPlayerStat = 'goals';
+            break;
+          case 'MLB':
+            defaultPlayerStat = 'batting_gamesPlayed';
+            break;
+          case 'NFL':
+            defaultPlayerStat = 'touchdowns';
+            break;
+        }
+        setSelectedStat(defaultPlayerStat);
+      }
+    }
   };
 
   // Set navContext when viewMode changes (unless in teamPlayersView)
@@ -391,7 +484,13 @@ function App() {
     if (mode === 'Players' && activeLeague) {
       // Only set default if current stat is a team stat
       const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards'];
-      if (!playerStats.includes(selectedStat)) {
+      
+      // Add MLB-specific stats to the player stats list
+      const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
+      
+      const allPlayerStats = [...playerStats, ...mlbPlayerStats];
+      
+      if (!allPlayerStats.includes(selectedStat)) {
         let defaultPlayerStat = '';
         switch (activeLeague) {
           case 'NBA':
@@ -402,7 +501,7 @@ function App() {
             defaultPlayerStat = 'goals';
             break;
           case 'MLB':
-            defaultPlayerStat = 'strikeouts';
+            defaultPlayerStat = 'batting_gamesPlayed';
             break;
           case 'NFL':
             defaultPlayerStat = 'touchdowns';
