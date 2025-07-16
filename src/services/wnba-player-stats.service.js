@@ -1,5 +1,6 @@
 const axios = require('axios');
 const WNBAPlayer = require('../models/wnba.model');
+const mongoose = require('mongoose');
 
 // ESPN API endpoints
 const athletesListUrl = 'https://sports.core.api.espn.com/v2/sports/basketball/leagues/wnba/athletes?limit=1000&page=1';
@@ -185,9 +186,8 @@ async function processWnbaPlayersWithStats(db) {
 // Function to refresh players for a specific team
 async function refreshTeamPlayers(teamId, db) {
   try {
-    // Use Mongoose model instead of raw collection
-    // const collection = db.collection('wnbapayers');
-
+    // Use provided db or fallback to mongoose connection
+    const dbConn = db || mongoose.connection.db;
     // Find all players with the specified team ID
     const teamPlayers = await WNBAPlayer.find({ teamId: teamId });
     
@@ -220,7 +220,7 @@ async function refreshTeamPlayers(teamId, db) {
       let updatedTeamDisplayName = null;
       if (updatedTeamId) {
         try {
-          const teamCollection = db.collection('wnbateams');
+          const teamCollection = dbConn.collection('wnbateams');
           const team = await teamCollection.findOne({ teamId: updatedTeamId });
           updatedTeamColor = team?.color || null;
           updatedTeamDisplayName = team?.displayName || null;

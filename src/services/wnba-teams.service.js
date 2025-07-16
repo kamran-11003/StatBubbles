@@ -60,32 +60,54 @@ async function processWnbaData(db) {
       lasttengames: 'lastTenGames'
     };
 
+    // Find the league leader (team with most wins, fewest losses)
+    let leagueLeader = null;
+    let maxWins = -1;
+    let minLosses = Number.MAX_SAFE_INTEGER;
+    for (const conference of conferences) {
+      for (const entry of conference.standings.entries) {
+        const wins = entry.stats.find(s => s.type === 'wins')?.value || 0;
+        const losses = entry.stats.find(s => s.type === 'losses')?.value || 0;
+        if (
+          wins > maxWins ||
+          (wins === maxWins && losses < minLosses)
+        ) {
+          leagueLeader = entry;
+          maxWins = wins;
+          minLosses = losses;
+        }
+      }
+    }
+    const leaderWins = leagueLeader?.stats.find(s => s.type === 'wins')?.value || 0;
+    const leaderLosses = leagueLeader?.stats.find(s => s.type === 'losses')?.value || 0;
+
     for (const conference of conferences) {
       const entries = conference.standings.entries;
-
       for (const entry of entries) {
         const teamId = entry.team.id;
-
         const statsUpdate = {};
+        let teamWins = 0;
+        let teamLosses = 0;
         for (const stat of entry.stats) {
           const fieldName = desiredStats[stat.type];
           if (fieldName) {
-            // Handle special cases for records that use displayValue/summary
             if (stat.type === 'home' || stat.type === 'road' || stat.type === 'vsconf' || stat.type === 'lasttengames') {
               statsUpdate[fieldName] = stat.displayValue || stat.summary;
             } else {
               statsUpdate[fieldName] = stat.value;
             }
           }
+          if (stat.type === 'wins') teamWins = stat.value;
+          if (stat.type === 'losses') teamLosses = stat.value;
         }
-
+        // Calculate gamesBehind using the league leader
+        const gamesBehind = ((leaderWins - teamWins) + (teamLosses - leaderLosses)) / 2;
+        statsUpdate.gamesBehind = gamesBehind;
         statsUpdate.standingsUpdatedAt = new Date();
-
         const result = await collection.updateOne(
           { teamId: teamId },
           { $set: statsUpdate }
         );
-
         if (result.matchedCount > 0) {
           console.log(`Updated standings for team ID: ${teamId}`);
         } else {
