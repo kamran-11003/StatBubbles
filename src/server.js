@@ -104,17 +104,17 @@ function scheduleMidnightRefresh() {
 async function initialize() {
   try {
     await connectDB();
-
+    // Start server
+    httpServer.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
     // Initial stats fetch
     await refreshAllStats();
 
     // Start live scores monitoring
     await LiveScoresService.startMonitoring();
 
-    // Start server
-    httpServer.listen(port, () => {
-      console.log(`Server running at http://localhost:${port}`);
-    });
+    
     
     // Schedule midnight refresh
     scheduleMidnightRefresh();
