@@ -104,18 +104,23 @@ function scheduleMidnightRefresh() {
 async function initialize() {
   try {
     await connectDB();
-    // Start server
+
+    // Start server immediately
     httpServer.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
-    // Initial stats fetch
-    await refreshAllStats();
 
-    // Start live scores monitoring
-    await LiveScoresService.startMonitoring();
+    // Start data loading and monitoring in the background
+    (async () => {
+      try {
+        await refreshAllStats();
+        await LiveScoresService.startMonitoring();
+        console.log('Data loaded and live monitoring started');
+      } catch (err) {
+        console.error('Error during background data load/monitor:', err);
+      }
+    })();
 
-    
-    
     // Schedule midnight refresh
     scheduleMidnightRefresh();
      
