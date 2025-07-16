@@ -219,7 +219,7 @@ const Navbar = ({
     { label: 'Opponent Points Per Game', key: 'opponentPointsPerGame' },
     { label: 'Point Differential', key: 'pointDifferential' },
     { label: 'Streak', key: 'streak' },
-    { label: 'Last 10 Games', key: 'lasttengames' }
+    { label: 'Last 10 Games', key: 'lastTenGames' }
   ];
 
   // Add team stats for MLB
