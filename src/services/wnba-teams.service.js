@@ -11,7 +11,10 @@ async function processWnbaData(db) {
 
     // Step 1: Fetch and store team data
     const teamsResponse = await axios.get(teamsApiUrl);
-    const teams = teamsResponse.data.sports[0].leagues[0].teams.map(item => item.team);
+    let teams = teamsResponse.data.sports[0].leagues[0].teams.map(item => item.team);
+
+    // Filter out Toyota Antelopes by displayName or name
+    teams = teams.filter(team => team.displayName !== 'Toyota Antelopes' && team.name !== 'Toyota Antelopes');
 
     for (const team of teams) {
       const teamDoc = {

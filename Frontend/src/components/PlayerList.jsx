@@ -35,12 +35,15 @@ const PlayerList = ({ players, selectedStat, isDark, activeLeague, playerCount, 
     );
   }
 
+  // Ensure all players have the correct league property for formatting
+  const playersWithLeague = players.map(p => ({ ...p, league: p.league || activeLeague }));
+
   return (
     <div className="w-full h-full relative">
       <div className="w-full h-full bg-transparent overflow-hidden">
         <BubbleChart
           chartRef={chartRef}
-          players={players}
+          players={playersWithLeague}
           selectedStat={selectedStat}
           isDark={isDark}
           setSelectedPlayer={setSelectedPlayer}

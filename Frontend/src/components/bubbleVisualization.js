@@ -717,10 +717,33 @@ export const createBubbleVisualization = ({
         // For record stats, show the full record (e.g., "10-10")
         statValue = recordValue;
       } else {
-        // For other stats, format as before
-        statValue = `${selectedStat.toLowerCase() === 'points' 
-          ? Number(getStatValue(d, selectedStat)).toFixed(1)
-          : Number(getStatValue(d, selectedStat)).toFixed(2)}${selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent') ? '%' : ''}`;
+        // MLB formatting: whole numbers and percentages
+        if (d.league === 'MLB' && typeof getStatValue(d, selectedStat) === 'number') {
+          const val = getStatValue(d, selectedStat);
+          if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage')) {
+            statValue = `${(val * 100).toFixed(0)}%`;
+          } else if (
+            selectedStat.toLowerCase().includes('avg') ||
+            selectedStat.toLowerCase().includes('era') ||
+            selectedStat.toLowerCase().includes('whip') ||
+            selectedStat.toLowerCase().includes('ops')
+          ) {
+            statValue = val.toFixed(3);
+          } else {
+            statValue = Math.round(val);
+          }
+        } else if (d.league === 'WNBA' && typeof getStatValue(d, selectedStat) === 'number') {
+          const val = getStatValue(d, selectedStat);
+          if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage')) {
+            statValue = `${val.toFixed(2)}%`;
+          } else {
+            statValue = val.toFixed(2);
+          }
+        } else {
+          statValue = `${selectedStat.toLowerCase() === 'points' 
+            ? Number(getStatValue(d, selectedStat)).toFixed(1)
+            : Number(getStatValue(d, selectedStat)).toFixed(2)}${selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent') ? '%' : ''}`;
+        }
       }
       
       d3.select(this)

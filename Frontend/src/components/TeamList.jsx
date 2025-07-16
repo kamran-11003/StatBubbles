@@ -15,19 +15,22 @@ const TeamList = ({ teams, selectedStat, isDark, activeLeague, playerCount, show
     setShowModal(true);
   };
 
+  // Ensure all teams have the correct league property for formatting
+  const teamsWithLeague = teams.map(t => ({ ...t, league: t.league || activeLeague }));
+
   useEffect(() => {
-    if (teams && teams.length > 0 && chartRef.current) {
-      console.log('Creating team visualization with:', teams.length, 'teams, stat:', selectedStat);
+    if (teamsWithLeague && teamsWithLeague.length > 0 && chartRef.current) {
+      console.log('Creating team visualization with:', teamsWithLeague.length, 'teams, stat:', selectedStat);
       createBubbleVisualization({
         chartRef,
-        players: teams, // We'll reuse the bubble visualization for teams
+        players: teamsWithLeague, // We'll reuse the bubble visualization for teams
         selectedStat: selectedStat || 'wins', // Default to wins if no stat selected
         isDark,
         simulationRef,
         setSelectedPlayer: handleTeamSelect // This will be called when a team bubble is clicked
       });
     }
-  }, [teams, selectedStat, isDark]);
+  }, [teamsWithLeague, selectedStat, isDark]);
 
   useEffect(() => {
     const script = document.createElement('script');

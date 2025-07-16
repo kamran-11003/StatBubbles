@@ -107,7 +107,7 @@ const Navbar = ({
       { label: 'Strikeouts', key: 'batting_strikeouts', category: 'Batting' },
       { label: 'Batting Average', key: 'batting_avg', category: 'Batting' },
       { label: 'On Base %', key: 'batting_onBasePct', category: 'Batting' },
-      { label: 'Slugging %', key: 'batting_slugAvg', category: 'Batting' },
+      { label: 'Slugging', key: 'batting_slugAvg', category: 'Batting' },
       { label: 'OPS', key: 'batting_OPS', category: 'Batting' },
       
       // Fielding stats
@@ -118,7 +118,7 @@ const Navbar = ({
       { label: 'Put Outs', key: 'fielding_putouts', category: 'Fielding' },
       { label: 'Assists', key: 'fielding_assists', category: 'Fielding' },
       { label: 'Errors', key: 'fielding_errors', category: 'Fielding' },
-      { label: 'Fielding %', key: 'fielding_fieldingPct', category: 'Fielding' },
+      //{ label: 'Fielding %', key: 'fielding_fieldingPct', category: 'Fielding' },
       { label: 'Double Plays', key: 'fielding_doublePlays', category: 'Fielding' },
       { label: 'Triple Plays', key: 'fielding_triplePlays', category: 'Fielding' },
       
@@ -172,11 +172,11 @@ const Navbar = ({
       { label: 'Turnovers', key: 'turnovers' },
       { label: 'Avg Fouls', key: 'avgFouls' },
       { label: 'Fouls', key: 'fouls' },
-      { label: 'Field Goals Made', key: 'fieldGoalsMade' },
       { label: 'Field Goals Attempted', key: 'fieldGoalsAttempted' },
+      { label: 'Field Goals Made', key: 'fieldGoalsMade' },
       { label: 'Field Goal %', key: 'fieldGoalPct' },
-      { label: '3PT Made', key: 'threePointFieldGoalsMade' },
       { label: '3PT Attempted', key: 'threePointFieldGoalsAttempted' },
+      { label: '3PT Made', key: 'threePointFieldGoalsMade' },
       { label: '3PT %', key: 'threePointFieldGoalPct' },
       { label: 'Free Throws Attempted', key: 'freeThrowsAttempted' },
       { label: 'Free Throws Made', key: 'freeThrowsMade' },

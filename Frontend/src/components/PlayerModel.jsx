@@ -88,7 +88,7 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                     }
                   }}
                 >
-                  {player.teamDisplayName || player.teamName || player.teamAbbreviation || player.teamId || player.league}
+                  {player.teamDisplayName || player.teamName}
                 </span>
               </h3>
               
@@ -153,12 +153,77 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                   return !excludeKeys.includes(key) && value !== null && value !== undefined;
                 })
                 .map(([key, value]) => {
-                  // Create a readable label for the stat
-                  const statLabel = key
-                    .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-                    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-                    .replace(/\b\w/g, l => l.toUpperCase()); // Capitalize first letter of each word
-                  
+                  // MLB stat label mapping
+                  const mlbStatLabels = {
+                    batting_gamesPlayed: 'Games Played',
+                    batting_atBats: 'At Bats',
+                    batting_runs: 'Runs',
+                    batting_hits: 'Hits',
+                    batting_doubles: 'Doubles',
+                    batting_triples: 'Triples',
+                    batting_homeRuns: 'Home Runs',
+                    batting_RBIs: 'RBIs',
+                    batting_stolenBases: 'Stolen Bases',
+                    batting_caughtStealing: 'Caught Stealing',
+                    batting_walks: 'Walks',
+                    batting_strikeouts: 'Strikeouts',
+                    batting_avg: 'Batting Average',
+                    batting_onBasePct: 'On Base %',
+                    batting_slugAvg: 'Slugging',
+                    fielding_gamesPlayed: 'Games Played',
+                    fielding_putouts: 'Putouts',
+                    fielding_assists: 'Assists',
+                    fielding_errors: 'Errors',
+                    fielding_fieldingPct: 'Fielding %',
+                    pitching_gamesPlayed: 'Games Played',
+                    pitching_gamesStarted: 'Games Started',
+                    pitching_innings: 'Innings',
+                    pitching_hits: 'Hits',
+                    pitching_runs: 'Runs',
+                    pitching_earnedRuns: 'Earned Runs',
+                    pitching_homeRuns: 'Home Runs',
+                    pitching_walks: 'Walks',
+                    pitching_strikeouts: 'Strikeouts',
+                    pitching_wins: 'Wins',
+                    pitching_losses: 'Losses',
+                    pitching_saves: 'Saves',
+                    pitching_ERA: 'ERA',
+                    pitching_WHIP: 'WHIP',
+                  };
+                  // Use mapping for MLB, fallback to current label logic
+                  let statLabel = (player.league === 'MLB' && mlbStatLabels[key])
+                    ? mlbStatLabels[key]
+                    : key
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                  // MLB formatting: whole numbers and percentages
+                  let displayValue = value;
+                  if (player.league === 'MLB') {
+                    if (typeof value === 'number') {
+                      if (key.toLowerCase().includes('pct') || key.toLowerCase().includes('percentage')) {
+                        displayValue = `${(value * 100).toFixed(0)}%`;
+                      } else if (
+                        key.toLowerCase().includes('avg') ||
+                        key.toLowerCase().includes('era') ||
+                        key.toLowerCase().includes('whip') ||
+                        key.toLowerCase().includes('ops')
+                      ) {
+                        displayValue = value.toFixed(3);
+                      } else {
+                        displayValue = Math.round(value);
+                      }
+                    }
+                  } else {
+                    // Default formatting for other leagues
+                    if (typeof value === 'number') {
+                      displayValue = (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key.toLowerCase().includes('avg') || value < 1
+                        ? value.toFixed(2)
+                        : (key === 'points' || key === 'avgPoints'
+                            ? value.toFixed(1)
+                            : Math.round(value)));
+                    }
+                  }
                   return (
                     <div 
                       key={key}
@@ -170,14 +235,7 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                     >
                       <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{statLabel}: </span>
                       <span className={isDark ? 'text-white' : 'text-gray-900'}>
-                        {typeof value === 'number' 
-                          ? (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key.toLowerCase().includes('avg') || value < 1
-                              ? value.toFixed(2)
-                              : (key === 'points' || key === 'avgPoints'
-                                  ? value.toFixed(1)
-                                  : Math.round(value)))
-                          : (value || '0')}
-                        {key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') ? '%' : ''}
+                        {displayValue}
                       </span>
                     </div>
                   );

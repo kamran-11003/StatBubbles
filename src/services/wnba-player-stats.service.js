@@ -161,6 +161,22 @@ async function processWnbaPlayersWithStats(db) {
 
     console.log('All WNBA players and stats processed successfully');
 
+    // --- Fix: Post-process players with missing teamColor or teamDisplayName ---
+    const teamCollection = db.collection('wnbateams');
+    const missingTeamInfoPlayers = await WNBAPlayer.find({ $or: [ { teamColor: null }, { teamDisplayName: null } ] });
+    for (const player of missingTeamInfoPlayers) {
+      if (player.teamId) {
+        const team = await teamCollection.findOne({ teamId: player.teamId });
+        if (team) {
+          await WNBAPlayer.updateOne(
+            { athleteId: player.athleteId },
+            { $set: { teamColor: team.color || null, teamDisplayName: team.displayName || null } }
+          );
+        }
+      }
+    }
+    console.log('Post-processed WNBA players with missing team info');
+
   } catch (error) {
     console.error('Error:', error.message);
   }
