@@ -103,22 +103,21 @@ function scheduleMidnightRefresh() {
 // Initialize function
 async function initialize() {
   try {
-    // Connect to MongoDB
     await connectDB();
 
-   
-     // Start live scores monitoring
-     await LiveScoresService.startMonitoring();
+    // Initial stats fetch
+    await refreshAllStats();
+
+    // Start live scores monitoring
+    await LiveScoresService.startMonitoring();
+
     // Start server
     httpServer.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
     
-     // Initial stats fetch
-     await refreshAllStats();
-    
-     // Schedule midnight refresh
-     scheduleMidnightRefresh();
+    // Schedule midnight refresh
+    scheduleMidnightRefresh();
      
   } catch (error) {
     console.error('Failed to initialize:', error);
