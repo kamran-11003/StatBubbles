@@ -41,28 +41,25 @@ app.use('/api/teams', teamsRoutes);
 // Initialize socket.io
 socketService.initialize(httpServer);
 
+let dataReady = false;
+
 // Function to refresh stats for all sports
 async function refreshAllStats() {
   try {
     const db = mongoose.connection.db;
-   // Teams data processing
-   //await nbaTeamsService.processNbaData(db);
+    // Teams data processing
     await wnbaTeamsService.processWnbaData(db);
     await mlbTeamsService.processMlbData(db);
-   //await nflTeamsService.processNflData(db);
-   //await nhlTeamsService.processNhlData(db);
-
-   // Player stats processing 
-   //await nbaPlayerStatsService.processNbaPlayersWithStats(db);
-   await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
-   await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
-   //await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
-   //await nhlPlayerStatsService.processNhlPlayersWithStats(db);
+    // Player stats processing
+    await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
+    await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
     // Broadcast updates to connected clients
     await socketService.broadcastUpdates();
-    
+    dataReady = true;
+    console.log('✅ Data load complete, dataReady set to true');
   } catch (error) {
     console.error('Error refreshing stats:', error);
+    dataReady = false;
   }
 }
 
@@ -73,29 +70,32 @@ function scheduleMidnightRefresh() {
     const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
     const midnight = new Date(easternTime);
     midnight.setHours(24, 0, 0, 0); // Next midnight
-    
     // Convert back to local time for comparison
     const localMidnight = new Date(midnight.toLocaleString("en-US", {timeZone: "America/New_York"}));
     const timeUntilMidnight = localMidnight.getTime() - now.getTime();
-    
     return timeUntilMidnight;
   };
-
   const scheduleNextRefresh = () => {
     const timeUntilMidnight = getTimeUntilMidnight();
-    
     console.log(`Scheduling next stats refresh for midnight US Eastern Time (in ${Math.round(timeUntilMidnight / 1000 / 60)} minutes)`);
-    
     setTimeout(async () => {
       console.log('🕛 Running scheduled midnight stats refresh...');
+      // Pause live monitoring during refresh
+      if (LiveScoresService.stopMonitoring) {
+        await LiveScoresService.stopMonitoring();
+        console.log('⏸️ Live monitoring paused for midnight refresh');
+      }
+      dataReady = false;
       await refreshAllStats();
+      if (LiveScoresService.startMonitoring) {
+        await LiveScoresService.startMonitoring();
+        console.log('▶️ Live monitoring resumed after midnight refresh');
+      }
       console.log('✅ Midnight stats refresh completed');
-      
       // Schedule the next refresh (24 hours later)
       scheduleNextRefresh();
     }, timeUntilMidnight);
   };
-
   // Start the scheduling
   scheduleNextRefresh();
 }
@@ -104,26 +104,27 @@ function scheduleMidnightRefresh() {
 async function initialize() {
   try {
     await connectDB();
-
     // Start server immediately
     httpServer.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
-
     // Start data loading and monitoring in the background
     (async () => {
       try {
         await refreshAllStats();
-        await LiveScoresService.startMonitoring();
-        console.log('Data loaded and live monitoring started');
+        // Only start live monitoring after data is ready
+        if (dataReady) {
+          await LiveScoresService.startMonitoring();
+          console.log('Data loaded and live monitoring started');
+        } else {
+          console.error('Data not ready, live monitoring not started');
+        }
       } catch (err) {
         console.error('Error during background data load/monitor:', err);
       }
     })();
-
     // Schedule midnight refresh
     scheduleMidnightRefresh();
-     
   } catch (error) {
     console.error('Failed to initialize:', error);
     process.exit(1);
