@@ -508,7 +508,7 @@ export const createBubbleVisualization = ({
       if (isTeam && selectedStat === 'wins' && d.wins !== undefined && d.losses !== undefined) {
         recordValue = `${d.wins}-${d.losses}`;
       } else if (isTeam && selectedStat === 'losses' && d.wins !== undefined && d.losses !== undefined) {
-        recordValue = `${d.losses}-${d.wins}`;
+        recordValue = `${d.wins}-${d.losses}`;
       }
       
       let tooltipContent = `
@@ -703,13 +703,13 @@ export const createBubbleVisualization = ({
       
       // Check if this is a team and if the stat is a record format
       const isTeam = d.displayName && d.abbreviation;
-      const isRecordStat = ['homeRecord', 'awayRecord', 'conferenceRecord', 'lastTenGames', 'wins', 'losses'].includes(selectedStat);
+      const isRecordStat = ['homeRecord', 'awayRecord', 'conferenceRecord', 'lastTenGames', 'wins', 'losses', 'home', 'road', 'vsconf', 'lasttengames'].includes(selectedStat);
       let recordValue = isTeam && isRecordStat ? d[selectedStat] : null;
       // Special formatting for wins and losses
       if (isTeam && selectedStat === 'wins' && d.wins !== undefined && d.losses !== undefined) {
         recordValue = `${d.wins}-${d.losses}`;
       } else if (isTeam && selectedStat === 'losses' && d.wins !== undefined && d.losses !== undefined) {
-        recordValue = `${d.losses}-${d.wins}`;
+        recordValue = `${d.wins}-${d.losses}`;
       }
       
       let statValue;
@@ -723,8 +723,19 @@ export const createBubbleVisualization = ({
         // MLB formatting: whole numbers and percentages
         if (d.league === 'MLB' && typeof getStatValue(d, selectedStat) === 'number') {
           const val = getStatValue(d, selectedStat);
-          if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage')) {
+          
+          // Debug winpercent values
+          if (selectedStat === 'winpercent') {
+            console.log(`MLB ${d.displayName} winpercent - raw value: ${val}, type: ${typeof val}`);
+          }
+          
+          if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage') || selectedStat === 'winpercent') {
             statValue = `${(val * 100).toFixed(0)}%`;
+            
+            // Debug formatted value
+            if (selectedStat === 'winpercent') {
+              console.log(`MLB ${d.displayName} winpercent - formatted: ${statValue}`);
+            }
           } else if (
             selectedStat.toLowerCase().includes('avg') ||
             selectedStat.toLowerCase().includes('era') ||
@@ -737,8 +748,8 @@ export const createBubbleVisualization = ({
           }
         } else if (d.league === 'WNBA' && typeof getStatValue(d, selectedStat) === 'number') {
           const val = getStatValue(d, selectedStat);
-          if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage')) {
-            statValue = `${val.toFixed(2)}%`;
+          if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage') || selectedStat === 'winPercentage') {
+            statValue = `${(val * 100).toFixed(0)}%`;
           } else {
             statValue = val.toFixed(2);
           }

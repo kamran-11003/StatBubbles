@@ -105,7 +105,7 @@ const TeamModal = ({ team, isDark, onClose, onShowTeamPlayers }) => {
                 // MLB formatting: whole numbers and percentages
                 let displayValue = value;
                 if ((team.league === 'MLB' || (team.abbreviation && team.abbreviation.length === 3)) && typeof value === 'number') {
-                  if (key.toLowerCase().includes('pct') || key.toLowerCase().includes('percentage')) {
+                  if (key.toLowerCase().includes('pct') || key.toLowerCase().includes('percentage') || key === 'winpercent') {
                     displayValue = `${(value * 100).toFixed(0)}%`;
                   } else if (
                     key.toLowerCase().includes('avg') ||
@@ -118,9 +118,13 @@ const TeamModal = ({ team, isDark, onClose, onShowTeamPlayers }) => {
                     displayValue = Math.round(value);
                   }
                 } else if (typeof value === 'number') {
-                  displayValue = (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || value < 1
-                    ? value.toFixed(2)
-                    : Math.round(value));
+                  if (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key === 'winPercentage') {
+                    displayValue = `${(value * 100).toFixed(0)}%`;
+                  } else if (value < 1) {
+                    displayValue = value.toFixed(2);
+                  } else {
+                    displayValue = Math.round(value);
+                  }
                 }
                 // Format record stats (home, away, conference, last ten games)
                 const isRecordStat = ['homeRecord', 'awayRecord', 'conferenceRecord', 'lastTenGames'].includes(key);
