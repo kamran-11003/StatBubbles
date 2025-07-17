@@ -197,7 +197,10 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                         .replace(/([A-Z])/g, ' $1')
                         .replace(/^./, str => str.toUpperCase())
                         .replace(/\b\w/g, l => l.toUpperCase());
-                  // MLB formatting: whole numbers and percentages
+                  // WNBA: Only add % sign to percentage stats, not averages
+                  const wnbaPercentKeys = [
+                    'fieldGoalPct', 'threePointFieldGoalPct', 'freeThrowPct'
+                  ];
                   let displayValue = value;
                   if (player.league === 'MLB') {
                     if (typeof value === 'number') {
@@ -217,11 +220,15 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                   } else {
                     // Default formatting for other leagues
                     if (typeof value === 'number') {
-                      displayValue = (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key.toLowerCase().includes('avg') || value < 1
-                        ? value.toFixed(2)
-                        : (key === 'points' || key === 'avgPoints'
-                            ? value.toFixed(1)
-                            : Math.round(value)));
+                      if (player.league === 'WNBA' && wnbaPercentKeys.includes(key)) {
+                        displayValue = `${(value * 100).toFixed(0)}%`;
+                      } else {
+                        displayValue = (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key.toLowerCase().includes('avg') || value < 1
+                          ? value.toFixed(2)
+                          : (key === 'points' || key === 'avgPoints'
+                              ? value.toFixed(1)
+                              : Math.round(value)));
+                      }
                     }
                   }
                   return (

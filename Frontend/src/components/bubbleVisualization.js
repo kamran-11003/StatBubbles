@@ -748,8 +748,13 @@ export const createBubbleVisualization = ({
           }
         } else if (d.league === 'WNBA' && typeof getStatValue(d, selectedStat) === 'number') {
           const val = getStatValue(d, selectedStat);
+          const wnbaAvgKeys = [
+            'avgPoints', 'avgRebounds', 'avgAssists', 'avgBlocks', 'avgSteals', 'avgTurnovers', 'avgFouls', 'avgMinutes'
+          ];
           if (selectedStat.toLowerCase().includes('pct') || selectedStat.toLowerCase().includes('percentage') || selectedStat === 'winPercentage') {
             statValue = `${(val * 100).toFixed(0)}%`;
+          } else if (wnbaAvgKeys.includes(selectedStat)) {
+            statValue = `${val.toFixed(2)}%`;
           } else {
             statValue = val.toFixed(2);
           }
