@@ -207,6 +207,7 @@ function App() {
   };
 
   const handleLeagueSelect = (leagueName) => {
+    setTeamPlayersViewTeam(null); // Always close TeamPlayersView when switching leagues
     setActiveLeague(leagueName);
     setViewMode('Players'); // Reset to Players view when switching leagues
     switch (leagueName) {
@@ -432,36 +433,28 @@ function App() {
   // Helper to close TeamPlayersView
   const closeTeamPlayersView = () => {
     setTeamPlayersViewTeam(null);
-    setNavContext(viewMode === 'Teams' ? 'teams' : 'players');
-    
-    // If returning to players view, ensure a default player stat is set
-    if (viewMode === 'Players' && activeLeague) {
-      // Check if current stat is a valid player stat for the league
-      const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards'];
-      
-      // Add MLB-specific stats to the player stats list
-      const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
-      
-      const allPlayerStats = [...playerStats, ...mlbPlayerStats];
-      
-      if (!allPlayerStats.includes(selectedStat)) {
-        let defaultPlayerStat = '';
-        switch (activeLeague) {
-          case 'NBA':
-          case 'WNBA':
-            defaultPlayerStat = 'points';
-            break;
-          case 'NHL':
-            defaultPlayerStat = 'goals';
-            break;
-          case 'MLB':
-            defaultPlayerStat = 'batting_gamesPlayed';
-            break;
-          case 'NFL':
-            defaultPlayerStat = 'touchdowns';
-            break;
+    const returningToTeams = viewMode === 'Teams';
+    setNavContext(returningToTeams ? 'teams' : 'players');
+
+    if (activeLeague) {
+      if (returningToTeams) {
+        // Check if current stat is a valid team stat for the league
+        const validTeamStats = [
+          'wins','losses','winPercentage','winpercent','gamesBehind','gamesbehind','homeRecord','home','awayRecord','road','conferenceRecord','vsconf','divisionRecord','vsdiv','pointsPerGame','avgpointsfor','opponentPointsPerGame','avgpointsagainst','pointDifferential','pointdifferential','differential','streak','lasttengames','lastTenGames','goalsPerGame','goalsAgainstPerGame','goalDifferential'
+        ];
+        if (!validTeamStats.includes(selectedStat)) {
+          setSelectedStat(getDefaultTeamStat(activeLeague));
         }
-        setSelectedStat(defaultPlayerStat);
+      } else {
+        // Returning to players view
+        const playerStats = [
+          'points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards',
+          // MLB-specific
+          'batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'
+        ];
+        if (!playerStats.includes(selectedStat)) {
+          setSelectedStat(getDefaultPlayerStat(activeLeague));
+        }
       }
     }
   };
@@ -509,6 +502,37 @@ function App() {
         }
         setSelectedStat(defaultPlayerStat);
       }
+    }
+  };
+
+  // Helper to get default player stat for a league
+  const getDefaultPlayerStat = (league) => {
+    switch (league) {
+      case 'NBA':
+      case 'WNBA':
+        return 'points';
+      case 'NHL':
+        return 'goals';
+      case 'MLB':
+        return 'batting_gamesPlayed';
+      case 'NFL':
+        return 'touchdowns';
+      default:
+        return '';
+    }
+  };
+
+  // Helper to get default team stat for a league
+  const getDefaultTeamStat = (league) => {
+    switch (league) {
+      case 'NBA':
+      case 'WNBA':
+      case 'MLB':
+      case 'NFL':
+      case 'NHL':
+        return 'wins';
+      default:
+        return '';
     }
   };
 
