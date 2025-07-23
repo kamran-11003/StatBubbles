@@ -41,7 +41,7 @@ app.use('/api/teams', teamsRoutes);
 // Initialize socket.io
 socketService.initialize(httpServer);
 
-let dataReady = false;
+let dataReady = true;
 let executionCounter = 0;
 
 // Function to refresh stats for all sports
@@ -135,10 +135,10 @@ async function initialize() {
       console.log(`Server running at http://localhost:${port}`);
     });
     // Start data loading and monitoring in the background
-    (async () => {
+   (async () => {
       try {
         console.log('🔄 Starting initial data load...');
-        await refreshAllStats();
+        //await refreshAllStats();
         // Only start live monitoring after data is ready
         if (dataReady) {
           await LiveScoresService.startMonitoring();
