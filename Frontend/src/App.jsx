@@ -210,6 +210,8 @@ function App() {
     setTeamPlayersViewTeam(null); // Always close TeamPlayersView when switching leagues
     setActiveLeague(leagueName);
     setViewMode('Players'); // Reset to Players view when switching leagues
+    
+    // Set default stats for all leagues including NFL
     switch (leagueName) {
       case 'NBA':
         setSelectedStat('points');
@@ -224,7 +226,7 @@ function App() {
         setSelectedStat('batting_gamesPlayed');
         break;
       case 'NFL':
-        setSelectedStat('touchdowns');
+        setSelectedStat('passYards'); // Default NFL player stat
         break;
     }
   };
@@ -256,8 +258,10 @@ function App() {
   // Set default team stat when switching to teams view
   useEffect(() => {
     if (viewMode === 'Teams' && activeLeague) {
-      if (activeLeague === 'NBA' || activeLeague === 'WNBA' || activeLeague === 'MLB' || activeLeague === 'NFL' || activeLeague === 'NHL') {
+      if (activeLeague === 'NBA' || activeLeague === 'WNBA' || activeLeague === 'MLB' || activeLeague === 'NHL') {
         setSelectedStat('wins'); // Default to wins for teams
+      } else if (activeLeague === 'NFL') {
+        setSelectedStat('netPassingYards'); // Default NFL team stat (Offense > Passing Yards)
       }
     }
   }, [viewMode, activeLeague]);
@@ -413,7 +417,7 @@ function App() {
         defaultPlayerStat = 'batting_gamesPlayed';
         break;
       case 'NFL':
-        defaultPlayerStat = 'touchdowns';
+        defaultPlayerStat = 'passYards';
         break;
     }
     // If the current stat is not a player stat, set it
@@ -440,7 +444,15 @@ function App() {
       if (returningToTeams) {
         // Check if current stat is a valid team stat for the league
         const validTeamStats = [
-          'wins','losses','winPercentage','winpercent','gamesBehind','gamesbehind','homeRecord','home','awayRecord','road','conferenceRecord','vsconf','divisionRecord','vsdiv','pointsPerGame','avgpointsfor','opponentPointsPerGame','avgpointsagainst','pointDifferential','pointdifferential','differential','streak','lasttengames','lastTenGames','goalsPerGame','goalsAgainstPerGame','goalDifferential'
+          'wins','losses','winPercentage','winpercent','gamesBehind','gamesbehind','homeRecord','home','awayRecord','road','conferenceRecord','vsconf','divisionRecord','vsdiv','pointsPerGame','avgpointsfor','opponentPointsPerGame','avgpointsagainst','pointDifferential','pointdifferential','differential','streak','lasttengames','lastTenGames','goalsPerGame','goalsAgainstPerGame','goalDifferential',
+          // NFL offense stats
+          'totalPlays','totalYards','yardsPerPlay','pointsPerGame','firstDowns','thirdDownConversionPct','fourthDownConversionPct','redZoneEfficiencyPct','turnovers','timeOfPossession',
+          // NFL defense stats
+          'pointsAllowed','totalYardsAllowed','passingYardsAllowed','rushingYardsAllowed','takeaways','redZoneAllowedPct','thirdDownAllowedPct','fourthDownAllowedPct',
+          // NFL special teams stats
+          'fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','extraPointsMade','extraPointsAttempted','extraPointPct','puntAverage','netPuntAverage','puntsInside20','kickReturnAverage','puntReturnAverage','specialTeamsTDs','blockedKicks',
+          // NFL penalties stats
+          'totalPenalties','penaltyYards','penaltiesPerGame'
         ];
         if (!validTeamStats.includes(selectedStat)) {
           setSelectedStat(getDefaultTeamStat(activeLeague));
@@ -448,7 +460,9 @@ function App() {
       } else {
         // Returning to players view
         const playerStats = [
-          'points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards',
+          'points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts',
+          // NFL-specific - 2025 Season API Structure
+          'gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','totalKickingPoints',
           // MLB-specific
           'batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'
         ];
@@ -474,14 +488,18 @@ function App() {
       setNavContext(mode === 'Teams' ? 'teams' : 'players');
     }
     setViewMode(mode);
+    
     if (mode === 'Players' && activeLeague) {
       // Only set default if current stat is a team stat
-      const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards'];
+      const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts'];
       
       // Add MLB-specific stats to the player stats list
       const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
       
-      const allPlayerStats = [...playerStats, ...mlbPlayerStats];
+      // Add NFL-specific stats to the player stats list
+      const nflPlayerStats = ['gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','totalKickingPoints'];
+      
+      const allPlayerStats = [...playerStats, ...mlbPlayerStats, ...nflPlayerStats];
       
       if (!allPlayerStats.includes(selectedStat)) {
         let defaultPlayerStat = '';
@@ -497,10 +515,34 @@ function App() {
             defaultPlayerStat = 'batting_gamesPlayed';
             break;
           case 'NFL':
-            defaultPlayerStat = 'touchdowns';
+            defaultPlayerStat = 'passYards';
             break;
         }
         setSelectedStat(defaultPlayerStat);
+      }
+    } else if (mode === 'Teams' && activeLeague) {
+      // Only set default if current stat is a player stat
+      const teamStats = ['wins','losses','winPercentage','gamesBehind','homeRecord','awayRecord','conferenceRecord','pointsPerGame','opponentPointsPerGame','pointDifferential','streak','lastTenGames','avgpointsfor','avgpointsagainst','differential','home','road','vsconf','vsdiv'];
+      
+      // Add NFL-specific team stats
+      const nflTeamStats = ['totalPointsPerGame','totalPoints','totalTouchdowns','totalFirstDowns','rushingFirstDowns','passingFirstDowns','firstDownsByPenalty','thirdDownConversionPct','fourthDownConversionPct','completions','netPassingYards','yardsPerPassAttempt','netPassingYardsPerGame','passingTouchdowns','interceptions','sackYardsLost','rushingAttempts','rushingYards','yardsPerRushAttempt','rushingYardsPerGame','rushingTouchdowns','totalOffensivePlays','totalYards','yardsPerGame','kickReturns','avgKickoffReturnYards','puntReturns','avgPuntReturnYards','defensiveInterceptions','avgInterceptionYards','netAvgPuntYards','puntYards','fieldGoalsMade','touchbackPct','totalPenaltyYards','totalPenalties','possessionTimeSeconds','fumblesLost','turnoverDifferential'];
+      
+      const allTeamStats = [...teamStats, ...nflTeamStats];
+      
+      if (!allTeamStats.includes(selectedStat)) {
+        let defaultTeamStat = '';
+        switch (activeLeague) {
+          case 'NBA':
+          case 'WNBA':
+          case 'MLB':
+          case 'NHL':
+            defaultTeamStat = 'wins';
+            break;
+          case 'NFL':
+            defaultTeamStat = 'totalPointsPerGame';
+            break;
+        }
+        setSelectedStat(defaultTeamStat);
       }
     }
   };
@@ -516,7 +558,7 @@ function App() {
       case 'MLB':
         return 'batting_gamesPlayed';
       case 'NFL':
-        return 'touchdowns';
+        return 'passYards'; // Most important passing stat
       default:
         return '';
     }
@@ -528,9 +570,10 @@ function App() {
       case 'NBA':
       case 'WNBA':
       case 'MLB':
-      case 'NFL':
       case 'NHL':
         return 'wins';
+      case 'NFL':
+        return 'totalPointsPerGame'; // Most important offensive stat - points per game
       default:
         return '';
     }

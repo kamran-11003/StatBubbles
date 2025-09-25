@@ -55,11 +55,16 @@ async function refreshAllStats() {
     await wnbaTeamsService.processWnbaData(db);
     console.log(`📊 [Execution #${executionId}] Processing MLB teams...`);
     await mlbTeamsService.processMlbData(db);
+    console.log(`📊 [Execution #${executionId}] Processing NFL teams...`);
+    await nflTeamsService.processNflData(db);
+    
     // Player stats processing
     console.log(`👥 [Execution #${executionId}] Processing WNBA players...`);
     await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
     console.log(`👥 [Execution #${executionId}] Processing MLB players...`);
     await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
+    console.log(`👥 [Execution #${executionId}] Processing NFL players...`);
+    await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
     // Broadcast updates to connected clients
     await socketService.broadcastUpdates();
     dataReady = true;
@@ -138,7 +143,7 @@ async function initialize() {
    (async () => {
       try {
         console.log('🔄 Starting initial data load...');
-        //await refreshAllStats();
+        await refreshAllStats();
         // Only start live monitoring after data is ready
         if (dataReady) {
           await LiveScoresService.startMonitoring();

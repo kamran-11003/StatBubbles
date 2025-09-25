@@ -145,7 +145,17 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
               // For NFL and NHL players, stats are directly on the player object
               // For other players, stats are in player.stats
               const statsToDisplay = player.stats || player;
-              const excludeKeys = ['_id', '__v', 'matchPositions', 'relevanceScore', 'isMatch', 'playerId', 'uid', 'guid', 'type', 'firstName', 'lastName', 'displayName', 'shortName', 'weight', 'height', 'age', 'jersey', 'position', 'college', 'teamId', 'teamName', 'teamAbbreviation', 'teamColor', 'teamAlternateColor', 'headshot', 'createdAt', 'updatedAt', 'league'];
+              const excludeKeys = [
+                '_id', '__v', 'matchPositions', 'relevanceScore', 'isMatch',
+                'playerId', 'uid', 'guid', 'type', 'firstName', 'lastName', 'displayName', 'shortName',
+                'weight', 'height', 'age', 'jersey', 'position', 'college',
+                'teamId', 'teamName', 'teamDisplayName', 'teamAbbreviation', 'teamColor', 'teamAlternateColor',
+                'headshot', 'createdAt', 'updatedAt', 'league',
+                // Non-stat UI/physics fields sometimes present
+                'x', 'y', 'vx', 'vy', 'index',
+                // Misc vendor/branding fields if present
+                'fanatics'
+              ];
               
               return Object.entries(statsToDisplay)
                 .filter(([key, value]) => {

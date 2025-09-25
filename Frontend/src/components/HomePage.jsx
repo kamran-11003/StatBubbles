@@ -18,6 +18,7 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       color: '#991B1B', // darker red
       value: 100,
       description: 'Basketball player statistics',
+      defaultStat: 'points', // Most important scoring stat
       stats: [
         'gamesPlayed', 'gamesStarted', 'minutes', 'avgMinutes',
         'points', 'avgPoints', 'fieldGoalsMade', 'fieldGoalsAttempted', 'fieldGoalPct',
@@ -33,66 +34,102 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       name: 'WNBA', 
       color: '#BE185D', // darker pink
       value: 100,
-      description: 'Women\'s basketball player statistics',
+      description: 'Women\'s basketball player and team statistics',
+      defaultStat: 'avgPoints', // Most important player stat for WNBA
       stats: [
-        'gamesPlayed', 'gamesStarted', 'minutes', 'avgMinutes',
-        'points', 'avgPoints', 'fieldGoalsMade', 'fieldGoalsAttempted', 'fieldGoalPct',
-        'threePointFieldGoalsMade', 'threePointFieldGoalsAttempted', 'threePointFieldGoalPct',
-        'freeThrowsMade', 'freeThrowsAttempted', 'freeThrowPct',
-        'offensiveRebounds', 'defensiveRebounds', 'rebounds', 'avgRebounds',
-        'assists', 'avgAssists', 'turnovers', 'avgTurnovers',
-        'steals', 'avgSteals', 'blocks', 'avgBlocks',
-        'fouls', 'avgFouls', 'doubleDouble', 'tripleDouble'
+        // Player stats
+        'avgPoints', 'points', 'avgRebounds', 'rebounds', 'offensiveRebounds', 'defensiveRebounds',
+        'avgAssists', 'assists', 'avgBlocks', 'blocks', 'avgSteals', 'steals',
+        'avgTurnovers', 'turnovers', 'avgFouls', 'fouls', 'fieldGoalsAttempted', 'fieldGoalsMade', 'fieldGoalPct',
+        'threePointFieldGoalsAttempted', 'threePointFieldGoalsMade', 'threePointFieldGoalPct',
+        'freeThrowsAttempted', 'freeThrowsMade', 'freeThrowPct', 'minutes', 'avgMinutes',
+        'gamesPlayed', 'gamesStarted', 'doubleDouble', 'tripleDouble',
+        // Team stats
+        'wins', 'losses', 'winPercentage', 'gamesBehind', 'homeRecord', 'awayRecord',
+        'conferenceRecord', 'pointsPerGame', 'opponentPointsPerGame', 'pointDifferential', 'streak', 'lastTenGames'
       ]
     },
     { 
       name: 'NFL', 
       color: '#1E40AF', // darker blue
       value: 100,
-      description: 'Football player statistics',
-      stats:[
-        'passAttempts', 'passCompletions', 'passYards', 'passTouchdowns',
-        'rushAttempts', 'rushYards', 'rushTouchdowns',
-        'receptions', 'recYards', 'recTouchdowns',
-        'tackles', 'sacks', 'interceptions', 'fumbles'
+      description: 'Football player and team statistics',
+      defaultStat: 'passYards', // Most important player stat (starts in Players view)
+      stats: [
+        // Player stats
+        'passCompletions', 'passAttempts', 'completionPercentage', 'passYards', 'yardsPerPassAttempt',
+        'passTouchdowns', 'interceptions', 'longestPass', 'sacksTaken', 'passerRating', 'qbr',
+        'rushingAttempts', 'rushingYards', 'yardsPerRushAttempt', 'longestRush', 'rushTouchdowns',
+        'rushingFumbles', 'rushingFumblesLost',
+        'receivingTargets', 'receptions', 'catchPercentage', 'receivingYards', 'yardsPerReception', 'receivingYardsPerGame',
+        'longestReception', 'receivingTouchdowns', 'receivingFumbles', 'receivingFumblesLost',
+        'totalTackles', 'soloTackles', 'assistedTackles', 'sacks', 'defensiveInterceptions', 'passesDefended',
+        'forcedFumbles', 'fumbleRecoveries', 'interceptionTouchdowns', 'safeties', 'kicksBlocked',
+        // Special Teams - Kicking
+        'fieldGoalsMade', 'fieldGoalPercentage', 'longFieldGoalMade', 'extraPointsMade', 'extraPointAttempts', 'extraPointPercentage', 'totalKickingPoints',
+        // Special Teams - Punting
+        'punts', 'puntYards', 'grossAvgPuntYards', 'netAvgPuntYards', 'puntsInside20', 'puntTouchbacks', 'longestPunt', 'blockedPunts',
+        // Special Teams - Returns
+        'kickReturnAttempts', 'kickReturnYards', 'kickReturnAverage', 'kickReturnTouchdowns', 'longestKickReturn',
+        'puntReturnAttempts', 'puntReturnYards', 'puntReturnAverage', 'puntReturnTouchdowns', 'longestPuntReturn',
+        // Team stats (expanded to align with dropdown categories)
+        'netPassingYards', 'rushingYards', 'totalYards', 'yardsPerPlay', 'totalPointsPerGame',
+        'totalFirstDowns', 'thirdDownConversionPct', 'fourthDownConversionPct', 'redzoneScoringPct',
+        'totalGiveaways', 'possessionTimeSeconds',
+        // Defense aliases/opponent
+        'pointsAllowed', 'totalYardsAllowed', 'passingYardsAllowed', 'rushingYardsAllowed',
+        'totalTakeaways', 'redZoneAllowedPct', 'thirdDownAllowedPct', 'fourthDownAllowedPct',
+        // Special teams
+        'fieldGoalPct', 'extraPointPct', 'grossAvgPuntYards', 'netAvgPuntYards', 'puntsInside20',
+        'avgKickoffReturnYards', 'avgPuntReturnYards', 'specialTeamsTDs', 'blockedKicks',
+        // Penalties
+        'totalPenalties', 'totalPenaltyYards', 'penaltiesPerGame'
       ]
     },
     { 
       name: 'MLB', 
       color: '#C2410C', // darker orange
       value: 100,
-      description: 'Baseball player statistics',
+      description: 'Baseball player and team statistics',
+      defaultStat: 'batting_gamesPlayed', // Most common player stat for MLB
       stats: [
-        // Batting stats
+        // Player stats - Batting
         'batting_gamesPlayed', 'batting_atBats', 'batting_runs', 'batting_hits',
         'batting_doubles', 'batting_triples', 'batting_homeRuns', 'batting_RBIs',
         'batting_stolenBases', 'batting_caughtStealing', 'batting_walks', 'batting_strikeouts',
         'batting_avg', 'batting_onBasePct', 'batting_slugAvg', 'batting_OPS',
         
-        // Fielding stats
+        // Player stats - Fielding
         'fielding_gamesPlayed', 'fielding_fullInningsPlayed', 'fielding_totalChances',
         'fielding_putouts', 'fielding_assists', 'fielding_errors', 'fielding_fieldingPct',
         'fielding_doublePlays', 'fielding_triplePlays',
         
-        // Pitching stats
+        // Player stats - Pitching
         'pitching_gamesPlayed', 'pitching_gamesStarted', 'pitching_completeGames', 'pitching_shutouts',
         'pitching_innings', 'pitching_hits', 'pitching_runs', 'pitching_earnedRuns',
         'pitching_homeRuns', 'pitching_walks', 'pitching_strikeouts', 'pitching_wins',
         'pitching_losses', 'pitching_saves', 'pitching_holds', 'pitching_blownSaves',
-        'pitching_ERA', 'pitching_WHIP'
+        'pitching_ERA', 'pitching_WHIP',
+        
+        // Team stats
+        'wins', 'losses', 'winpercent', 'gamesbehind', 'home', 'road', 'vsconf',
+        'avgpointsfor', 'avgpointsagainst', 'differential', 'streak', 'lasttengames'
       ]
     },
     { 
       name: 'NHL', 
       color: '#6D28D9', // darker purple
       value: 100,
-      description: 'Hockey player statistics',
+      description: 'Hockey player and team statistics',
+      defaultStat: 'goals', // Most important scoring stat for NHL
       stats: [
-        'goals', 'assists', 'points',
-        'plusMinus', 'penaltyMinutes', 'shotsTotal',
-        'powerPlayGoals', 'powerPlayAssists',
-        'shortHandedGoals', 'shortHandedAssists',
-        'gameWinningGoals', 'timeOnIcePerGame', 'production'
+        // Player stats
+        'goals', 'assists', 'points', 'plusMinus', 'penaltyMinutes', 'shotsTotal',
+        'powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists',
+        'gameWinningGoals', 'timeOnIcePerGame', 'production',
+        // Team stats
+        'wins', 'losses', 'winpercent', 'gamesbehind', 'home', 'road', 'vsdiv', 'vsconf',
+        'avgpointsfor', 'avgpointsagainst', 'pointdifferential', 'streak', 'lasttengames'
       ]
     }
   ];
@@ -751,26 +788,16 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   }, [leagueData]); // Add full leagueData dependency
 
   const handleLeagueSelect = (leagueName) => {
-    // Show coming soon modal for NBA, NFL, and NHL
-    if (['NBA', 'NFL', 'NHL'].includes(leagueName)) {
+    // Show coming soon modal for NBA and NHL only
+    if (['NBA', 'NHL'].includes(leagueName)) {
       setComingSoonLeague(leagueName);
       setShowComingSoon(true);
       return;
     }
     
-    // Set default stats based on league before navigating
-    let defaultStat;
-    switch (leagueName) {
-      case 'WNBA':
-        defaultStat = 'avgPoints';
-        break;
-      case 'MLB':
-        defaultStat = 'batting_gamesPlayed';
-        break;
-      default:
-        defaultStat = 'points';
-        break;
-    }
+    // Find the league data and get its default stat
+    const league = leagueData.find(l => l.name === leagueName);
+    const defaultStat = league?.defaultStat || 'points';
     
     // Call the parent handlers with both league and stat
     if (onLeagueSelect) {
