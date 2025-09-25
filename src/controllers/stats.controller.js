@@ -50,9 +50,51 @@ const validStats = {
     'fielding_triplePlays', 'fielding_passedBalls', 'fielding_outfieldAssists', 'fielding_catcherInterference'
   ],
   NFL: [
+    // Basic stats
     'touchdowns', 'passYards', 'rushYards', 'completionPercentage',
     'passAttempts', 'passCompletions', 'interceptions', 'sacks',
-    'rushingAttempts', 'rushingYards', 'receivingYards', 'receptions'
+    'rushingAttempts', 'rushingYards', 'receivingYards', 'receptions',
+    
+    // Passing stats
+    'passTouchdowns', 'longestPass', 'sacksTaken', 'sackYards', 'passerRating', 'qbr',
+    'yardsPerPassAttempt',
+    
+    // Rushing stats
+    'rushTouchdowns', 'longestRush', 'rushingFirstDowns', 'rushingFumbles', 'rushingFumblesLost',
+    'yardsPerRushAttempt',
+    
+    // Receiving stats
+    'receivingTargets', 'receivingTouchdowns', 'longestReception', 'receivingFirstDowns',
+    'receivingFumbles', 'receivingFumblesLost', 'yardsPerReception', 'catchPercentage',
+    'receivingYardsPerGame',
+    
+    // Defense stats
+    'totalTackles', 'soloTackles', 'assistedTackles', 'forcedFumbles', 'fumbleRecoveries',
+    'fumbleRecoveryYards', 'defensiveInterceptions', 'interceptionYards', 'avgInterceptionYards',
+    'interceptionTouchdowns', 'longestInterception', 'passesDefended', 'stuffs', 'stuffYards',
+    'kicksBlocked', 'safeties',
+    
+    // Scoring stats
+    'passingTouchdowns', 'rushingTouchdowns', 'receivingTouchdowns', 'returnTouchdowns',
+    'totalTouchdowns', 'totalTwoPointConvs', 'kickExtraPoints', 'fieldGoals', 'totalPoints',
+    
+    // Kicking stats
+    'fieldGoalsMade', 'fieldGoalAttempts', 'fieldGoalPercentage', 'fieldGoalsMade1_19',
+    'fieldGoalsMade20_29', 'fieldGoalsMade30_39', 'fieldGoalsMade40_49', 'fieldGoalsMade50',
+    'longFieldGoalMade', 'extraPointsMade', 'extraPointAttempts', 'extraPointPercentage',
+    'totalKickingPoints',
+    
+    // Punting stats
+    'punts', 'puntYards', 'grossAvgPuntYards', 'netAvgPuntYards', 'puntsInside20',
+    'puntTouchbacks', 'longestPunt', 'blockedPunts',
+    
+    // Return stats
+    'kickReturnAttempts', 'kickReturnYards', 'kickReturnAverage', 'kickReturnTouchdowns',
+    'longestKickReturn', 'kickReturnFairCatches', 'puntReturnAttempts', 'puntReturnYards',
+    'puntReturnAverage', 'puntReturnTouchdowns', 'longestPuntReturn', 'puntReturnFairCatches',
+    
+    // Games played
+    'gamesPlayed'
   ],
   NHL: [
     'goals', 'assists', 'points', 'plusMinus', 'penaltyMinutes', 'shotsTotal',

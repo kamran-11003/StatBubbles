@@ -4,27 +4,20 @@ const NFLPlayer = require('../models/nfl-player.model');
 /**
  * NFL Player Stats Service - 2025 Season ONLY
  * 
- * This service handles individual player statistics extraction from ESPN API endpoints.
- * IMPORTANT: Only extracts and processes 2025 season data - all other seasons are filtered out.
+ * Handles extraction of individual player statistics from a single ESPN API endpoint for the 2025 NFL regular season.
+ * Endpoint: https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/athletes/{athleteId}/statistics/0
+ * Filters to 2025 season data (seasontype=2) and maps stats to the NFLPlayer schema based on provided ESPN stat breakdown.
+ * Handles combined fields (e.g., 'fieldGoalsMade-fieldGoalAttempts') and derives fields (e.g., YPG, catch %).
+ * Ensures proper data types: integers for counts (e.g., completions), floats for percentages/averages (e.g., completionPct).
  * 
- * MAPPING STRATEGY:
- * - The API returns season-by-season data in categories (passing, rushing, receiving, defensive, scoring, kicking, punting, returns)
- * - We filter to ONLY 2025 season data for each category
- * - We map this 2025 season data to individual players based on their position and team
- * - If 2025 season stats are not found, they default to 0 (already handled in model)
- * - Some fields are mapped to available model fields when exact matches aren't available
- * 
- * 2025 SEASON CATEGORIES SUPPORTED:
- * - Passing: completions, passingAttempts, completionPct, passingYards, yardsPerPassAttempt, etc.
- * - Rushing: rushingAttempts, rushingYards, yardsPerRushAttempt, rushingTouchdowns, etc.
- * - Receiving: receptions, receivingTargets, receivingYards, yardsPerReception, etc.
- * - Defense: totalTackles, soloTackles, assistTackles, sacks, interceptions, etc.
- * - Scoring: passingTouchdowns, rushingTouchdowns, receivingTouchdowns, totalPoints, etc.
- * - Kicking: fieldGoalsMade, fieldGoalPct, extraPointsMade, etc.
- * - Punting: punts, puntYards, grossAvgPuntYards, netAvgPuntYards, etc.
- * - Returns: kickReturns, puntReturns with attempts, yards, averages, touchdowns, etc.
- * 
- * NOTE: All stats are from 2025 season only - other seasons are ignored.
+ * Supported Categories:
+ * - Passing: completions, passingAttempts, completionPct, passingYards, etc.
+ * - Rushing: rushingAttempts, rushingYards, yardsPerRushAttempt, etc.
+ * - Receiving: receptions, receivingTargets, receivingYards, etc.
+ * - Defense: totalTackles, soloTackles, sacks, etc.
+ * - Kicking: fieldGoalsMade, fieldGoalPercentage, extraPointsMade, etc.
+ * - Punting: punts, puntYards, grossAvgPuntYards, etc.
+ * - Returns: kickReturnAttempts, puntReturnYards, etc.
  */
 
 async function processActiveNflPlayersWithStats(db) {
@@ -44,8 +37,8 @@ async function processActiveNflPlayersWithStats(db) {
 
         for (const player of players) {
           const athleteId = player.id;
-          
-          // Get team colors from NFL teams collection
+
+          // Get team colors from nflteams collection
           let teamColor = null;
           let teamAlternateColor = null;
           let teamDisplayName = null;
@@ -81,12 +74,11 @@ async function processActiveNflPlayersWithStats(db) {
             teamId: teamId,
             teamName: team.team.name,
             teamAbbreviation: team.team.abbreviation,
+            teamDisplayName: teamDisplayName,
             teamColor: teamColor,
             teamAlternateColor: teamAlternateColor,
-            teamDisplayName: teamDisplayName,
             headshot: player.headshot?.href || null,
-            
-            // Passing Stats
+            // Initialize stats
             gamesPlayed: 0,
             passCompletions: 0,
             passAttempts: 0,
@@ -97,10 +89,9 @@ async function processActiveNflPlayersWithStats(db) {
             interceptions: 0,
             longestPass: 0,
             sacksTaken: 0,
+            sackYards: 0,
             passerRating: 0,
             qbr: 0,
-            
-            // Rushing Stats
             rushingAttempts: 0,
             rushingYards: 0,
             yardsPerRushAttempt: 0,
@@ -109,19 +100,17 @@ async function processActiveNflPlayersWithStats(db) {
             rushingFirstDowns: 0,
             rushingFumbles: 0,
             rushingFumblesLost: 0,
-            
-            // Receiving Stats
             receptions: 0,
             receivingTargets: 0,
             receivingYards: 0,
             yardsPerReception: 0,
+            receivingYardsPerGame: 0,
             receivingTouchdowns: 0,
             longestReception: 0,
             receivingFirstDowns: 0,
             receivingFumbles: 0,
             receivingFumblesLost: 0,
-            
-            // Defense Stats
+            catchPercentage: 0,
             totalTackles: 0,
             soloTackles: 0,
             assistedTackles: 0,
@@ -139,8 +128,6 @@ async function processActiveNflPlayersWithStats(db) {
             stuffYards: 0,
             kicksBlocked: 0,
             safeties: 0,
-            
-            // Scoring Stats
             passingTouchdowns: 0,
             rushingTouchdowns: 0,
             receivingTouchdowns: 0,
@@ -150,9 +137,8 @@ async function processActiveNflPlayersWithStats(db) {
             kickExtraPoints: 0,
             fieldGoals: 0,
             totalPoints: 0,
-            
-            // Kicking Stats
             fieldGoalsMade: 0,
+            fieldGoalAttempts: 0,
             fieldGoalPercentage: 0,
             fieldGoalsMade1_19: 0,
             fieldGoalsMade20_29: 0,
@@ -162,9 +148,8 @@ async function processActiveNflPlayersWithStats(db) {
             longFieldGoalMade: 0,
             extraPointsMade: 0,
             extraPointAttempts: 0,
+            extraPointPercentage: 0,
             totalKickingPoints: 0,
-            
-            // Punting Stats
             punts: 0,
             puntYards: 0,
             grossAvgPuntYards: 0,
@@ -173,43 +158,30 @@ async function processActiveNflPlayersWithStats(db) {
             puntTouchbacks: 0,
             longestPunt: 0,
             blockedPunts: 0,
-            
-            // Kick Returns
             kickReturnAttempts: 0,
             kickReturnYards: 0,
             kickReturnAverage: 0,
             kickReturnTouchdowns: 0,
             longestKickReturn: 0,
             kickReturnFairCatches: 0,
-            
-            // Punt Returns
             puntReturnAttempts: 0,
             puntReturnYards: 0,
             puntReturnAverage: 0,
             puntReturnTouchdowns: 0,
             longestPuntReturn: 0,
             puntReturnFairCatches: 0,
-            
             createdAt: new Date(),
             updatedAt: new Date()
           };
 
-          // Ensure headshot is properly formatted
+          // Handle headshot
           if (player.headshot && player.headshot.href) {
             playerDoc.headshot = player.headshot.href;
           } else if (player.headshot && typeof player.headshot === 'string') {
             playerDoc.headshot = player.headshot;
           }
 
-          // Debug headshot data
-          console.log(`Headshot data for ${player.displayName}:`, {
-            hasHeadshot: !!player.headshot,
-            headshotType: typeof player.headshot,
-            headshotValue: player.headshot,
-            finalHeadshot: playerDoc.headshot
-          });
-
-          // Ensure team colors are properly formatted
+          // Ensure team colors have hex prefix
           if (teamColor && !teamColor.startsWith('#')) {
             playerDoc.teamColor = `#${teamColor}`;
           }
@@ -220,220 +192,168 @@ async function processActiveNflPlayersWithStats(db) {
           let statsFound = false;
 
           try {
-            // Updated endpoints with season parameters
-            const endpoints = [
-              `https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/${athleteId}/stats?season=2025&seasontype=2`,
-              `https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/${athleteId}/overview?season=2025&seasontype=2`,
-              `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/athletes/${athleteId}/statistics/0`
-            ];
-            
-            let statsData = null;
-            let workingEndpoint = null;
-            
-            for (const endpoint of endpoints) {
-              try {
-                const statsRes = await axios.get(endpoint);
-                statsData = statsRes.data;
-                workingEndpoint = endpoint;
-                console.log(`✅ Found stats endpoint for ${player.displayName}: ${endpoint}`);
-                break;
-              } catch (endpointErr) {
-                console.log(`❌ Endpoint failed for ${player.displayName}: ${endpoint} - ${endpointErr.message}`);
-              }
-            }
-            
-            if (!statsData) {
-              console.log(`❌ No working stats endpoint found for ${player.displayName}`);
-              continue;
-            }
-            
-            console.log(`📊 Processing stats for ${player.displayName} (${player.position?.abbreviation || 'Unknown'}) from ${workingEndpoint}`);
-            console.log(`📊 Stats data structure:`, Object.keys(statsData));
+            const endpoint = `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/athletes/${athleteId}/statistics/0`;
+            const statsRes = await axios.get(endpoint);
+            const statsData = statsRes.data;
 
-            // Extracted stats object
+            console.log(`✅ Found stats for ${player.displayName} (${player.position?.abbreviation || 'Unknown'}) at ${endpoint}`);
+
             let extractedStats = {};
-            
-            // Handle v3 structure: categories array (support multiple shapes, relaxed filters)
-            if (statsData.categories && Array.isArray(statsData.categories)) {
-              console.log(`📊 Found categories structure with ${statsData.categories.length} categories`);
-              statsData.categories.forEach(category => {
-                console.log(`📊 Processing category: ${category.name || ''} (${category.displayName || category.abbreviation || ''})`);
-                // Shape A: names[] + statistics[0].stats[]
-                if (category.names && category.statistics && category.statistics.length > 0 && Array.isArray(category.names)) {
-                  const playerStat = category.statistics[0];
-                  const is2025 = playerStat.season?.year ? playerStat.season.year === 2025 : true;
-                  if (is2025) {
-                    category.names.forEach((name, index) => {
-                      const raw = playerStat.stats?.[index];
-                      if (raw !== undefined) {
-                        const str = typeof raw === 'string' ? raw : `${raw}`;
-                        extractedStats[name] = str.includes('-') ? str : (parseFloat(str) || 0);
-                      }
-                    });
-                  }
-                }
-                // Shape B: stats: [{ name, value/displayValue }]
-                if (Array.isArray(category.stats)) {
-                  category.stats.forEach(stat => {
-                    if (!stat || !stat.name) return;
-                    const raw = stat.value ?? stat.displayValue;
-                    const num = typeof raw === 'string' ? (parseFloat(raw.replace(/,/g, '')) || 0) : (Number(raw) || 0);
-                    extractedStats[stat.name] = num;
-                  });
-                }
-              });
-            }
-            
+
             // Handle v2 structure: splits.categories
-            if (statsData.splits && statsData.splits.categories && Array.isArray(statsData.splits.categories)) {
-              console.log(`📊 Found v2 splits.categories structure with ${statsData.splits.categories.length} categories`);
+            if (statsData.splits && statsData.splits.categories) {
               statsData.splits.categories.forEach(category => {
                 console.log(`📊 Processing category: ${category.name} (${category.abbreviation})`);
-                if (Array.isArray(category.stats)) {
-                  category.stats.forEach(stat => {
-                    if (!stat || !stat.name) return;
-                    const raw = stat.value ?? stat.displayValue;
-                    const num = typeof raw === 'string' ? (parseFloat(raw.replace(/,/g, '')) || 0) : (Number(raw) || 0);
-                    extractedStats[stat.name] = num;
-                  });
-                }
+                category.stats.forEach(stat => {
+                  extractedStats[stat.name] = parseFloat(stat.value) || 0;
+                  console.log(`📊 Mapped ${stat.name} = ${extractedStats[stat.name]} (2025 season)`);
+                });
               });
             }
-            
-            console.log(`📊 Extracted 2025 season stats for ${player.displayName}:`, extractedStats);
 
-            // Map to playerDoc - Passing
-            playerDoc.gamesPlayed = extractedStats.gamesPlayed || 0;
-            playerDoc.passCompletions = extractedStats.completions || 0;
-            playerDoc.passAttempts = extractedStats.passingAttempts || extractedStats.passAttempts || 0;
-            playerDoc.completionPercentage = extractedStats.completionPct || 0;
-            playerDoc.passYards = extractedStats.passingYards || 0;
-            playerDoc.yardsPerPassAttempt = extractedStats.yardsPerPassAttempt || 0;
-            playerDoc.passTouchdowns = extractedStats.passingTouchdowns || 0;
-            playerDoc.interceptions = extractedStats.interceptions || 0;
-            playerDoc.longestPass = extractedStats.longPassing || extractedStats.longPass || 0;
-            playerDoc.sacksTaken = extractedStats.sacks || 0;
-            playerDoc.passerRating = extractedStats.QBRating || 0;
-            playerDoc.qbr = extractedStats.adjQBR || extractedStats.ESPNQBRating || 0;
-            
+            // Parse combined fields
+            if (extractedStats['fieldGoalsMade-fieldGoalAttempts']) {
+              const [fgm, fga] = extractedStats['fieldGoalsMade-fieldGoalAttempts'].split('-').map(Number) || [0, 0];
+              extractedStats.fieldGoalsMade = fgm;
+              extractedStats.fieldGoalAttempts = fga;
+              console.log(`📊 Parsed fieldGoalsMade=${fgm}, fieldGoalAttempts=${fga}`);
+            }
+            ['1_19', '20_29', '30_39', '40_49', '50'].forEach(range => {
+              const key = `fieldGoalsMade${range}-fieldGoalAttempts${range}`;
+              if (extractedStats[key]) {
+                extractedStats[`fieldGoalsMade${range}`] = parseInt(extractedStats[key].split('-')[0]) || 0;
+                console.log(`📊 Parsed ${key} to fieldGoalsMade${range}=${extractedStats[`fieldGoalsMade${range}`]}`);
+              }
+            });
+            if (extractedStats['extraPointsMade-extraPointAttempts']) {
+              const [xpm, xpa] = extractedStats['extraPointsMade-extraPointAttempts'].split('-').map(Number) || [0, 0];
+              extractedStats.extraPointsMade = xpm;
+              extractedStats.extraPointAttempts = xpa;
+              console.log(`📊 Parsed extraPointsMade=${xpm}, extraPointAttempts=${xpa}`);
+            }
+
+            // Map to playerDoc
+            playerDoc.gamesPlayed = Math.round(extractedStats.gamesPlayed || 0);
+            // Passing
+            playerDoc.passCompletions = Math.round(extractedStats.completions || extractedStats.CMP || 0);
+            playerDoc.passAttempts = Math.round(extractedStats.passingAttempts || extractedStats.ATT || 0);
+            playerDoc.completionPercentage = parseFloat((extractedStats.completionPct || extractedStats['CMP%'] || 0).toFixed(2));
+            playerDoc.passYards = Math.round(extractedStats.passingYards || extractedStats.YDS || 0);
+            playerDoc.yardsPerPassAttempt = parseFloat((extractedStats.yardsPerPassAttempt || extractedStats.AVG || 0).toFixed(2));
+            playerDoc.passTouchdowns = Math.round(extractedStats.passingTouchdowns || extractedStats.TD || 0);
+            playerDoc.interceptions = Math.round(extractedStats.interceptions || extractedStats.INT || 0);
+            playerDoc.longestPass = Math.round(extractedStats.longPassing || extractedStats.LNG || 0);
+            playerDoc.sacksTaken = Math.round(extractedStats.totalSacks || extractedStats.SACK || 0);
+            playerDoc.sackYards = Math.round(extractedStats.sackYards || 0);
+            playerDoc.passerRating = parseFloat((extractedStats.QBRating || extractedStats.RTG || 0).toFixed(2));
+            playerDoc.qbr = parseFloat((extractedStats.adjQBR || extractedStats.QBR || 0).toFixed(2));
             // Rushing
-            playerDoc.rushingAttempts = extractedStats.rushingAttempts || 0;
-            playerDoc.rushingYards = extractedStats.rushingYards || 0;
-            playerDoc.yardsPerRushAttempt = extractedStats.yardsPerRushAttempt || 0;
-            playerDoc.rushTouchdowns = extractedStats.rushingTouchdowns || 0;
-            playerDoc.longestRush = extractedStats.longRushing || 0;
-            playerDoc.rushingFirstDowns = extractedStats.rushingFirstDowns || 0;
-            playerDoc.rushingFumbles = extractedStats.rushingFumbles || 0;
-            playerDoc.rushingFumblesLost = extractedStats.rushingFumblesLost || 0;
-            
+            playerDoc.rushingAttempts = Math.round(extractedStats.rushingAttempts || extractedStats.CAR || 0);
+            playerDoc.rushingYards = Math.round(extractedStats.rushingYards || extractedStats.YDS || 0);
+            playerDoc.yardsPerRushAttempt = parseFloat((extractedStats.yardsPerRushAttempt || extractedStats.AVG || 0).toFixed(2));
+            playerDoc.rushTouchdowns = Math.round(extractedStats.rushingTouchdowns || extractedStats.RUSH || 0);
+            playerDoc.longestRush = Math.round(extractedStats.longRushing || extractedStats.LNG || 0);
+            playerDoc.rushingFirstDowns = Math.round(extractedStats.rushingFirstDowns || 0);
+            playerDoc.rushingFumbles = Math.round(extractedStats.rushingFumbles || extractedStats.FUM || 0);
+            playerDoc.rushingFumblesLost = Math.round(extractedStats.rushingFumblesLost || extractedStats.LST || 0);
             // Receiving
-            playerDoc.receptions = extractedStats.receptions || 0;
-            playerDoc.receivingTargets = extractedStats.receivingTargets || 0;
-            playerDoc.catchPercentage = extractedStats.catchPct || playerDoc.catchPercentage || 0;
-            playerDoc.receivingYards = extractedStats.receivingYards || 0;
-            playerDoc.yardsPerReception = extractedStats.yardsPerReception || 0;
-            playerDoc.receivingYardsPerGame = extractedStats.receivingYardsPerGame || playerDoc.receivingYardsPerGame || 0;
-            playerDoc.receivingTouchdowns = extractedStats.receivingTouchdowns || 0;
-            playerDoc.longestReception = extractedStats.longReception || extractedStats.longReceiving || 0;
-            playerDoc.receivingFirstDowns = extractedStats.receivingFirstDowns || 0;
-            playerDoc.receivingFumbles = extractedStats.receivingFumbles || 0;
-            playerDoc.receivingFumblesLost = extractedStats.receivingFumblesLost || 0;
-            
+            playerDoc.receptions = Math.round(extractedStats.receptions || extractedStats.REC || 0);
+            playerDoc.receivingTargets = Math.round(extractedStats.receivingTargets || extractedStats.TGTS || 0);
+            playerDoc.receivingYards = Math.round(extractedStats.receivingYards || extractedStats.YDS || 0);
+            playerDoc.yardsPerReception = parseFloat((extractedStats.yardsPerReception || extractedStats.AVG || 0).toFixed(2));
+            playerDoc.receivingYardsPerGame = parseFloat((playerDoc.receivingYards / (playerDoc.gamesPlayed || 1) || 0).toFixed(2));
+            playerDoc.receivingTouchdowns = Math.round(extractedStats.receivingTouchdowns || extractedStats.TD || 0);
+            playerDoc.longestReception = Math.round(extractedStats.longReception || extractedStats.LNG || 0);
+            playerDoc.receivingFirstDowns = Math.round(extractedStats.receivingFirstDowns || 0);
+            playerDoc.receivingFumbles = Math.round(extractedStats.receivingFumbles || extractedStats.FUM || 0);
+            playerDoc.receivingFumblesLost = Math.round(extractedStats.receivingFumblesLost || extractedStats.LST || 0);
+            playerDoc.catchPercentage = parseFloat((extractedStats.receptionPercentage || extractedStats['CATCH%'] || (playerDoc.receptions / (playerDoc.receivingTargets || 1) * 100) || 0).toFixed(2));
             // Defense
-            playerDoc.totalTackles = extractedStats.totalTackles || 0;
-            playerDoc.soloTackles = extractedStats.soloTackles || 0;
-            playerDoc.assistedTackles = extractedStats.assistTackles || 0;
-            playerDoc.sacks = extractedStats.sacks || 0;
-            playerDoc.forcedFumbles = extractedStats.fumblesForced || 0;
-            playerDoc.fumbleRecoveries = extractedStats.fumblesRecovered || 0;
-            playerDoc.fumbleRecoveryYards = extractedStats.fumblesRecoveredYards || 0;
-            playerDoc.defensiveInterceptions = extractedStats.interceptions || 0;
-            playerDoc.interceptionYards = extractedStats.interceptionYards || 0;
-            playerDoc.avgInterceptionYards = extractedStats.avgInterceptionYards || 0;
-            playerDoc.interceptionTouchdowns = extractedStats.interceptionTouchdowns || 0;
-            playerDoc.longestInterception = extractedStats.longInterception || 0;
-            playerDoc.passesDefended = extractedStats.passesDefended || 0;
-            playerDoc.stuffs = extractedStats.stuffs || 0;
-            playerDoc.stuffYards = extractedStats.stuffYards || 0;
-            playerDoc.kicksBlocked = extractedStats.kicksBlocked || 0;
-            playerDoc.safeties = extractedStats.safeties || 0;
-            // Defense - extended
-            playerDoc.qbHits = extractedStats.QBHits || 0;
-            playerDoc.hurries = extractedStats.hurries || 0;
-            playerDoc.tacklesForLoss = extractedStats.tacklesForLoss || 0;
-            playerDoc.tacklesYardsLost = extractedStats.tacklesYardsLost || 0;
-            playerDoc.avgSackYards = extractedStats.avgSackYards || 0;
-            playerDoc.sackYards = extractedStats.sackYards || 0;
-            playerDoc.passesBattedDown = extractedStats.passesBattedDown || 0;
-            playerDoc.pointsAllowed = extractedStats.pointsAllowed || 0;
-            playerDoc.yardsAllowed = extractedStats.yardsAllowed || 0;
-            playerDoc.blockedPuntTouchdowns = extractedStats.blockedPuntTouchdowns || 0;
-            playerDoc.blockedFieldGoalTouchdowns = extractedStats.blockedFieldGoalTouchdowns || 0;
-            playerDoc.defensiveFumblesTouchdowns = extractedStats.defensiveFumblesTouchdowns || 0;
-            playerDoc.missedFieldGoalReturnTd = extractedStats.missedFieldGoalReturnTd || 0;
-            playerDoc.onePtSafetiesMade = extractedStats.onePtSafetiesMade || 0;
-            playerDoc.twoPtReturns = extractedStats.twoPtReturns || 0;
-            playerDoc.miscTouchdowns = extractedStats.miscTouchdowns || 0;
-            
+            playerDoc.totalTackles = Math.round(extractedStats.totalTackles || extractedStats.TOT || 0);
+            playerDoc.soloTackles = Math.round(extractedStats.soloTackles || extractedStats.SOLO || 0);
+            playerDoc.assistedTackles = Math.round(extractedStats.assistTackles || extractedStats.AST || 0);
+            playerDoc.sacks = parseFloat((extractedStats.totalSacks || extractedStats.SACK || 0).toFixed(2));
+            playerDoc.forcedFumbles = Math.round(extractedStats.forcedFumbles || extractedStats.FF || 0);
+            playerDoc.fumbleRecoveries = Math.round(extractedStats.fumblesRecovered || extractedStats.FR || 0);
+            playerDoc.fumbleRecoveryYards = Math.round(extractedStats.fumblesRecoveredYards || 0);
+            playerDoc.defensiveInterceptions = Math.round(extractedStats.interceptions || extractedStats.INT || 0);
+            playerDoc.interceptionYards = Math.round(extractedStats.interceptionYards || 0);
+            playerDoc.avgInterceptionYards = parseFloat((extractedStats.avgInterceptionYards || 0).toFixed(2));
+            playerDoc.interceptionTouchdowns = Math.round(extractedStats.defensiveTouchdowns || extractedStats.TD || 0);
+            playerDoc.longestInterception = Math.round(extractedStats.longInterception || extractedStats.LNG || 0);
+            playerDoc.passesDefended = Math.round(extractedStats.passesDefended || extractedStats.PD || 0);
+            playerDoc.stuffs = Math.round(extractedStats.stuffs || extractedStats.STF || 0);
+            playerDoc.stuffYards = Math.round(extractedStats.stuffYards || 0);
+            playerDoc.kicksBlocked = Math.round(extractedStats.kicksBlocked || extractedStats.BK || 0);
+            playerDoc.safeties = Math.round(extractedStats.safeties || extractedStats.SFTY || 0);
             // Scoring
-            playerDoc.passingTouchdowns = extractedStats.passingTouchdowns || 0;
-            playerDoc.rushingTouchdowns = extractedStats.rushingTouchdowns || 0;
-            playerDoc.receivingTouchdowns = extractedStats.receivingTouchdowns || 0;
-            playerDoc.returnTouchdowns = extractedStats.returnTouchdowns || 0;
-            playerDoc.totalTouchdowns = extractedStats.totalTouchdowns || 0;
-            playerDoc.totalTwoPointConvs = extractedStats.totalTwoPointConvs || 0;
-            playerDoc.kickExtraPoints = extractedStats.kickExtraPoints || 0;
-            playerDoc.fieldGoals = extractedStats.fieldGoals || 0;
-            playerDoc.totalPoints = extractedStats.totalPoints || 0;
-            
+            playerDoc.passingTouchdowns = Math.round(extractedStats.passingTouchdowns || extractedStats.TD || 0);
+            playerDoc.rushingTouchdowns = Math.round(extractedStats.rushingTouchdowns || extractedStats.RUSH || 0);
+            playerDoc.receivingTouchdowns = Math.round(extractedStats.receivingTouchdowns || extractedStats.TD || 0);
+            playerDoc.returnTouchdowns = Math.round(extractedStats.returnTouchdowns || extractedStats.RET || 0);
+            playerDoc.totalTouchdowns = Math.round(extractedStats.totalTouchdowns || (playerDoc.passingTouchdowns + playerDoc.rushingTouchdowns + playerDoc.receivingTouchdowns + playerDoc.returnTouchdowns) || 0);
+            playerDoc.totalTwoPointConvs = Math.round(extractedStats.totalTwoPointConvs || 0);
+            playerDoc.kickExtraPoints = Math.round(extractedStats.kickExtraPoints || extractedStats.XPM || 0);
+            playerDoc.fieldGoals = Math.round(extractedStats.fieldGoals || extractedStats.FG || 0);
+            playerDoc.totalPoints = Math.round(extractedStats.totalPoints || extractedStats.PTS || 0);
             // Kicking
-            playerDoc.fieldGoalsMade = extractedStats.fieldGoalsMade || 0;
-            playerDoc.fieldGoalPercentage = extractedStats.fieldGoalPct || 0;
-            playerDoc.fieldGoalsMade1_19 = extractedStats.fieldGoalsMade1_19 || 0;
-            playerDoc.fieldGoalsMade20_29 = extractedStats.fieldGoalsMade20_29 || 0;
-            playerDoc.fieldGoalsMade30_39 = extractedStats.fieldGoalsMade30_39 || 0;
-            playerDoc.fieldGoalsMade40_49 = extractedStats.fieldGoalsMade40_49 || 0;
-            playerDoc.fieldGoalsMade50 = extractedStats.fieldGoalsMade50 || 0;
-            playerDoc.longFieldGoalMade = extractedStats.longFieldGoalMade || 0;
-            playerDoc.extraPointsMade = extractedStats.extraPointsMade || 0;
-            playerDoc.extraPointAttempts = extractedStats.extraPointAttempts || 0;
-            playerDoc.totalKickingPoints = extractedStats.totalKickingPoints || 0;
-            
+            playerDoc.fieldGoalsMade = Math.round(extractedStats.fieldGoalsMade || extractedStats.FGM || 0);
+            playerDoc.fieldGoalAttempts = Math.round(extractedStats.fieldGoalAttempts || extractedStats.FGA || 0);
+            playerDoc.fieldGoalPercentage = parseFloat((extractedStats.fieldGoalPercentage || extractedStats['FG%'] || (playerDoc.fieldGoalsMade / (playerDoc.fieldGoalAttempts || 1) * 100) || 0).toFixed(2));
+            playerDoc.fieldGoalsMade1_19 = Math.round(extractedStats.fieldGoalsMade1_19 || 0);
+            playerDoc.fieldGoalsMade20_29 = Math.round(extractedStats.fieldGoalsMade20_29 || 0);
+            playerDoc.fieldGoalsMade30_39 = Math.round(extractedStats.fieldGoalsMade30_39 || 0);
+            playerDoc.fieldGoalsMade40_49 = Math.round(extractedStats.fieldGoalsMade40_49 || 0);
+            playerDoc.fieldGoalsMade50 = Math.round(extractedStats.fieldGoalsMade50 || 0);
+            playerDoc.longFieldGoalMade = Math.round(extractedStats.longestFieldGoal || extractedStats.LNG || 0);
+            playerDoc.extraPointsMade = Math.round(extractedStats.extraPointsMade || extractedStats.XPM || 0);
+            playerDoc.extraPointAttempts = Math.round(extractedStats.extraPointAttempts || extractedStats.XPA || 0);
+            playerDoc.extraPointPercentage = parseFloat((extractedStats.extraPointPercentage || extractedStats['XP%'] || (playerDoc.extraPointsMade / (playerDoc.extraPointAttempts || 1) * 100) || 0).toFixed(2));
+            playerDoc.totalKickingPoints = Math.round(extractedStats.totalPoints || extractedStats.PTS || 0);
             // Punting
-            playerDoc.punts = extractedStats.punts || 0;
-            playerDoc.puntYards = extractedStats.puntYards || 0;
-            playerDoc.grossAvgPuntYards = extractedStats.grossAvgPuntYards || extractedStats.AVG || 0;
-            playerDoc.netAvgPuntYards = extractedStats.netAvgPuntYards || extractedStats.NET || 0;
-            playerDoc.puntsInside20 = extractedStats.puntsInside20 || extractedStats.IN20 || 0;
-            playerDoc.puntTouchbacks = extractedStats.touchbacks || 0;
-            playerDoc.longestPunt = extractedStats.longPunt || extractedStats.longestPunt || 0;
-            playerDoc.blockedPunts = extractedStats.puntsBlocked || extractedStats.blockedPunts || 0;
-            
+            playerDoc.punts = Math.round(extractedStats.punts || extractedStats.PUNTS || 0);
+            playerDoc.puntYards = Math.round(extractedStats.puntYards || extractedStats.YDS || 0);
+            playerDoc.grossAvgPuntYards = parseFloat((extractedStats.puntAverage || extractedStats.AVG || 0).toFixed(2));
+            playerDoc.netAvgPuntYards = parseFloat((extractedStats.netPuntAverage || extractedStats.NET || 0).toFixed(2));
+            playerDoc.puntsInside20 = Math.round(extractedStats.puntsInside20 || extractedStats.IN20 || 0);
+            playerDoc.puntTouchbacks = Math.round(extractedStats.touchbacks || extractedStats.TB || 0);
+            playerDoc.longestPunt = Math.round(extractedStats.longestPunt || extractedStats.LNG || 0);
+            playerDoc.blockedPunts = Math.round(extractedStats.blockedPunts || extractedStats.BP || 0);
             // Kick Returns
-            playerDoc.kickReturnAttempts = extractedStats.kickReturns || extractedStats.kickReturnAttempts || 0;
-            playerDoc.kickReturnYards = extractedStats.kickReturnYards || 0;
-            playerDoc.kickReturnAverage = extractedStats.avgKickReturnYards || 0;
-            playerDoc.kickReturnTouchdowns = extractedStats.kickReturnTouchdowns || 0;
-            playerDoc.longestKickReturn = extractedStats.longKickReturn || 0;
-            playerDoc.kickReturnFairCatches = extractedStats.kickReturnFairCatches || 0;
-            
+            playerDoc.kickReturnAttempts = Math.round(extractedStats.kickReturnAttempts || extractedStats.KR || 0);
+            playerDoc.kickReturnYards = Math.round(extractedStats.kickReturnYards || extractedStats.YDS || 0);
+            playerDoc.kickReturnAverage = parseFloat((extractedStats.kickReturnAverage || extractedStats.AVG || 0).toFixed(2));
+            playerDoc.kickReturnTouchdowns = Math.round(extractedStats.kickReturnTouchdowns || extractedStats.RET || 0);
+            playerDoc.longestKickReturn = Math.round(extractedStats.kickReturnLongest || extractedStats.LNG || 0);
+            playerDoc.kickReturnFairCatches = Math.round(extractedStats.kickReturnFairCatches || extractedStats.KRFC || 0);
             // Punt Returns
-            playerDoc.puntReturnAttempts = extractedStats.puntReturns || extractedStats.puntReturnAttempts || 0;
-            playerDoc.puntReturnYards = extractedStats.puntReturnYards || 0;
-            playerDoc.puntReturnAverage = extractedStats.avgPuntReturnYards || 0;
-            playerDoc.puntReturnTouchdowns = extractedStats.puntReturnTouchdowns || 0;
-            playerDoc.longestPuntReturn = extractedStats.longPuntReturn || 0;
-            playerDoc.puntReturnFairCatches = extractedStats.puntReturnFairCatches || 0;
-            
-            // Derived stats
-            playerDoc.totalTackles = (playerDoc.soloTackles || 0) + (playerDoc.assistedTackles || 0);
-            if (playerDoc.receivingTargets > 0) playerDoc.completionPercentage = (playerDoc.receptions / playerDoc.receivingTargets) * 100;
-            if (playerDoc.extraPointAttempts > 0) playerDoc.extraPointPercentage = (playerDoc.extraPointsMade / playerDoc.extraPointAttempts) * 100;
+            playerDoc.puntReturnAttempts = Math.round(extractedStats.puntReturnAttempts || extractedStats.PR || 0);
+            playerDoc.puntReturnYards = Math.round(extractedStats.puntReturnYards || extractedStats.YDS || 0);
+            playerDoc.puntReturnAverage = parseFloat((extractedStats.puntReturnAverage || extractedStats.AVG || 0).toFixed(2));
+            playerDoc.puntReturnTouchdowns = Math.round(extractedStats.puntReturnTouchdowns || extractedStats.RET || 0);
+            playerDoc.longestPuntReturn = Math.round(extractedStats.puntReturnLongest || extractedStats.LNG || 0);
+            playerDoc.puntReturnFairCatches = Math.round(extractedStats.puntReturnFairCatches || extractedStats.FC || 0);
+
+            // Derive additional fields
+            playerDoc.totalTackles = Math.round((playerDoc.soloTackles || 0) + (playerDoc.assistedTackles || 0));
+            if (playerDoc.receivingTargets > 0) {
+              playerDoc.catchPercentage = parseFloat(((playerDoc.receptions / playerDoc.receivingTargets) * 100).toFixed(2));
+            }
+            if (playerDoc.fieldGoalAttempts > 0) {
+              playerDoc.fieldGoalPercentage = parseFloat(((playerDoc.fieldGoalsMade / playerDoc.fieldGoalAttempts) * 100).toFixed(2));
+            }
+            if (playerDoc.extraPointAttempts > 0) {
+              playerDoc.extraPointPercentage = parseFloat(((playerDoc.extraPointsMade / playerDoc.extraPointAttempts) * 100).toFixed(2));
+            }
+            // Derive sackYards if grossYards available
+            if (extractedStats.grossYards && playerDoc.passYards) {
+              playerDoc.sackYards = Math.round(extractedStats.grossYards - playerDoc.passYards);
+            }
 
             if (Object.keys(extractedStats).length > 0) {
               statsFound = true;
               console.log(`✅ 2025 season stats loaded for ${player.displayName}: ${Object.keys(extractedStats).length} stats`);
-              console.log(`📊 Sample 2025 season mapped stats:`, {
+              console.log(`📊 Sample mapped stats:`, {
                 passYards: playerDoc.passYards,
                 rushingYards: playerDoc.rushingYards,
                 receivingYards: playerDoc.receivingYards,
@@ -448,13 +368,10 @@ async function processActiveNflPlayersWithStats(db) {
 
           } catch (err) {
             console.log(`❌ Stats error for ${player.displayName}: ${err.message}`);
+            continue;
           }
 
           console.log(`✔ ${player.displayName} — ${statsFound ? 'Stats loaded' : 'No stats'}`);
-          console.log(`  Headshot: ${playerDoc.headshot}`);
-          console.log(`  Team Color: ${playerDoc.teamColor}`);
-          console.log(`  Team Alt Color: ${playerDoc.teamAlternateColor}`);
-
           await collection.updateOne(
             { playerId: athleteId },
             { $set: playerDoc },
@@ -482,13 +399,6 @@ async function getTopPlayers(statType, limit = 50) {
       .limit(limit);
 
     console.log(`Found ${players.length} NFL players for stat: ${statType}`);
-    if (players.length > 0) {
-      console.log('Sample player data:', {
-        name: players[0].displayName,
-        position: players[0].position,
-        [statType]: players[0][statType]
-      });
-    }
     return players;
   } catch (error) {
     console.error('Error fetching NFL players:', error);
@@ -538,7 +448,6 @@ async function refresh(homeTeamId, awayTeamId) {
   try {
     console.log(`🔄 Refreshing NFL stats for game: ${awayTeamId} @ ${homeTeamId}`);
     console.log(`✅ NFL stats refresh requested for game: ${awayTeamId} @ ${homeTeamId}`);
-    console.log(`ℹ️ NFL stats refresh functionality can be expanded based on specific requirements`);
   } catch (error) {
     console.error(`❌ Error refreshing NFL stats for game: ${awayTeamId} @ ${homeTeamId}:`, error.message);
   }

@@ -153,6 +153,7 @@ const Navbar = ({
       { label: 'Interceptions (INT)', key: 'interceptions', category: 'Passing' },
       { label: 'Longest Pass (LNG)', key: 'longestPass', category: 'Passing' },
       { label: 'Sacks Taken (SK)', key: 'sacksTaken', category: 'Passing' },
+      { label: 'Sack Yards (SYD)', key: 'sackYards', category: 'Passing' },
       { label: 'Passer Rating (RATE)', key: 'passerRating', category: 'Passing' },
       { label: 'QBR', key: 'qbr', category: 'Passing' },
       
@@ -192,6 +193,7 @@ const Navbar = ({
 
       // Special Teams - Kicking
       { label: 'Field Goals Made (FGM)', key: 'fieldGoalsMade', category: 'Kicking' },
+      { label: 'Field Goals Attempted (FGA)', key: 'fieldGoalAttempts', category: 'Kicking' },
       { label: 'FG % (FG%)', key: 'fieldGoalPercentage', category: 'Kicking' },
       { label: 'Longest FG (LNG)', key: 'longFieldGoalMade', category: 'Kicking' },
       { label: 'Extra Points Made (XPM)', key: 'extraPointsMade', category: 'Kicking' },
@@ -220,6 +222,30 @@ const Navbar = ({
       { label: 'Punt Returns: Avg (AVG)', key: 'puntReturnAverage', category: 'Returns' },
       { label: 'Punt Returns: TDs', key: 'puntReturnTouchdowns', category: 'Returns' },
       { label: 'Punt Returns: Longest (LNG)', key: 'longestPuntReturn', category: 'Returns' }
+
+      // COMMENTED OUT EXTRA STATS (Available in backend but not in dropdown)
+      // { label: 'Fumble Recovery Yards', key: 'fumbleRecoveryYards', category: 'Defense' },
+      // { label: 'Interception Yards', key: 'interceptionYards', category: 'Defense' },
+      // { label: 'Avg Interception Yards', key: 'avgInterceptionYards', category: 'Defense' },
+      // { label: 'Longest Interception', key: 'longestInterception', category: 'Defense' },
+      // { label: 'Stuffs', key: 'stuffs', category: 'Defense' },
+      // { label: 'Stuff Yards', key: 'stuffYards', category: 'Defense' },
+      // { label: 'Passing TDs', key: 'passingTouchdowns', category: 'Scoring' },
+      // { label: 'Rushing TDs', key: 'rushingTouchdowns', category: 'Scoring' },
+      // { label: 'Receiving TDs', key: 'receivingTouchdowns', category: 'Scoring' },
+      // { label: 'Return TDs', key: 'returnTouchdowns', category: 'Scoring' },
+      // { label: 'Total TDs', key: 'totalTouchdowns', category: 'Scoring' },
+      // { label: 'Two Point Conversions', key: 'totalTwoPointConvs', category: 'Scoring' },
+      // { label: 'Kick Extra Points', key: 'kickExtraPoints', category: 'Scoring' },
+      // { label: 'Field Goals', key: 'fieldGoals', category: 'Scoring' },
+      // { label: 'Total Points', key: 'totalPoints', category: 'Scoring' },
+      // { label: 'FG Made 1-19', key: 'fieldGoalsMade1_19', category: 'Kicking' },
+      // { label: 'FG Made 20-29', key: 'fieldGoalsMade20_29', category: 'Kicking' },
+      // { label: 'FG Made 30-39', key: 'fieldGoalsMade30_39', category: 'Kicking' },
+      // { label: 'FG Made 40-49', key: 'fieldGoalsMade40_49', category: 'Kicking' },
+      // { label: 'FG Made 50+', key: 'fieldGoalsMade50', category: 'Kicking' },
+      // { label: 'Kick Returns: Fair Catches', key: 'kickReturnFairCatches', category: 'Returns' },
+      // { label: 'Punt Returns: Fair Catches', key: 'puntReturnFairCatches', category: 'Returns' }
     ],
     WNBA: [
       { label: 'Avg Points', key: 'avgPoints' },
@@ -576,13 +602,13 @@ const Navbar = ({
                           }}
                           className={`flex items-center px-3 py-1 rounded-lg text-xs ${isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'} focus:outline-none`}
                         >
-                          <span className="font-medium mr-2 truncate max-w-[80px]">
+                          <span className="font-medium mr-2 truncate max-w-[120px]">
                             {leagueStats[selectedLeague]?.find(stat => stat.key === selectedStat)?.label || 'Select Stat'}
                           </span>
                           <ChevronDown size={14} />
                         </button>
                         {statsDropdownOpen && (
-                          <div className={`absolute left-0 mt-2 py-2 w-44 rounded-md shadow-lg max-h-60 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-10`}>
+                          <div className={`absolute left-0 right-0 mt-2 py-2 w-56 rounded-md shadow-lg max-h-80 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-50`}>
                             {selectedLeague === 'MLB' ? (
                               <>
                                 {/* Batting Category */}
@@ -594,7 +620,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Batting').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -610,7 +636,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Fielding').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -626,7 +652,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Pitching').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -644,7 +670,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Passing').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -660,7 +686,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Rushing').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -676,7 +702,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Receiving').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -692,39 +718,7 @@ const Navbar = ({
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Defense').map(stat => (
                                   <button
                                     key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
-                                    onClick={() => handleStatSelect(stat.key)}
-                                  >
-                                    {stat.label}
-                                  </button>
-                                ))}
-                                
-                                {/* Scoring Category */}
-                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
-                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    Scoring
-                                  </h3>
-                                </div>
-                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Scoring').map(stat => (
-                                  <button
-                                    key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
-                                    onClick={() => handleStatSelect(stat.key)}
-                                  >
-                                    {stat.label}
-                                  </button>
-                                ))}
-                                
-                                {/* Kicking Category */}
-                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
-                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    Kicking
-                                  </h3>
-                                </div>
-                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Kicking').map(stat => (
-                                  <button
-                                    key={stat.key}
-                                    className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                     onClick={() => handleStatSelect(stat.key)}
                                   >
                                     {stat.label}
@@ -1316,13 +1310,13 @@ const Navbar = ({
                                     isDark ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-50'
                                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                 >
-                                  <span className="text-sm font-medium">
+                                  <span className="text-sm font-medium truncate max-w-[200px]">
                                     {leagueStats[selectedLeague]?.find(stat => stat.key === selectedStat)?.label || ''}
                                   </span>
                                   <ChevronDown size={14} />
                                 </button>
                                 {statsDropdownOpen && (
-                                  <div className={`absolute left-0 mt-2 py-2 w-44 rounded-md shadow-lg max-h-60 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-10`}>
+                                  <div className={`absolute left-0 mt-2 py-2 w-56 rounded-md shadow-lg max-h-80 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-10`}>
                                     {/* Passing Category */}
                                     <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
                                       <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -1332,10 +1326,10 @@ const Navbar = ({
                                     {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Passing').map(stat => (
                                       <button
                                         key={stat.key}
-                                        className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                     
@@ -1348,10 +1342,10 @@ const Navbar = ({
                                     {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Rushing').map(stat => (
                                       <button
                                         key={stat.key}
-                                        className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                     
@@ -1364,10 +1358,10 @@ const Navbar = ({
                                     {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Receiving').map(stat => (
                                       <button
                                         key={stat.key}
-                                        className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                     
@@ -1380,10 +1374,10 @@ const Navbar = ({
                                     {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Defense').map(stat => (
                                       <button
                                         key={stat.key}
-                                        className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                     
@@ -1527,7 +1521,7 @@ const Navbar = ({
                                         }`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -1567,7 +1561,7 @@ const Navbar = ({
                                         }`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -1607,7 +1601,7 @@ const Navbar = ({
                                         }`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -1647,7 +1641,7 @@ const Navbar = ({
                                         }`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -1761,7 +1755,7 @@ const Navbar = ({
                                         }`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                   </div>
@@ -1801,7 +1795,7 @@ const Navbar = ({
                                         }`}
                                         onClick={() => handleStatSelect(stat.key)}
                                       >
-                                        {stat.label}
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
                                       </button>
                                     ))}
                                   </div>

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import BubbleChart from './BubbleChart';
 import PlayerModal from './PlayerModel';
 import EmptyState from './EmptyState';
+import { apiConfig, buildApiUrl } from '../config/api';
 
 const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, playerCount }) => {
   const chartRef = useRef(null);
@@ -35,10 +36,7 @@ const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, pla
       try {
         setLoading(true);
         const teamId = team.teamId || team.teamAbbreviation || team.teamDisplayName;
-        let url = `/api/stats/${activeLeague}/team/${teamId}/${selectedStat}`;
-        if (playerCount) {
-          url += `?limit=${playerCount}`;
-        }
+        const url = buildApiUrl(apiConfig.endpoints.teamStats(activeLeague, teamId, selectedStat, playerCount));
         const response = await fetch(url);
         
         if (!response.ok) {

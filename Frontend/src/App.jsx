@@ -6,6 +6,7 @@ import TeamList from './components/TeamList';
 import HomePage from './components/HomePage';
 import LiveView from './components/LiveView';
 import TeamPlayersView from './components/TeamPlayersView';
+import { apiConfig, buildApiUrl } from './config/api';
 
 function App() {
   const [isDark, setIsDark] = useState(false);
@@ -33,7 +34,7 @@ function App() {
     searchTimeoutRef.current = setTimeout(() => {
       if (query && activeLeague) {
         if (searchType === 'teams' && (activeLeague === 'NBA' || activeLeague === 'WNBA' || activeLeague === 'MLB' || activeLeague === 'NFL' || activeLeague === 'NHL')) {
-          fetch(`/api/teams/${activeLeague.toLowerCase()}/search?name=${encodeURIComponent(query)}`)
+          fetch(buildApiUrl(apiConfig.endpoints.teamsSearch(activeLeague, query)))
             .then(res => {
               if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
@@ -59,7 +60,7 @@ function App() {
               console.error('Error searching teams:', error);
             });
         } else if (searchType === 'players') {
-          fetch(`/api/stats/${activeLeague}/search?name=${encodeURIComponent(query)}`)
+          fetch(buildApiUrl(apiConfig.endpoints.statsSearch(activeLeague, query)))
             .then(res => {
               if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
@@ -111,8 +112,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    socketRef.current = io('');
-    fetch('/api/live-scores')
+    socketRef.current = io(apiConfig.baseURL);
+    fetch(buildApiUrl(apiConfig.endpoints.liveScores))
       .then(res => res.json())
       .then(games => {
         console.log('🎮 Initial live games fetched:', games);
@@ -176,7 +177,7 @@ function App() {
             break;
         }
       }
-      fetch(`/api/stats/${activeLeague}/${selectedStat}`)
+      fetch(buildApiUrl(apiConfig.endpoints.stats(activeLeague, selectedStat)))
         .then(res => res.json())
         .then(data => setPlayers(data));
     }
@@ -235,7 +236,7 @@ function App() {
   useEffect(() => {
     if (activeLeague && viewMode === 'Teams') {
       console.log('Fetching teams for:', activeLeague);
-      fetch(`/api/teams/${activeLeague.toLowerCase()}`)
+      fetch(buildApiUrl(apiConfig.endpoints.teams(activeLeague)))
         .then(res => {
           if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);
@@ -462,7 +463,7 @@ function App() {
         const playerStats = [
           'points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts',
           // NFL-specific - 2025 Season API Structure
-          'gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','totalKickingPoints',
+          'gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','sackYards','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingYardsPerGame','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','catchPercentage','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','safeties','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalAttempts','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','extraPointPercentage','totalKickingPoints','punts','puntYards','grossAvgPuntYards','netAvgPuntYards','puntsInside20','puntTouchbacks','longestPunt','blockedPunts','kickReturnAttempts','kickReturnYards','kickReturnAverage','kickReturnTouchdowns','longestKickReturn','kickReturnFairCatches','puntReturnAttempts','puntReturnYards','puntReturnAverage','puntReturnTouchdowns','longestPuntReturn','puntReturnFairCatches',
           // MLB-specific
           'batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'
         ];
@@ -497,7 +498,7 @@ function App() {
       const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
       
       // Add NFL-specific stats to the player stats list
-      const nflPlayerStats = ['gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','totalKickingPoints'];
+      const nflPlayerStats = ['gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','sackYards','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingYardsPerGame','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','catchPercentage','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','safeties','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalAttempts','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','extraPointPercentage','totalKickingPoints','punts','puntYards','grossAvgPuntYards','netAvgPuntYards','puntsInside20','puntTouchbacks','longestPunt','blockedPunts','kickReturnAttempts','kickReturnYards','kickReturnAverage','kickReturnTouchdowns','longestKickReturn','kickReturnFairCatches','puntReturnAttempts','puntReturnYards','puntReturnAverage','puntReturnTouchdowns','longestPuntReturn','puntReturnFairCatches'];
       
       const allPlayerStats = [...playerStats, ...mlbPlayerStats, ...nflPlayerStats];
       
