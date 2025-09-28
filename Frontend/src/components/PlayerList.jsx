@@ -6,7 +6,7 @@ import LeagueStats from './LeagueStats';
 import TeamPlayersView from './TeamPlayersView';
 import '../styles/marquee.css';
 
-const PlayerList = ({ players, selectedStat, isDark, activeLeague, playerCount, showTeamPlayersView }) => {
+const PlayerList = ({ players, selectedStat, isDark, activeLeague, playerCount, showTeamPlayersView, isLoading = false }) => {
   const chartRef = useRef(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
@@ -25,6 +25,17 @@ const PlayerList = ({ players, selectedStat, isDark, activeLeague, playerCount, 
     if (showTeamPlayersView) showTeamPlayersView(team);
     setSelectedPlayer(null); // Close player modal
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading stats...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (players.length === 0 || !selectedStat) {
     return (

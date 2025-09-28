@@ -20,6 +20,7 @@ function App() {
   const [liveGames, setLiveGames] = useState([]);
   const [navContext, setNavContext] = useState('players'); // 'players', 'teams', 'teamPlayers'
   const [teamPlayersViewTeam, setTeamPlayersViewTeam] = useState(null); // If set, show TeamPlayersView
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
   const socketRef = useRef(null);
   
   // Add debounce for search
@@ -177,9 +178,22 @@ function App() {
             break;
         }
       }
+      
+      // Clear old data immediately to prevent flickering
+      setPlayers([]);
+      setIsLoadingStats(true);
+      
       fetch(buildApiUrl(apiConfig.endpoints.stats(activeLeague, selectedStat)))
         .then(res => res.json())
-        .then(data => setPlayers(data));
+        .then(data => {
+          setPlayers(data);
+          setIsLoadingStats(false);
+        })
+        .catch(error => {
+          console.error('Error fetching stats:', error);
+          setPlayers([]);
+          setIsLoadingStats(false);
+        });
     }
 
     return () => {
@@ -662,6 +676,7 @@ function App() {
               isDark={isDark}
               activeLeague={activeLeague}
               playerCount={playerCount}
+              isLoading={isLoadingStats}
               showTeamPlayersView={showTeamPlayersView}
             />
           )
