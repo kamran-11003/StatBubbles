@@ -110,17 +110,8 @@ function scheduleMidnightRefresh() {
     
     setTimeout(async () => {
       console.log('🕛 Running scheduled midnight stats refresh...');
-      // Pause live monitoring during refresh
-      if (LiveScoresService.stopMonitoring) {
-        await LiveScoresService.stopMonitoring();
-        console.log('⏸️ Live monitoring paused for midnight refresh');
-      }
       dataReady = false;
       await refreshAllStats();
-      if (LiveScoresService.startMonitoring) {
-        await LiveScoresService.startMonitoring();
-        console.log('▶️ Live monitoring resumed after midnight refresh');
-      }
       console.log('✅ Midnight stats refresh completed');
       // Schedule the next refresh (24 hours later)
       scheduleNextRefresh();
@@ -139,22 +130,23 @@ async function initialize() {
     httpServer.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
-    // Start data loading and monitoring in the background
-   (async () => {
+    
+    // Start live monitoring immediately (shows live scores even while data is loading)
+    console.log('🎮 Starting live monitoring immediately...');
+    await LiveScoresService.startMonitoring();
+    console.log('✅ Live monitoring started - users can see live scores');
+    
+    // Start data loading in the background (doesn't block live monitoring)
+    (async () => {
       try {
-        console.log('🔄 Starting initial data load...');
+        console.log('🔄 Starting background data load...');
         await refreshAllStats();
-        // Only start live monitoring after data is ready
-        if (dataReady) {
-          await LiveScoresService.startMonitoring();
-          console.log('Data loaded and live monitoring started');
-        } else {
-          console.error('Data not ready, live monitoring not started');
-        }
+        console.log('✅ Background data load completed');
       } catch (err) {
-        console.error('Error during background data load/monitor:', err);
+        console.error('Error during background data load:', err);
       }
     })();
+    
     // Schedule midnight refresh
     scheduleMidnightRefresh();
   } catch (error) {
