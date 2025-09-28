@@ -143,6 +143,15 @@ const Navbar = ({
       { label: 'WHIP', key: 'pitching_WHIP', category: 'Pitching' }
     ],
     NFL: [
+      // General Stats
+      { label: 'Games Played (GP)', key: 'gamesPlayed', category: 'General' },
+      { label: 'Fumbles (FUM)', key: 'fumbles', category: 'General' },
+      { label: 'Fumbles Lost (LST)', key: 'fumblesLost', category: 'General' },
+      { label: 'Fumble TDs (TD)', key: 'fumblesTouchdowns', category: 'General' },
+      { label: 'Offensive 2PT Returns', key: 'offensiveTwoPtReturns', category: 'General' },
+      { label: 'Offensive Fumble TDs', key: 'offensiveFumblesTouchdowns', category: 'General' },
+      { label: 'Defensive Fumble TDs', key: 'defensiveFumblesTouchdowns', category: 'General' },
+      
       // Passing (QB)
       { label: 'Completions (CMP)', key: 'passCompletions', category: 'Passing' },
       { label: 'Attempts (ATT)', key: 'passAttempts', category: 'Passing' },
@@ -156,6 +165,35 @@ const Navbar = ({
       { label: 'Sack Yards (SYD)', key: 'sackYards', category: 'Passing' },
       { label: 'Passer Rating (RATE)', key: 'passerRating', category: 'Passing' },
       { label: 'QBR', key: 'qbr', category: 'Passing' },
+      { label: 'ESPN QBR', key: 'espnQBRating', category: 'Passing' },
+      { label: 'Interception %', key: 'interceptionPct', category: 'Passing' },
+      { label: 'Net Passing Yards', key: 'netPassingYards', category: 'Passing' },
+      { label: 'Net Yards per Game', key: 'netPassingYardsPerGame', category: 'Passing' },
+      { label: 'Net Total Yards', key: 'netTotalYards', category: 'Passing' },
+      { label: 'Net Yards per Game', key: 'netYardsPerGame', category: 'Passing' },
+      { label: 'Big Plays', key: 'passingBigPlays', category: 'Passing' },
+      { label: 'First Downs', key: 'passingFirstDowns', category: 'Passing' },
+      { label: 'Passing Fumbles', key: 'passingFumbles', category: 'Passing' },
+      { label: 'Passing Fumbles Lost', key: 'passingFumblesLost', category: 'Passing' },
+      { label: 'Touchdown %', key: 'passingTouchdownPct', category: 'Passing' },
+      { label: 'Yards After Catch', key: 'passingYardsAfterCatch', category: 'Passing' },
+      { label: 'Yards at Catch', key: 'passingYardsAtCatch', category: 'Passing' },
+      { label: 'Yards per Game', key: 'passingYardsPerGame', category: 'Passing' },
+      { label: 'Net Attempts', key: 'netPassingAttempts', category: 'Passing' },
+      { label: 'Team Games', key: 'teamGamesPlayed', category: 'Passing' },
+      { label: 'Total Offensive Plays', key: 'totalOffensivePlays', category: 'Passing' },
+      { label: 'Points per Game', key: 'totalPointsPerGame', category: 'Passing' },
+      { label: 'Total Yards', key: 'totalYards', category: 'Passing' },
+      { label: 'Yards from Scrimmage', key: 'totalYardsFromScrimmage', category: 'Passing' },
+      { label: '2PT Conversions', key: 'twoPointPassConvs', category: 'Passing' },
+      { label: '2PT Passes', key: 'twoPtPass', category: 'Passing' },
+      { label: '2PT Pass Attempts', key: 'twoPtPassAttempts', category: 'Passing' },
+      { label: 'Yards from Scrimmage/G', key: 'yardsFromScrimmagePerGame', category: 'Passing' },
+      { label: 'Yards per Completion', key: 'yardsPerCompletion', category: 'Passing' },
+      { label: 'Yards per Game', key: 'yardsPerGame', category: 'Passing' },
+      { label: 'Net Yards per Attempt', key: 'netYardsPerPassAttempt', category: 'Passing' },
+      { label: 'Adjusted QBR', key: 'adjQBR', category: 'Passing' },
+      { label: 'Quarterback Rating', key: 'quarterbackRating', category: 'Passing' },
       
       // Rushing (RB/QB/WR)
       { label: 'Attempts (ATT)', key: 'rushingAttempts', category: 'Rushing' },
@@ -165,6 +203,13 @@ const Navbar = ({
       { label: 'Touchdowns (TD)', key: 'rushTouchdowns', category: 'Rushing' },
       { label: 'Fumbles (FUM)', key: 'rushingFumbles', category: 'Rushing' },
       { label: 'Lost (LST)', key: 'rushingFumblesLost', category: 'Rushing' },
+      { label: 'ESPN RB Rating', key: 'espnRBRating', category: 'Rushing' },
+      { label: 'Big Plays', key: 'rushingBigPlays', category: 'Rushing' },
+      { label: 'First Downs', key: 'rushingFirstDowns', category: 'Rushing' },
+      { label: 'Yards per Game', key: 'rushingYardsPerGame', category: 'Rushing' },
+      { label: '2PT Rush Conversions', key: 'twoPointRushConvs', category: 'Rushing' },
+      { label: '2PT Rushes', key: 'twoPtRush', category: 'Rushing' },
+      { label: '2PT Rush Attempts', key: 'twoPtRushAttempts', category: 'Rushing' },
 
       // Receiving (WR/TE/RB)
       { label: 'Targets (TGT)', key: 'receivingTargets', category: 'Receiving' },
@@ -177,6 +222,14 @@ const Navbar = ({
       { label: 'Touchdowns (TD)', key: 'receivingTouchdowns', category: 'Receiving' },
       { label: 'Fumbles (FUM)', key: 'receivingFumbles', category: 'Receiving' },
       { label: 'Lost (LST)', key: 'receivingFumblesLost', category: 'Receiving' },
+      { label: 'ESPN WR Rating', key: 'espnWRRating', category: 'Receiving' },
+      { label: 'Big Plays', key: 'receivingBigPlays', category: 'Receiving' },
+      { label: 'First Downs', key: 'receivingFirstDowns', category: 'Receiving' },
+      { label: 'Yards After Catch', key: 'receivingYardsAfterCatch', category: 'Receiving' },
+      { label: 'Yards at Catch', key: 'receivingYardsAtCatch', category: 'Receiving' },
+      { label: '2PT Reception Conversions', key: 'twoPointRecConvs', category: 'Receiving' },
+      { label: '2PT Receptions', key: 'twoPtReception', category: 'Receiving' },
+      { label: '2PT Reception Attempts', key: 'twoPtReceptionAttempts', category: 'Receiving' },
 
       // Defense (Individual)
       { label: 'Total Tackles (TOT)', key: 'totalTackles', category: 'Defense' },
@@ -190,6 +243,30 @@ const Navbar = ({
       { label: 'Defensive TDs (TD)', key: 'interceptionTouchdowns', category: 'Defense' },
       { label: 'Safeties (SFTY)', key: 'safeties', category: 'Defense' },
       { label: 'Blocked Kicks (BK)', key: 'kicksBlocked', category: 'Defense' },
+      { label: 'Fumble Recovery Yards', key: 'fumbleRecoveryYards', category: 'Defense' },
+      { label: 'Interception Yards', key: 'interceptionYards', category: 'Defense' },
+      { label: 'Avg Interception Yards', key: 'avgInterceptionYards', category: 'Defense' },
+      { label: 'Longest Interception', key: 'longestInterception', category: 'Defense' },
+      { label: 'Stuffs', key: 'stuffs', category: 'Defense' },
+      { label: 'Stuff Yards', key: 'stuffYards', category: 'Defense' },
+
+      // Scoring Stats
+      { label: 'Passing TDs', key: 'passingTouchdowns', category: 'Scoring' },
+      { label: 'Rushing TDs', key: 'rushingTouchdowns', category: 'Scoring' },
+      { label: 'Receiving TDs', key: 'receivingTouchdowns', category: 'Scoring' },
+      { label: 'Return TDs', key: 'returnTouchdowns', category: 'Scoring' },
+      { label: 'Total TDs', key: 'totalTouchdowns', category: 'Scoring' },
+      { label: 'Two Point Conversions', key: 'totalTwoPointConvs', category: 'Scoring' },
+      { label: 'Kick Extra Points', key: 'kickExtraPoints', category: 'Scoring' },
+      { label: 'Field Goals', key: 'fieldGoals', category: 'Scoring' },
+      { label: 'Total Points', key: 'totalPoints', category: 'Scoring' },
+      { label: 'Defensive Points', key: 'defensivePoints', category: 'Scoring' },
+      { label: 'Kick Extra Points Made', key: 'kickExtraPointsMade', category: 'Scoring' },
+      { label: 'Misc Points', key: 'miscPoints', category: 'Scoring' },
+      { label: '2PT Pass Conversions', key: 'twoPointPassConvs', category: 'Scoring' },
+      { label: '2PT Rec Conversions', key: 'twoPointRecConvs', category: 'Scoring' },
+      { label: '2PT Rush Conversions', key: 'twoPointRushConvs', category: 'Scoring' },
+      { label: '1PT Safeties Made', key: 'onePtSafetiesMade', category: 'Scoring' },
 
       // Special Teams - Kicking
       { label: 'Field Goals Made (FGM)', key: 'fieldGoalsMade', category: 'Kicking' },
@@ -200,6 +277,11 @@ const Navbar = ({
       { label: 'Extra Points Attempted (XPA)', key: 'extraPointAttempts', category: 'Kicking' },
       { label: 'Extra Point % (XP%)', key: 'extraPointPercentage', category: 'Kicking' },
       { label: 'Points (PTS)', key: 'totalKickingPoints', category: 'Kicking' },
+      { label: 'FG Made 1-19', key: 'fieldGoalsMade1_19', category: 'Kicking' },
+      { label: 'FG Made 20-29', key: 'fieldGoalsMade20_29', category: 'Kicking' },
+      { label: 'FG Made 30-39', key: 'fieldGoalsMade30_39', category: 'Kicking' },
+      { label: 'FG Made 40-49', key: 'fieldGoalsMade40_49', category: 'Kicking' },
+      { label: 'FG Made 50+', key: 'fieldGoalsMade50', category: 'Kicking' },
 
       // Special Teams - Punting
       { label: 'Punts (PUNTS)', key: 'punts', category: 'Punting' },
@@ -221,31 +303,9 @@ const Navbar = ({
       { label: 'Punt Returns: Yards (YDS)', key: 'puntReturnYards', category: 'Returns' },
       { label: 'Punt Returns: Avg (AVG)', key: 'puntReturnAverage', category: 'Returns' },
       { label: 'Punt Returns: TDs', key: 'puntReturnTouchdowns', category: 'Returns' },
-      { label: 'Punt Returns: Longest (LNG)', key: 'longestPuntReturn', category: 'Returns' }
-
-      // COMMENTED OUT EXTRA STATS (Available in backend but not in dropdown)
-      // { label: 'Fumble Recovery Yards', key: 'fumbleRecoveryYards', category: 'Defense' },
-      // { label: 'Interception Yards', key: 'interceptionYards', category: 'Defense' },
-      // { label: 'Avg Interception Yards', key: 'avgInterceptionYards', category: 'Defense' },
-      // { label: 'Longest Interception', key: 'longestInterception', category: 'Defense' },
-      // { label: 'Stuffs', key: 'stuffs', category: 'Defense' },
-      // { label: 'Stuff Yards', key: 'stuffYards', category: 'Defense' },
-      // { label: 'Passing TDs', key: 'passingTouchdowns', category: 'Scoring' },
-      // { label: 'Rushing TDs', key: 'rushingTouchdowns', category: 'Scoring' },
-      // { label: 'Receiving TDs', key: 'receivingTouchdowns', category: 'Scoring' },
-      // { label: 'Return TDs', key: 'returnTouchdowns', category: 'Scoring' },
-      // { label: 'Total TDs', key: 'totalTouchdowns', category: 'Scoring' },
-      // { label: 'Two Point Conversions', key: 'totalTwoPointConvs', category: 'Scoring' },
-      // { label: 'Kick Extra Points', key: 'kickExtraPoints', category: 'Scoring' },
-      // { label: 'Field Goals', key: 'fieldGoals', category: 'Scoring' },
-      // { label: 'Total Points', key: 'totalPoints', category: 'Scoring' },
-      // { label: 'FG Made 1-19', key: 'fieldGoalsMade1_19', category: 'Kicking' },
-      // { label: 'FG Made 20-29', key: 'fieldGoalsMade20_29', category: 'Kicking' },
-      // { label: 'FG Made 30-39', key: 'fieldGoalsMade30_39', category: 'Kicking' },
-      // { label: 'FG Made 40-49', key: 'fieldGoalsMade40_49', category: 'Kicking' },
-      // { label: 'FG Made 50+', key: 'fieldGoalsMade50', category: 'Kicking' },
-      // { label: 'Kick Returns: Fair Catches', key: 'kickReturnFairCatches', category: 'Returns' },
-      // { label: 'Punt Returns: Fair Catches', key: 'puntReturnFairCatches', category: 'Returns' }
+      { label: 'Punt Returns: Longest (LNG)', key: 'longestPuntReturn', category: 'Returns' },
+      { label: 'Kick Returns: Fair Catches', key: 'kickReturnFairCatches', category: 'Returns' },
+      { label: 'Punt Returns: Fair Catches', key: 'puntReturnFairCatches', category: 'Returns' }
     ],
     WNBA: [
       { label: 'Avg Points', key: 'avgPoints' },
@@ -661,6 +721,22 @@ const Navbar = ({
                               </>
                             ) : selectedLeague === 'NFL' ? (
                               <>
+                                {/* General Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    General
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'General').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
                                 {/* Passing Category */}
                                 <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
                                   <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -716,6 +792,70 @@ const Navbar = ({
                                   </h3>
                                 </div>
                                 {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Defense').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
+                                {/* Scoring Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Scoring
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Scoring').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
+                                {/* Kicking Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Kicking
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Kicking').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
+                                {/* Punting Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Punting
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Punting').map(stat => (
+                                  <button
+                                    key={stat.key}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                    onClick={() => handleStatSelect(stat.key)}
+                                  >
+                                    {stat.label}
+                                  </button>
+                                ))}
+                                
+                                {/* Returns Category */}
+                                <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                  <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Returns
+                                  </h3>
+                                </div>
+                                {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Returns').map(stat => (
                                   <button
                                     key={stat.key}
                                     className={`block w-full text-left px-4 py-2 text-sm ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
@@ -916,6 +1056,22 @@ const Navbar = ({
                             </>
                           ) : selectedLeague === 'NFL' ? (
                             <>
+                              {/* General Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  General
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'General').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
                               {/* Passing Category */}
                               <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
                                 <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -971,6 +1127,70 @@ const Navbar = ({
                                 </h3>
                               </div>
                               {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Defense').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
+                              {/* Scoring Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Scoring
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Scoring').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
+                              {/* Kicking Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Kicking
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Kicking').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
+                              {/* Punting Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Punting
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Punting').map(stat => (
+                                <button
+                                  key={stat.key}
+                                  className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                  onClick={() => handleStatSelect(stat.key)}
+                                >
+                                  {stat.label}
+                                </button>
+                              ))}
+                              
+                              {/* Returns Category */}
+                              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Returns
+                                </h3>
+                              </div>
+                              {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Returns').map(stat => (
                                 <button
                                   key={stat.key}
                                   className={`block w-full text-left px-4 py-2 text-xs ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
@@ -1317,6 +1537,22 @@ const Navbar = ({
                                 </button>
                                 {statsDropdownOpen && (
                                   <div className={`absolute left-0 mt-2 py-2 w-56 rounded-md shadow-lg max-h-80 overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-10`}>
+                                    {/* General Category */}
+                                    <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        General
+                                      </h3>
+                                    </div>
+                                    {leagueStats[selectedLeague]?.filter(stat => stat.category === 'General').map(stat => (
+                                      <button
+                                        key={stat.key}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        onClick={() => handleStatSelect(stat.key)}
+                                      >
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
+                                      </button>
+                                    ))}
+                                    
                                     {/* Passing Category */}
                                     <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
                                       <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -1372,6 +1608,70 @@ const Navbar = ({
                                       </h3>
                                     </div>
                                     {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Defense').map(stat => (
+                                      <button
+                                        key={stat.key}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        onClick={() => handleStatSelect(stat.key)}
+                                      >
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
+                                      </button>
+                                    ))}
+                                    
+                                    {/* Scoring Category */}
+                                    <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Scoring
+                                      </h3>
+                                    </div>
+                                    {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Scoring').map(stat => (
+                                      <button
+                                        key={stat.key}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        onClick={() => handleStatSelect(stat.key)}
+                                      >
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
+                                      </button>
+                                    ))}
+                                    
+                                    {/* Kicking Category */}
+                                    <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Kicking
+                                      </h3>
+                                    </div>
+                                    {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Kicking').map(stat => (
+                                      <button
+                                        key={stat.key}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        onClick={() => handleStatSelect(stat.key)}
+                                      >
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
+                                      </button>
+                                    ))}
+                                    
+                                    {/* Punting Category */}
+                                    <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Punting
+                                      </h3>
+                                    </div>
+                                    {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Punting').map(stat => (
+                                      <button
+                                        key={stat.key}
+                                        className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}
+                                        onClick={() => handleStatSelect(stat.key)}
+                                      >
+                                        <span className="truncate whitespace-nowrap w-full max-w-[200px]">{stat.label}</span>
+                                      </button>
+                                    ))}
+                                    
+                                    {/* Returns Category */}
+                                    <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                                      <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Returns
+                                      </h3>
+                                    </div>
+                                    {leagueStats[selectedLeague]?.filter(stat => stat.category === 'Returns').map(stat => (
                                       <button
                                         key={stat.key}
                                         className={`flex items-center w-full text-left px-4 py-2 text-xs h-8 ${selectedStat === stat.key ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')}`}

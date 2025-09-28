@@ -1,2 +1,5 @@
 node_modules
 .env
+nfl_stats.json
+test.py
+nfl_stats_defensive.json

@@ -497,8 +497,45 @@ function App() {
       // Add MLB-specific stats to the player stats list
       const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
       
-      // Add NFL-specific stats to the player stats list
-      const nflPlayerStats = ['gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','sackYards','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingYardsPerGame','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','catchPercentage','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','safeties','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalAttempts','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','extraPointPercentage','totalKickingPoints','punts','puntYards','grossAvgPuntYards','netAvgPuntYards','puntsInside20','puntTouchbacks','longestPunt','blockedPunts','kickReturnAttempts','kickReturnYards','kickReturnAverage','kickReturnTouchdowns','longestKickReturn','kickReturnFairCatches','puntReturnAttempts','puntReturnYards','puntReturnAverage','puntReturnTouchdowns','longestPuntReturn','puntReturnFairCatches'];
+      // Add NFL-specific stats to the player stats list (updated with all new fields)
+      const nflPlayerStats = [
+        // General Stats
+        'gamesPlayed','fumbles','fumblesLost','fumblesTouchdowns','offensiveTwoPtReturns','offensiveFumblesTouchdowns','defensiveFumblesTouchdowns',
+        
+        // Passing Stats
+        'passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','sackYards','passerRating','qbr',
+        'espnQBRating','interceptionPct','netPassingYards','netPassingYardsPerGame','netTotalYards','netYardsPerGame','passingBigPlays','passingFirstDowns','passingFumbles','passingFumblesLost',
+        'passingTouchdownPct','passingYardsAfterCatch','passingYardsAtCatch','passingYardsPerGame','netPassingAttempts','teamGamesPlayed','totalOffensivePlays','totalPointsPerGame',
+        'totalYards','totalYardsFromScrimmage','twoPointPassConvs','twoPtPass','twoPtPassAttempts','yardsFromScrimmagePerGame','yardsPerCompletion','yardsPerGame',
+        'netYardsPerPassAttempt','adjQBR','quarterbackRating',
+        
+        // Rushing Stats
+        'rushingAttempts','rushingYards','yardsPerRushAttempt','longestRush','rushTouchdowns','rushingFirstDowns','rushingFumbles','rushingFumblesLost',
+        'espnRBRating','rushingBigPlays','rushingYardsPerGame','twoPointRushConvs','twoPtRush','twoPtRushAttempts',
+        
+        // Receiving Stats
+        'receptions','receivingTargets','receivingYards','yardsPerReception','receivingYardsPerGame','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost',
+        'catchPercentage','espnWRRating','receivingBigPlays','receivingYardsAfterCatch','receivingYardsAtCatch','twoPointRecConvs','twoPtReception','twoPtReceptionAttempts',
+        
+        // Defense Stats
+        'totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards',
+        'interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','safeties',
+        
+        // Scoring Stats
+        'passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints',
+        'defensivePoints','kickExtraPointsMade','miscPoints','twoPointPassConvs','twoPointRecConvs','twoPointRushConvs','onePtSafetiesMade',
+        
+        // Kicking Stats
+        'fieldGoalsMade','fieldGoalAttempts','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50',
+        'longFieldGoalMade','extraPointsMade','extraPointAttempts','extraPointPercentage','totalKickingPoints',
+        
+        // Punting Stats
+        'punts','puntYards','grossAvgPuntYards','netAvgPuntYards','puntsInside20','puntTouchbacks','longestPunt','blockedPunts',
+        
+        // Returns Stats
+        'kickReturnAttempts','kickReturnYards','kickReturnAverage','kickReturnTouchdowns','longestKickReturn','kickReturnFairCatches',
+        'puntReturnAttempts','puntReturnYards','puntReturnAverage','puntReturnTouchdowns','longestPuntReturn','puntReturnFairCatches'
+      ];
       
       const allPlayerStats = [...playerStats, ...mlbPlayerStats, ...nflPlayerStats];
       

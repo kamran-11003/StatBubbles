@@ -50,6 +50,10 @@ const validStats = {
     'fielding_triplePlays', 'fielding_passedBalls', 'fielding_outfieldAssists', 'fielding_catcherInterference'
   ],
   NFL: [
+    // General Stats
+    'gamesPlayed', 'fumbles', 'fumblesLost', 'fumblesTouchdowns', 'offensiveTwoPtReturns', 
+    'offensiveFumblesTouchdowns', 'defensiveFumblesTouchdowns',
+    
     // Basic stats
     'touchdowns', 'passYards', 'rushYards', 'completionPercentage',
     'passAttempts', 'passCompletions', 'interceptions', 'sacks',
@@ -57,16 +61,24 @@ const validStats = {
     
     // Passing stats
     'passTouchdowns', 'longestPass', 'sacksTaken', 'sackYards', 'passerRating', 'qbr',
-    'yardsPerPassAttempt',
+    'yardsPerPassAttempt', 'espnQBRating', 'interceptionPct', 'netPassingYards', 'netPassingYardsPerGame',
+    'netTotalYards', 'netYardsPerGame', 'passingBigPlays', 'passingFirstDowns', 'passingFumbles',
+    'passingFumblesLost', 'passingTouchdownPct', 'passingYardsAfterCatch', 'passingYardsAtCatch',
+    'passingYardsPerGame', 'netPassingAttempts', 'teamGamesPlayed', 'totalOffensivePlays',
+    'totalPointsPerGame', 'totalYards', 'totalYardsFromScrimmage', 'twoPointPassConvs',
+    'twoPtPass', 'twoPtPassAttempts', 'yardsFromScrimmagePerGame', 'yardsPerCompletion',
+    'yardsPerGame', 'netYardsPerPassAttempt', 'adjQBR', 'quarterbackRating',
     
     // Rushing stats
     'rushTouchdowns', 'longestRush', 'rushingFirstDowns', 'rushingFumbles', 'rushingFumblesLost',
-    'yardsPerRushAttempt',
+    'yardsPerRushAttempt', 'espnRBRating', 'rushingBigPlays', 'rushingYardsPerGame',
+    'twoPointRushConvs', 'twoPtRush', 'twoPtRushAttempts',
     
     // Receiving stats
     'receivingTargets', 'receivingTouchdowns', 'longestReception', 'receivingFirstDowns',
     'receivingFumbles', 'receivingFumblesLost', 'yardsPerReception', 'catchPercentage',
-    'receivingYardsPerGame',
+    'receivingYardsPerGame', 'espnWRRating', 'receivingBigPlays', 'receivingYardsAfterCatch',
+    'receivingYardsAtCatch', 'twoPointRecConvs', 'twoPtReception', 'twoPtReceptionAttempts',
     
     // Defense stats
     'totalTackles', 'soloTackles', 'assistedTackles', 'forcedFumbles', 'fumbleRecoveries',
@@ -77,6 +89,8 @@ const validStats = {
     // Scoring stats
     'passingTouchdowns', 'rushingTouchdowns', 'receivingTouchdowns', 'returnTouchdowns',
     'totalTouchdowns', 'totalTwoPointConvs', 'kickExtraPoints', 'fieldGoals', 'totalPoints',
+    'defensivePoints', 'kickExtraPointsMade', 'miscPoints', 'twoPointPassConvs',
+    'twoPointRecConvs', 'twoPointRushConvs', 'onePtSafetiesMade',
     
     // Kicking stats
     'fieldGoalsMade', 'fieldGoalAttempts', 'fieldGoalPercentage', 'fieldGoalsMade1_19',
@@ -91,10 +105,7 @@ const validStats = {
     // Return stats
     'kickReturnAttempts', 'kickReturnYards', 'kickReturnAverage', 'kickReturnTouchdowns',
     'longestKickReturn', 'kickReturnFairCatches', 'puntReturnAttempts', 'puntReturnYards',
-    'puntReturnAverage', 'puntReturnTouchdowns', 'longestPuntReturn', 'puntReturnFairCatches',
-    
-    // Games played
-    'gamesPlayed'
+    'puntReturnAverage', 'puntReturnTouchdowns', 'longestPuntReturn', 'puntReturnFairCatches'
   ],
   NHL: [
     'goals', 'assists', 'points', 'plusMinus', 'penaltyMinutes', 'shotsTotal',

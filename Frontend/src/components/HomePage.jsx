@@ -56,22 +56,56 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       description: 'Football player and team statistics',
       defaultStat: 'passYards', // Most important player stat (starts in Players view)
       stats: [
-        // Player stats
+        // General Stats
+        'gamesPlayed', 'fumbles', 'fumblesLost', 'fumblesTouchdowns', 'offensiveTwoPtReturns', 'offensiveFumblesTouchdowns', 'defensiveFumblesTouchdowns',
+        
+        // Player stats - Passing
         'passCompletions', 'passAttempts', 'completionPercentage', 'passYards', 'yardsPerPassAttempt',
-        'passTouchdowns', 'interceptions', 'longestPass', 'sacksTaken', 'passerRating', 'qbr',
+        'passTouchdowns', 'interceptions', 'longestPass', 'sacksTaken', 'sackYards', 'passerRating', 'qbr',
+        'espnQBRating', 'interceptionPct', 'netPassingYards', 'netPassingYardsPerGame', 'netTotalYards', 'netYardsPerGame',
+        'passingBigPlays', 'passingFirstDowns', 'passingFumbles', 'passingFumblesLost', 'passingTouchdownPct',
+        'passingYardsAfterCatch', 'passingYardsAtCatch', 'passingYardsPerGame', 'netPassingAttempts', 'teamGamesPlayed',
+        'totalOffensivePlays', 'totalPointsPerGame', 'totalYards', 'totalYardsFromScrimmage', 'twoPointPassConvs',
+        'twoPtPass', 'twoPtPassAttempts', 'yardsFromScrimmagePerGame', 'yardsPerCompletion', 'yardsPerGame',
+        'netYardsPerPassAttempt', 'adjQBR', 'quarterbackRating',
+        
+        // Player stats - Rushing
         'rushingAttempts', 'rushingYards', 'yardsPerRushAttempt', 'longestRush', 'rushTouchdowns',
-        'rushingFumbles', 'rushingFumblesLost',
+        'rushingFumbles', 'rushingFumblesLost', 'espnRBRating', 'rushingBigPlays', 'rushingFirstDowns',
+        'rushingYardsPerGame', 'twoPointRushConvs', 'twoPtRush', 'twoPtRushAttempts',
+        
+        // Player stats - Receiving
         'receivingTargets', 'receptions', 'catchPercentage', 'receivingYards', 'yardsPerReception', 'receivingYardsPerGame',
-        'longestReception', 'receivingTouchdowns', 'receivingFumbles', 'receivingFumblesLost',
+        'longestReception', 'receivingTouchdowns', 'receivingFumbles', 'receivingFumblesLost', 'espnWRRating',
+        'receivingBigPlays', 'receivingFirstDowns', 'receivingYardsAfterCatch', 'receivingYardsAtCatch',
+        'twoPointRecConvs', 'twoPtReception', 'twoPtReceptionAttempts',
+        
+        // Player stats - Defense
         'totalTackles', 'soloTackles', 'assistedTackles', 'sacks', 'defensiveInterceptions', 'passesDefended',
         'forcedFumbles', 'fumbleRecoveries', 'interceptionTouchdowns', 'safeties', 'kicksBlocked',
+        'fumbleRecoveryYards', 'interceptionYards', 'avgInterceptionYards', 'longestInterception',
+        'stuffs', 'stuffYards',
+        
+        // Player stats - Scoring
+        'passingTouchdowns', 'rushingTouchdowns', 'receivingTouchdowns', 'returnTouchdowns', 'totalTouchdowns',
+        'totalTwoPointConvs', 'kickExtraPoints', 'fieldGoals', 'totalPoints', 'defensivePoints',
+        'kickExtraPointsMade', 'miscPoints', 'twoPointPassConvs', 'twoPointRecConvs', 'twoPointRushConvs',
+        'onePtSafetiesMade',
+        
         // Special Teams - Kicking
-        'fieldGoalsMade', 'fieldGoalPercentage', 'longFieldGoalMade', 'extraPointsMade', 'extraPointAttempts', 'extraPointPercentage', 'totalKickingPoints',
+        'fieldGoalsMade', 'fieldGoalAttempts', 'fieldGoalPercentage', 'longFieldGoalMade', 'extraPointsMade',
+        'extraPointAttempts', 'extraPointPercentage', 'totalKickingPoints', 'fieldGoalsMade1_19',
+        'fieldGoalsMade20_29', 'fieldGoalsMade30_39', 'fieldGoalsMade40_49', 'fieldGoalsMade50',
+        
         // Special Teams - Punting
-        'punts', 'puntYards', 'grossAvgPuntYards', 'netAvgPuntYards', 'puntsInside20', 'puntTouchbacks', 'longestPunt', 'blockedPunts',
+        'punts', 'puntYards', 'grossAvgPuntYards', 'netAvgPuntYards', 'puntsInside20', 'puntTouchbacks',
+        'longestPunt', 'blockedPunts',
+        
         // Special Teams - Returns
         'kickReturnAttempts', 'kickReturnYards', 'kickReturnAverage', 'kickReturnTouchdowns', 'longestKickReturn',
         'puntReturnAttempts', 'puntReturnYards', 'puntReturnAverage', 'puntReturnTouchdowns', 'longestPuntReturn',
+        'kickReturnFairCatches', 'puntReturnFairCatches',
+        
         // Team stats (expanded to align with dropdown categories)
         'netPassingYards', 'rushingYards', 'totalYards', 'yardsPerPlay', 'totalPointsPerGame',
         'totalFirstDowns', 'thirdDownConversionPct', 'fourthDownConversionPct', 'redzoneScoringPct',
