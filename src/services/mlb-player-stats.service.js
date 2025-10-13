@@ -51,23 +51,29 @@ async function getLatestSeasonId() {
   try {
     const response = await axios.get(seasonsUrl);
     const items = response.data.items || [];
+    const now = new Date();
 
-    const sorted = items
+    const startedSeasons = items
       .map(item => {
-        const seasonId = item.$ref.match(/\/seasons\/(\d+)/)?.[1];
-        return seasonId ? parseInt(seasonId) : null;
+        const seasonIdMatch = item.$ref.match(/\/seasons\/(\d+)/);
+        if (!seasonIdMatch) return null;
+        const seasonId = parseInt(seasonIdMatch[1]);
+        const approxStartDate = new Date(seasonId, 2, 25); // March 25 of season year
+        return (approxStartDate <= now && seasonId >= 2020) ? seasonId : null;
       })
       .filter(Boolean)
       .sort((a, b) => b - a);
 
-    if (sorted.length > 0) {
-      console.log(`✅ Latest MLB season: ${sorted[0]}`);
-      return sorted[0];
+    if (startedSeasons.length > 0) {
+      console.log(`✅ Latest started MLB season: ${startedSeasons[0]}`);
+      return startedSeasons[0]; // 2025 now, 2026 after March 2026
     }
+    console.log(`⚠ No started seasons found. Defaulting to 2025.`);
+    return 2025;
   } catch (error) {
     console.log("⚠ Error fetching seasons. Defaulting to 2025.", error.message);
+    return 2025;
   }
-  return 2025;
 }
 
 async function processActiveMlbPlayersWithStats(db) {
@@ -117,8 +123,8 @@ async function processActiveMlbPlayersWithStats(db) {
           teamDisplayName,
           headshot: player.headshot
             ? {
-            href: player.headshot.href,
-            alt: player.headshot.alt
+                href: player.headshot.href,
+                alt: player.headshot.alt
               }
             : null,
           stats: {}, // will be filled below
@@ -285,4 +291,4 @@ module.exports = {
   getTeamPlayers,
   searchPlayers,
   refresh
-}; 
+};
