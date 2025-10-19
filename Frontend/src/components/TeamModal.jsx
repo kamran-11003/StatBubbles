@@ -120,8 +120,20 @@ const TeamModal = ({ team, isDark, onClose, onShowTeamPlayers }) => {
                 } else if (typeof value === 'number') {
                   if (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key === 'winPercentage') {
                     displayValue = `${(value * 100).toFixed(0)}%`;
+                  } else if (team.league === 'NFL' && (key === 'interceptionPct' || key === 'passingTouchdownPct' || key === 'completionPercentage' || key === 'catchPercentage' || key === 'fieldGoalPercentage' || key === 'extraPointPercentage')) {
+                    // NFL percentage fields that need % sign
+                    if (value % 1 === 0) {
+                      displayValue = `${value}%`;
+                    } else {
+                      displayValue = `${value.toFixed(2)}%`;
+                    }
                   } else if (value < 1) {
-                    displayValue = value.toFixed(2);
+                    // Smart decimal formatting for small values
+                    if (value % 1 === 0) {
+                      displayValue = value.toString();
+                    } else {
+                      displayValue = value.toFixed(2);
+                    }
                   } else {
                     displayValue = Math.round(value);
                   }

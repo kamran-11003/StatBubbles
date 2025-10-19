@@ -232,12 +232,30 @@ const PlayerModal = ({ player, isDark, onClose, leagueStats, onShowTeamPlayers }
                     if (typeof value === 'number') {
                       if (player.league === 'WNBA' && wnbaPercentKeys.includes(key)) {
                         displayValue = `${(value * 100).toFixed(0)}%`;
+                      } else if (player.league === 'NFL' && (key === 'interceptionPct' || key === 'passingTouchdownPct' || key === 'completionPercentage' || key === 'catchPercentage' || key === 'fieldGoalPercentage' || key === 'extraPointPercentage')) {
+                        // NFL percentage fields that need % sign
+                        if (value % 1 === 0) {
+                          displayValue = `${value}%`;
+                        } else {
+                          displayValue = `${value.toFixed(2)}%`;
+                        }
                       } else {
-                        displayValue = (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key.toLowerCase().includes('avg') || value < 1
-                          ? value.toFixed(2)
-                          : (key === 'points' || key === 'avgPoints'
-                              ? value.toFixed(1)
-                              : Math.round(value)));
+                        // Smart decimal formatting for all other stats
+                        if (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('pct') || key.toLowerCase().includes('avg') || value < 1) {
+                          if (value % 1 === 0) {
+                            displayValue = value.toString();
+                          } else {
+                            displayValue = value.toFixed(2);
+                          }
+                        } else if (key === 'points' || key === 'avgPoints') {
+                          if (value % 1 === 0) {
+                            displayValue = value.toString();
+                          } else {
+                            displayValue = value.toFixed(1);
+                          }
+                        } else {
+                          displayValue = Math.round(value);
+                        }
                       }
                     }
                   }

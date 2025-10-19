@@ -758,10 +758,45 @@ export const createBubbleVisualization = ({
           } else {
             statValue = val.toFixed(2);
           }
+        } else if (d.league === 'NFL' && typeof getStatValue(d, selectedStat) === 'number') {
+          const val = getStatValue(d, selectedStat);
+          // NFL percentage fields that need % sign
+          const nflPercentageFields = [
+            'interceptionPct', 'passingTouchdownPct', 'completionPercentage', 
+            'catchPercentage', 'fieldGoalPercentage', 'extraPointPercentage'
+          ];
+          if (nflPercentageFields.includes(selectedStat)) {
+            if (val % 1 === 0) {
+              statValue = `${val}%`;
+            } else {
+              statValue = `${val.toFixed(2)}%`;
+            }
+          } else {
+            // Smart decimal formatting for other NFL stats
+            if (val % 1 === 0) {
+              statValue = val.toString();
+            } else {
+              statValue = val.toFixed(2);
+            }
+          }
         } else {
-          statValue = `${selectedStat.toLowerCase() === 'points' 
-            ? Number(getStatValue(d, selectedStat)).toFixed(1)
-            : Number(getStatValue(d, selectedStat)).toFixed(2)}${selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent') ? '%' : ''}`;
+          const val = getStatValue(d, selectedStat);
+          if (selectedStat.toLowerCase() === 'points') {
+            if (val % 1 === 0) {
+              statValue = val.toString();
+            } else {
+              statValue = val.toFixed(1);
+            }
+          } else {
+            if (val % 1 === 0) {
+              statValue = val.toString();
+            } else {
+              statValue = val.toFixed(2);
+            }
+          }
+          if (selectedStat.toLowerCase().includes('percentage') || selectedStat.toLowerCase().includes('percent')) {
+            statValue += '%';
+          }
         }
       }
       
