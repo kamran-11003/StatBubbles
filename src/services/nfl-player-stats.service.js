@@ -357,6 +357,9 @@ async function processActiveNflPlayersWithStats(db) {
                     if (category.name === 'passing' && stat.name === 'QBRating') {
                       fieldName = 'passerRating'; // Map to model field name
                     }
+                    if (category.name === 'passing' && stat.name === 'ESPNQBRating') {
+                      fieldName = 'espnQBRating'; // Map to model field name
+                    }
                     if (category.name === 'passing' && stat.name === 'interceptionPct') {
                       fieldName = 'interceptionPct'; // Keep as is
                     }
@@ -848,20 +851,20 @@ async function processActiveNflPlayersWithStats(db) {
             playerDoc.offensiveFumblesTouchdowns = Math.round(extractedStats.offensiveFumblesTouchdowns || 0);
             playerDoc.defensiveFumblesTouchdowns = Math.round(extractedStats.defensiveFumblesTouchdowns || 0);
             
-            // Passing Stats
-            playerDoc.passCompletions = Math.round(extractedStats.completions || 0);
-            playerDoc.passAttempts = Math.round(extractedStats.passingAttempts || 0);
-            playerDoc.completionPercentage = parseFloat((extractedStats.completionPct || 0).toFixed(2));
-            playerDoc.passYards = Math.round(extractedStats.passingYards || 0);
+            // Passing Stats - USE MAPPED FIELD NAMES
+            playerDoc.passCompletions = Math.round(extractedStats.passCompletions || 0);
+            playerDoc.passAttempts = Math.round(extractedStats.passAttempts || 0);
+            playerDoc.completionPercentage = parseFloat((extractedStats.completionPercentage || 0).toFixed(2));
+            playerDoc.passYards = Math.round(extractedStats.passYards || 0);
             playerDoc.yardsPerPassAttempt = parseFloat((extractedStats.yardsPerPassAttempt || 0).toFixed(2));
-            playerDoc.passTouchdowns = Math.round(extractedStats.passingTouchdowns || 0);
+            playerDoc.passTouchdowns = Math.round(extractedStats.passTouchdowns || 0);
             playerDoc.interceptions = Math.round(extractedStats.interceptions || 0);
-            playerDoc.longestPass = Math.round(extractedStats.longPassing || 0);
+            playerDoc.longestPass = Math.round(extractedStats.longestPass || 0);
             playerDoc.sacksTaken = Math.round(extractedStats.sacksTaken || 0); // Sacks taken by QB (from passing category)
-            playerDoc.sackYards = Math.round(extractedStats.sackYardsLost || 0); // Sack yards lost by QB
-            playerDoc.passerRating = parseFloat((extractedStats.QBRating || 0).toFixed(2));
-            playerDoc.qbr = parseFloat((extractedStats.QBR || 0).toFixed(2));
-            playerDoc.espnQBRating = Math.round(extractedStats.ESPNQBRating || 0);
+            playerDoc.sackYards = Math.round(extractedStats.sackYards || 0); // Sack yards lost by QB (renamed from sackYardsLost)
+            playerDoc.passerRating = parseFloat((extractedStats.passerRating || 0).toFixed(2));
+            playerDoc.qbr = parseFloat((extractedStats.qbr || 0).toFixed(2));
+            playerDoc.espnQBRating = Math.round(extractedStats.espnQBRating || 0);
             playerDoc.interceptionPct = parseFloat((extractedStats.interceptionPct || 0).toFixed(2));
             playerDoc.netPassingYards = Math.round(extractedStats.netPassingYards || 0);
             playerDoc.netPassingYardsPerGame = parseFloat((extractedStats.netPassingYardsPerGame || 0).toFixed(2));
@@ -890,61 +893,61 @@ async function processActiveNflPlayersWithStats(db) {
             playerDoc.netYardsPerPassAttempt = parseFloat((extractedStats.netYardsPerPassAttempt || 0).toFixed(2));
             playerDoc.adjQBR = parseFloat((extractedStats.adjQBR || 0).toFixed(2));
             playerDoc.quarterbackRating = parseFloat((extractedStats.quarterbackRating || 0).toFixed(2));
-            // Rushing Stats
+            // Rushing Stats - USE MAPPED FIELD NAMES
             playerDoc.rushingAttempts = Math.round(extractedStats.rushingAttempts || 0);
             playerDoc.rushingYards = Math.round(extractedStats.rushingYards || 0);
             playerDoc.yardsPerRushAttempt = parseFloat((extractedStats.yardsPerRushAttempt || 0).toFixed(2));
-            playerDoc.rushTouchdowns = Math.round(extractedStats.rushingTouchdowns || 0);
-            playerDoc.longestRush = Math.round(extractedStats.longRushing || 0);
+            playerDoc.rushTouchdowns = Math.round(extractedStats.rushTouchdowns || 0);
+            playerDoc.longestRush = Math.round(extractedStats.longestRush || 0);
             playerDoc.rushingFirstDowns = Math.round(extractedStats.rushingFirstDowns || 0);
             playerDoc.rushingFumbles = Math.round(extractedStats.rushingFumbles || 0);
             playerDoc.rushingFumblesLost = Math.round(extractedStats.rushingFumblesLost || 0);
-            playerDoc.espnRBRating = Math.round(extractedStats.ESPNRBRating || 0);
+            playerDoc.espnRBRating = Math.round(extractedStats.espnRBRating || 0);
             playerDoc.rushingBigPlays = Math.round(extractedStats.rushingBigPlays || 0);
             playerDoc.rushingYardsPerGame = parseFloat((extractedStats.rushingYardsPerGame || 0).toFixed(2));
             playerDoc.twoPointRushConvs = Math.round(extractedStats.twoPointRushConvs || 0);
             playerDoc.twoPtRush = Math.round(extractedStats.twoPtRush || 0);
             playerDoc.twoPtRushAttempts = Math.round(extractedStats.twoPtRushAttempts || 0);
-            // Receiving Stats
+            // Receiving Stats - USE MAPPED FIELD NAMES
             playerDoc.receptions = Math.round(extractedStats.receptions || 0);
             playerDoc.receivingTargets = Math.round(extractedStats.receivingTargets || 0);
             playerDoc.receivingYards = Math.round(extractedStats.receivingYards || 0);
             playerDoc.yardsPerReception = parseFloat((extractedStats.yardsPerReception || 0).toFixed(2));
             playerDoc.receivingYardsPerGame = parseFloat((extractedStats.receivingYardsPerGame || 0).toFixed(2));
             playerDoc.receivingTouchdowns = Math.round(extractedStats.receivingTouchdowns || 0);
-            playerDoc.longestReception = Math.round(extractedStats.longReception || 0);
+            playerDoc.longestReception = Math.round(extractedStats.longestReception || 0);
             playerDoc.receivingFirstDowns = Math.round(extractedStats.receivingFirstDowns || 0);
             playerDoc.receivingFumbles = Math.round(extractedStats.receivingFumbles || 0);
             playerDoc.receivingFumblesLost = Math.round(extractedStats.receivingFumblesLost || 0);
             playerDoc.catchPercentage = parseFloat((playerDoc.receptions / (playerDoc.receivingTargets || 1) * 100 || 0).toFixed(2));
-            playerDoc.espnWRRating = Math.round(extractedStats.ESPNWRRating || 0);
+            playerDoc.espnWRRating = Math.round(extractedStats.espnWRRating || 0);
             playerDoc.receivingBigPlays = Math.round(extractedStats.receivingBigPlays || 0);
             playerDoc.receivingYardsAfterCatch = Math.round(extractedStats.receivingYardsAfterCatch || 0);
             playerDoc.receivingYardsAtCatch = Math.round(extractedStats.receivingYardsAtCatch || 0);
             playerDoc.twoPointRecConvs = Math.round(extractedStats.twoPointRecConvs || 0);
             playerDoc.twoPtReception = Math.round(extractedStats.twoPtReception || 0);
             playerDoc.twoPtReceptionAttempts = Math.round(extractedStats.twoPtReceptionAttempts || 0);
-            // Defense Stats - Map defensive stats when they exist in the API response
+            // Defense Stats - USE MAPPED FIELD NAMES
             playerDoc.totalTackles = Math.round(extractedStats.totalTackles || 0);
             playerDoc.soloTackles = Math.round(extractedStats.soloTackles || 0);
-            playerDoc.assistedTackles = Math.round(extractedStats.assistTackles || 0); // Note: API uses 'assistTackles'
+            playerDoc.assistedTackles = Math.round(extractedStats.assistedTackles || 0); // Mapped from 'assistTackles'
             playerDoc.sacks = parseFloat((extractedStats.defensiveSacks || 0).toFixed(2)); // Defensive sacks (from defensive category)
             // Note: defensive sack yards are separate from offensive sack yards lost - handled separately above
-            playerDoc.forcedFumbles = Math.round(extractedStats.fumblesForced || 0); // Note: API uses 'fumblesForced'
-            playerDoc.fumbleRecoveries = Math.round(extractedStats.fumblesRecovered || 0); // Note: API uses 'fumblesRecovered'
-            playerDoc.fumbleRecoveryYards = Math.round(extractedStats.fumblesRecoveredYards || 0); // Note: API uses 'fumblesRecoveredYards'
+            playerDoc.forcedFumbles = Math.round(extractedStats.forcedFumbles || 0); // Mapped from 'fumblesForced'
+            playerDoc.fumbleRecoveries = Math.round(extractedStats.fumbleRecoveries || 0); // Mapped from 'fumblesRecovered'
+            playerDoc.fumbleRecoveryYards = Math.round(extractedStats.fumbleRecoveryYards || 0); // Mapped from 'fumblesRecoveredYards'
             playerDoc.defensiveInterceptions = Math.round(extractedStats.interceptions || 0);
             playerDoc.interceptionYards = Math.round(extractedStats.interceptionYards || 0);
             playerDoc.avgInterceptionYards = parseFloat((extractedStats.avgInterceptionYards || 0).toFixed(2));
             playerDoc.interceptionTouchdowns = Math.round(extractedStats.interceptionTouchdowns || 0);
-            playerDoc.longestInterception = Math.round(extractedStats.longInterception || 0); // Note: API uses 'longInterception'
+            playerDoc.longestInterception = Math.round(extractedStats.longestInterception || 0); // Mapped from 'longInterception'
             playerDoc.passesDefended = Math.round(extractedStats.passesDefended || 0);
             playerDoc.stuffs = Math.round(extractedStats.stuffs || 0);
             playerDoc.stuffYards = Math.round(extractedStats.stuffYards || 0);
             playerDoc.kicksBlocked = Math.round(extractedStats.kicksBlocked || 0);
             playerDoc.safeties = Math.round(extractedStats.safeties || 0);
             
-            // Additional Defense Stats
+            // Additional Defense Stats - USE MAPPED FIELD NAMES
             playerDoc.defensiveSacks = parseFloat((extractedStats.defensiveSacks || 0).toFixed(2));
             playerDoc.defensiveSackYards = Math.round(extractedStats.defensiveSackYards || 0);
             playerDoc.avgSackYards = parseFloat((extractedStats.avgSackYards || 0).toFixed(2));
@@ -979,7 +982,7 @@ async function processActiveNflPlayersWithStats(db) {
             playerDoc.twoPointRecConvs = Math.round(extractedStats.twoPointRecConvs || 0);
             playerDoc.twoPointRushConvs = Math.round(extractedStats.twoPointRushConvs || 0);
             playerDoc.onePtSafetiesMade = Math.round(extractedStats.onePtSafetiesMade || 0);
-            // Kicking Stats - Now properly mapped from API response
+            // Kicking Stats - USE MAPPED FIELD NAMES
             playerDoc.fieldGoalsMade = Math.round(extractedStats.fieldGoalsMade || 0);
             playerDoc.fieldGoalAttempts = Math.round(extractedStats.fieldGoalAttempts || 0);
             playerDoc.fieldGoalPercentage = parseFloat((extractedStats.fieldGoalPercentage || 0).toFixed(2));
@@ -1026,7 +1029,7 @@ async function processActiveNflPlayersWithStats(db) {
             playerDoc.extraPointsBlocked = Math.round(extractedStats.extraPointsBlocked || 0);
             playerDoc.extraPointsBlockedPct = parseFloat((extractedStats.extraPointsBlockedPct || 0).toFixed(2));
             
-            // Punting Stats - Now properly mapped from API response
+            // Punting Stats - USE MAPPED FIELD NAMES
             playerDoc.punts = Math.round(extractedStats.punts || 0);
             playerDoc.puntYards = Math.round(extractedStats.puntYards || 0);
             playerDoc.grossAvgPuntYards = parseFloat((extractedStats.grossAvgPuntYards || 0).toFixed(2));
@@ -1054,7 +1057,7 @@ async function processActiveNflPlayersWithStats(db) {
             playerDoc.puntReturnsStartedInsideThe10 = Math.round(extractedStats.puntReturnsStartedInsideThe10 || 0);
             playerDoc.puntReturnsStartedInsideThe20 = Math.round(extractedStats.puntReturnsStartedInsideThe20 || 0);
             
-            // Kick Returns Stats - Now properly mapped from API response
+            // Kick Returns Stats - USE MAPPED FIELD NAMES
             playerDoc.kickReturnAttempts = Math.round(extractedStats.kickReturnAttempts || 0);
             playerDoc.kickReturnYards = Math.round(extractedStats.kickReturnYards || 0);
             playerDoc.kickReturnAverage = parseFloat((extractedStats.kickReturnAverage || 0).toFixed(2));
@@ -1067,7 +1070,7 @@ async function processActiveNflPlayersWithStats(db) {
             playerDoc.kickReturnFumbles = Math.round(extractedStats.kickReturnFumbles || 0);
             playerDoc.kickReturnFumblesLost = Math.round(extractedStats.kickReturnFumblesLost || 0);
             
-            // Punt Returns Stats - Now properly mapped from API response
+            // Punt Returns Stats - USE MAPPED FIELD NAMES
             playerDoc.puntReturnAttempts = Math.round(extractedStats.puntReturnAttempts || 0);
             playerDoc.puntReturnYards = Math.round(extractedStats.puntReturnYards || 0);
             playerDoc.puntReturnAverage = parseFloat((extractedStats.puntReturnAverage || 0).toFixed(2));
