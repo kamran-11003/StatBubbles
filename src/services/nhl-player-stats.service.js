@@ -33,7 +33,7 @@ async function processNhlPlayersWithStats(db) {
 
         for (const player of players) {
           const athleteId = player.id;
-
+          
           // Get team colors from nhlteams collection
           let teamColor = null;
           let teamAlternateColor = null;
@@ -277,7 +277,7 @@ async function processNhlPlayersWithStats(db) {
             playerDoc.divingPenalties = Math.round(extractedStats.divingPenalties || 0);
 
             if (Object.keys(extractedStats).length > 0) {
-              statsFound = true;
+                  statsFound = true;
               console.log(`✅ 2025 season stats loaded for ${player.displayName}: ${Object.keys(extractedStats).length} stats`);
               console.log(`📊 Sample mapped stats:`, {
                 games: playerDoc.games,
@@ -385,4 +385,4 @@ module.exports = {
   getTeamPlayers,
   searchPlayers,
   refresh
-};
+}; 

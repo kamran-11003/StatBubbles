@@ -4,9 +4,11 @@ import { ChevronDown, Clock, Users, TrendingUp } from 'lucide-react';
 const LiveView = ({ 
   isDark, 
   selectedLeague, 
-  liveGames
+  liveGames,
+  showLiveInNav,
+  onToggleLiveInNav
 }) => {
-  const [liveMenuOpen, setLiveMenuOpen] = useState(false);
+  const liveMenuOpen = showLiveInNav;
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
   const [currentGameIndex, setCurrentGameIndex] = useState(0);
 
@@ -307,13 +309,13 @@ const LiveView = ({
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (liveMenuOpen && !event.target.closest('.live-menu-container') && !event.target.closest('.live-button')) {
-        setLiveMenuOpen(false);
+        onToggleLiveInNav(false);
       }
     };
     
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [liveMenuOpen]);
+  }, [liveMenuOpen, onToggleLiveInNav]);
 
   // Add CSS keyframes for the slow blinking animation
   const blinkingStyle = `
@@ -646,7 +648,9 @@ const LiveView = ({
                   style={{
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset'
                   }}
-                  onClick={() => setLiveMenuOpen(true)}
+                  onClick={() => {
+                    onToggleLiveInNav(true);
+                  }}
                 >
                   <div 
                     className="dot-blink w-2.5 h-2.5 rounded-full mr-2 shadow-lg"
@@ -729,7 +733,7 @@ const LiveView = ({
                 {/* Arrow icon centered in semicircle */}
                 <button
                   className="absolute inset-0 flex items-center justify-center"
-                  onClick={() => setLiveMenuOpen(false)}
+                  onClick={() => onToggleLiveInNav(false)}
                   aria-label="Close live menu"
                 >
                   <ChevronDown className={`${isDark ? 'text-gray-400' : 'text-gray-600'} transform rotate-180`} size={14} />

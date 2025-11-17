@@ -21,6 +21,7 @@ function App() {
   const [navContext, setNavContext] = useState('players'); // 'players', 'teams', 'teamPlayers'
   const [teamPlayersViewTeam, setTeamPlayersViewTeam] = useState(null); // If set, show TeamPlayersView
   const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [showLiveInNav, setShowLiveInNav] = useState(false); // Track if live view is open
   const socketRef = useRef(null);
   
   // Add debounce for search
@@ -631,6 +632,12 @@ function App() {
     }
   };
 
+  // Check if there are live games available for the current league
+  const hasLiveGames = useMemo(() => {
+    if (!activeLeague || !liveGames || liveGames.length === 0) return false;
+    return liveGames.some(game => game.sport === activeLeague);
+  }, [activeLeague, liveGames]);
+
   return (
     <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-[#f0ece3]'} transition-colors duration-200`}>
       <Navbar 
@@ -649,6 +656,8 @@ function App() {
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         navContext={navContext}
+        showLiveInNav={showLiveInNav}
+        setShowLiveInNav={setShowLiveInNav}
       />
       <div className="h-[calc(100vh-56px)]">
         {activeLeague ? (
@@ -659,6 +668,8 @@ function App() {
               isDark={isDark}
               onBack={closeTeamPlayersView}
               activeLeague={activeLeague}
+              hasLiveGames={hasLiveGames}
+              showLiveInNav={showLiveInNav}
             />
           ) : viewMode === 'Teams' ? (
             <TeamList 
@@ -668,6 +679,8 @@ function App() {
               activeLeague={activeLeague}
               playerCount={playerCount}
               showTeamPlayersView={showTeamPlayersView}
+              hasLiveGames={hasLiveGames}
+              showLiveInNav={showLiveInNav}
             />
           ) : (
             <PlayerList 
@@ -678,6 +691,8 @@ function App() {
               playerCount={playerCount}
               isLoading={isLoadingStats}
               showTeamPlayersView={showTeamPlayersView}
+              hasLiveGames={hasLiveGames}
+              showLiveInNav={showLiveInNav}
             />
           )
         ) : (

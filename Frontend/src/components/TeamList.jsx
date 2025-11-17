@@ -4,7 +4,7 @@ import TeamModal from './TeamModal';
 import EmptyState from './EmptyState';
 import '../styles/marquee.css';
 
-const TeamList = ({ teams, selectedStat, isDark, activeLeague, playerCount, showTeamPlayersView }) => {
+const TeamList = ({ teams, selectedStat, isDark, activeLeague, playerCount, showTeamPlayersView, hasLiveGames = false, showLiveInNav = false }) => {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const chartRef = useRef(null);
@@ -78,7 +78,13 @@ const TeamList = ({ teams, selectedStat, isDark, activeLeague, playerCount, show
       )}
 
       {/* RSS Ticker Section */}
-      <div className="absolute bottom-16 left-0 w-full overflow-hidden bg-transparent">
+      <div className={`absolute ${
+        hasLiveGames && showLiveInNav 
+          ? 'bottom-48 md:bottom-16'  // Live dropdown open - move way up
+          : hasLiveGames 
+            ? 'bottom-32 md:bottom-16'  // Live button visible - move up a bit
+            : 'bottom-24 md:bottom-16'  // No live games - normal position
+      } left-0 w-full overflow-hidden bg-transparent transition-all duration-300`}>
         <div 
           className={`flex items-center h-10 ${isDark ? 'bg-gray-800/40' : 'bg-white/40'} backdrop-blur-sm`}
         >
