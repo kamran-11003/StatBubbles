@@ -17,17 +17,19 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       name: 'NBA', 
       color: '#991B1B', // darker red
       value: 100,
-      description: 'Basketball player statistics',
-      defaultStat: 'points', // Most important scoring stat
+      description: 'Basketball player and team statistics',
+      defaultStat: 'avgPoints', // Most important player stat for NBA
       stats: [
-        'gamesPlayed', 'gamesStarted', 'minutes', 'avgMinutes',
-        'points', 'avgPoints', 'fieldGoalsMade', 'fieldGoalsAttempted', 'fieldGoalPct',
-        'threePointFieldGoalsMade', 'threePointFieldGoalsAttempted', 'threePointFieldGoalPct',
-        'freeThrowsMade', 'freeThrowsAttempted', 'freeThrowPct',
-        'offensiveRebounds', 'defensiveRebounds', 'rebounds', 'avgRebounds',
-        'assists', 'avgAssists', 'turnovers', 'avgTurnovers',
-        'steals', 'avgSteals', 'blocks', 'avgBlocks',
-        'fouls', 'avgFouls', 'doubleDouble', 'tripleDouble'
+        // Player stats
+        'avgPoints', 'points', 'avgRebounds', 'rebounds', 'offensiveRebounds', 'defensiveRebounds',
+        'avgAssists', 'assists', 'avgBlocks', 'blocks', 'avgSteals', 'steals',
+        'avgTurnovers', 'turnovers', 'avgFouls', 'fouls', 'fieldGoalsAttempted', 'fieldGoalsMade', 'fieldGoalPct',
+        'threePointFieldGoalsAttempted', 'threePointFieldGoalsMade', 'threePointFieldGoalPct',
+        'freeThrowsAttempted', 'freeThrowsMade', 'freeThrowPct', 'minutes', 'avgMinutes',
+        'gamesPlayed', 'gamesStarted', 'doubleDouble', 'tripleDouble',
+        // Team stats
+        'wins', 'losses', 'winPercentage', 'gamesBehind', 'homeRecord', 'awayRecord',
+        'conferenceRecord', 'pointsPerGame', 'opponentPointsPerGame', 'pointDifferential', 'streak', 'lastTenGames'
       ]
     },
     { 
@@ -157,13 +159,31 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       description: 'Hockey player and team statistics',
       defaultStat: 'goals', // Most important scoring stat for NHL
       stats: [
-        // Player stats
-        'goals', 'assists', 'points', 'plusMinus', 'penaltyMinutes', 'shotsTotal',
-        'powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists',
-        'gameWinningGoals', 'timeOnIcePerGame', 'production',
-        // Team stats
-        'wins', 'losses', 'winpercent', 'gamesbehind', 'home', 'road', 'vsdiv', 'vsconf',
-        'avgpointsfor', 'avgpointsagainst', 'pointdifferential', 'streak', 'lasttengames'
+        // Player stats - General
+        'games', 'gameStarted', 'teamGamesPlayed', 'timeOnIce', 'timeOnIcePerGame', 'shifts', 
+        'shiftsPerGame', 'production', 'plusMinus',
+        // Player stats - Offensive
+        'goals', 'avgGoals', 'assists', 'points', 'pointsPerGame', 'shotsTotal', 'avgShots',
+        'shootingPct', 'powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists',
+        'gameWinningGoals', 'gameTyingGoals', 'totalFaceOffs', 'faceoffsWon', 'faceoffsLost', 
+        'faceoffPercent', 'shootoutAttempts', 'shootoutGoals', 'shootoutShotPct',
+        // Player stats - Defensive (Goalie)
+        'wins', 'losses', 'ties', 'goalsAgainst', 'avgGoalsAgainst', 'saves', 'savePct', 
+        'shotsAgainst', 'avgShotsAgainst', 'shutouts', 'overtimeLosses', 'blockedShots', 'hits',
+        'shootoutSaves', 'shootoutShotsAgainst', 'shootoutSavePct', 'emptyNetGoalsAgainst',
+        'evenStrengthSaves', 'powerPlaySaves', 'shortHandedSaves',
+        // Player stats - Penalties
+        'penaltyMinutes', 'majorPenalties', 'minorPenalties', 'matchPenalties', 'misconducts',
+        'gameMisconducts', 'fightingPenalties', 'avgFights', 'boardingPenalties', 'chargingPenalties',
+        'hookingPenalties', 'trippingPenalties', 'slashingPenalties', 'highStickingPenalties',
+        'crossCheckingPenalties', 'holdingPenalties', 'interferencePenalties', 'roughingPenalties',
+        'unsportsmanlikePenalties', 'instigatorPenalties', 'stickHoldingPenalties',
+        'goalieInterferencePenalties', 'elbowingPenalties', 'divingPenalties',
+        // Team stats - Standings
+        'gamesplayed', 'gamesbehind', 'pointsfor', 'pointsagainst',
+        'pointdifferential', 'pointsdiff', 'differential', 'home', 'road', 'vsdiv', 'total',
+        'lasttengames', 'streak', 'otlosses', 'overtimewins', 'shootoutlosses', 'shootoutwins',
+        'reglosses', 'regwins', 'rotlosses', 'rotwins', 'playoffseed'
       ]
     }
   ];
@@ -822,8 +842,8 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   }, [leagueData]); // Add full leagueData dependency
 
   const handleLeagueSelect = (leagueName) => {
-    // Show coming soon modal for NBA and NHL only
-    if (['NBA', 'NHL'].includes(leagueName)) {
+    // Show coming soon modal - currently none
+    if ([].includes(leagueName)) {
       setComingSoonLeague(leagueName);
       setShowComingSoon(true);
       return;

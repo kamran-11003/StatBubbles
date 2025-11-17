@@ -76,19 +76,84 @@ const Navbar = ({
       { label: 'Triple Doubles', key: 'tripleDouble' }
     ],
     NHL: [
-      { label: 'Goals', key: 'goals' },
-      { label: 'Assists', key: 'assists' },
-      { label: 'Points', key: 'points' },
-      { label: '+/-', key: 'plusMinus' },
-      { label: 'Penalty Minutes', key: 'penaltyMinutes' },
-      { label: 'Shots', key: 'shotsTotal' },
-      { label: 'Power Play Goals', key: 'powerPlayGoals' },
-      { label: 'Power Play Assists', key: 'powerPlayAssists' },
-      { label: 'Short Handed Goals', key: 'shortHandedGoals' },
-      { label: 'Short Handed Assists', key: 'shortHandedAssists' },
-      { label: 'Game Winning Goals', key: 'gameWinningGoals' },
-      { label: 'Time On Ice Per Game', key: 'timeOnIcePerGame' },
-      { label: 'Production', key: 'production' }
+      // General Stats
+      { label: 'Games', key: 'games', category: 'General' },
+      { label: 'Games Started', key: 'gameStarted', category: 'General' },
+      { label: 'Team Games Played', key: 'teamGamesPlayed', category: 'General' },
+      { label: 'Time On Ice', key: 'timeOnIce', category: 'General' },
+      { label: 'Time On Ice/Game', key: 'timeOnIcePerGame', category: 'General' },
+      { label: 'Shifts', key: 'shifts', category: 'General' },
+      { label: 'Shifts/Game', key: 'shiftsPerGame', category: 'General' },
+      { label: 'Production', key: 'production', category: 'General' },
+      { label: '+/-', key: 'plusMinus', category: 'General' },
+      // Offensive Stats
+      { label: 'Goals', key: 'goals', category: 'Offensive' },
+      { label: 'Avg Goals', key: 'avgGoals', category: 'Offensive' },
+      { label: 'Assists', key: 'assists', category: 'Offensive' },
+      { label: 'Points', key: 'points', category: 'Offensive' },
+      { label: 'Points/Game', key: 'pointsPerGame', category: 'Offensive' },
+      { label: 'Shots', key: 'shotsTotal', category: 'Offensive' },
+      { label: 'Avg Shots', key: 'avgShots', category: 'Offensive' },
+      { label: 'Shooting %', key: 'shootingPct', category: 'Offensive' },
+      { label: 'Power Play Goals', key: 'powerPlayGoals', category: 'Offensive' },
+      { label: 'Power Play Assists', key: 'powerPlayAssists', category: 'Offensive' },
+      { label: 'Short Handed Goals', key: 'shortHandedGoals', category: 'Offensive' },
+      { label: 'Short Handed Assists', key: 'shortHandedAssists', category: 'Offensive' },
+      { label: 'Game Winning Goals', key: 'gameWinningGoals', category: 'Offensive' },
+      { label: 'Game Tying Goals', key: 'gameTyingGoals', category: 'Offensive' },
+      { label: 'Total Faceoffs', key: 'totalFaceOffs', category: 'Offensive' },
+      { label: 'Faceoffs Won', key: 'faceoffsWon', category: 'Offensive' },
+      { label: 'Faceoffs Lost', key: 'faceoffsLost', category: 'Offensive' },
+      { label: 'Faceoff %', key: 'faceoffPercent', category: 'Offensive' },
+      { label: 'Shootout Attempts', key: 'shootoutAttempts', category: 'Offensive' },
+      { label: 'Shootout Goals', key: 'shootoutGoals', category: 'Offensive' },
+      { label: 'Shootout Shot %', key: 'shootoutShotPct', category: 'Offensive' },
+      // Defensive/Goalie Stats
+      { label: 'Wins', key: 'wins', category: 'Goalie' },
+      { label: 'Losses', key: 'losses', category: 'Goalie' },
+      { label: 'Ties', key: 'ties', category: 'Goalie' },
+      { label: 'Goals Against', key: 'goalsAgainst', category: 'Goalie' },
+      { label: 'Goals Against Avg', key: 'avgGoalsAgainst', category: 'Goalie' },
+      { label: 'Saves', key: 'saves', category: 'Goalie' },
+      { label: 'Save %', key: 'savePct', category: 'Goalie' },
+      { label: 'Shots Against', key: 'shotsAgainst', category: 'Goalie' },
+      { label: 'Avg Shots Against', key: 'avgShotsAgainst', category: 'Goalie' },
+      { label: 'Shutouts', key: 'shutouts', category: 'Goalie' },
+      { label: 'Overtime Losses', key: 'overtimeLosses', category: 'Goalie' },
+      { label: 'Blocked Shots', key: 'blockedShots', category: 'Defensive' },
+      { label: 'Hits', key: 'hits', category: 'Defensive' },
+      { label: 'Shootout Saves', key: 'shootoutSaves', category: 'Goalie' },
+      { label: 'Shootout Shots Against', key: 'shootoutShotsAgainst', category: 'Goalie' },
+      { label: 'Shootout Save %', key: 'shootoutSavePct', category: 'Goalie' },
+      { label: 'Empty Net Goals Against', key: 'emptyNetGoalsAgainst', category: 'Goalie' },
+      { label: 'Even Strength Saves', key: 'evenStrengthSaves', category: 'Goalie' },
+      { label: 'Power Play Saves', key: 'powerPlaySaves', category: 'Goalie' },
+      { label: 'Short Handed Saves', key: 'shortHandedSaves', category: 'Goalie' },
+      // Penalties
+      { label: 'Penalty Minutes', key: 'penaltyMinutes', category: 'Penalties' },
+      { label: 'Major Penalties', key: 'majorPenalties', category: 'Penalties' },
+      { label: 'Minor Penalties', key: 'minorPenalties', category: 'Penalties' },
+      { label: 'Match Penalties', key: 'matchPenalties', category: 'Penalties' },
+      { label: 'Misconducts', key: 'misconducts', category: 'Penalties' },
+      { label: 'Game Misconducts', key: 'gameMisconducts', category: 'Penalties' },
+      { label: 'Fighting Penalties', key: 'fightingPenalties', category: 'Penalties' },
+      { label: 'Avg Fights', key: 'avgFights', category: 'Penalties' },
+      { label: 'Boarding Penalties', key: 'boardingPenalties', category: 'Penalties' },
+      { label: 'Charging Penalties', key: 'chargingPenalties', category: 'Penalties' },
+      { label: 'Hooking Penalties', key: 'hookingPenalties', category: 'Penalties' },
+      { label: 'Tripping Penalties', key: 'trippingPenalties', category: 'Penalties' },
+      { label: 'Slashing Penalties', key: 'slashingPenalties', category: 'Penalties' },
+      { label: 'High Sticking Penalties', key: 'highStickingPenalties', category: 'Penalties' },
+      { label: 'Cross Checking Penalties', key: 'crossCheckingPenalties', category: 'Penalties' },
+      { label: 'Holding Penalties', key: 'holdingPenalties', category: 'Penalties' },
+      { label: 'Interference Penalties', key: 'interferencePenalties', category: 'Penalties' },
+      { label: 'Roughing Penalties', key: 'roughingPenalties', category: 'Penalties' },
+      { label: 'Unsportsmanlike Penalties', key: 'unsportsmanlikePenalties', category: 'Penalties' },
+      { label: 'Instigator Penalties', key: 'instigatorPenalties', category: 'Penalties' },
+      { label: 'Stick Holding Penalties', key: 'stickHoldingPenalties', category: 'Penalties' },
+      { label: 'Goalie Interference Penalties', key: 'goalieInterferencePenalties', category: 'Penalties' },
+      { label: 'Elbowing Penalties', key: 'elbowingPenalties', category: 'Penalties' },
+      { label: 'Diving Penalties', key: 'divingPenalties', category: 'Penalties' }
     ],
     MLB: [
       // Batting stats
@@ -355,7 +420,7 @@ const Navbar = ({
     { label: 'Opponent Points Per Game', key: 'opponentPointsPerGame' },
     { label: 'Point Differential', key: 'pointDifferential' },
     { label: 'Streak', key: 'streak' },
-    { label: 'Last 10 Games', key: 'lasttengames' }
+    { label: 'Last 10 Games', key: 'lastTenGames' }
   ];
 
   // Add team stats for WNBA
@@ -434,19 +499,70 @@ const Navbar = ({
 
   // Add team stats for NHL
   const nhlTeamStats = [
+    // Core standings
     { label: 'Wins', key: 'wins' },
     { label: 'Losses', key: 'losses' },
-    { label: 'Win %', key: 'winpercent' },
+    { label: 'Games Played', key: 'gamesplayed' },
     { label: 'Games Behind', key: 'gamesbehind' },
+    { label: 'Points For', key: 'pointsfor' },
+    { label: 'Points Against', key: 'pointsagainst' },
+    { label: 'Point Differential', key: 'pointdifferential' },
+    { label: 'Points Diff', key: 'pointsdiff' },
+    { label: 'Differential', key: 'differential' },
     { label: 'Home Record', key: 'home' },
     { label: 'Road Record', key: 'road' },
     { label: 'Division Record', key: 'vsdiv' },
-    { label: 'Conference Record', key: 'vsconf' },
-    { label: 'Goals Per Game', key: 'avgpointsfor' },
-    { label: 'Goals Against Per Game', key: 'avgpointsagainst' },
-    { label: 'Goal Differential', key: 'pointdifferential' },
+    { label: 'Total Record', key: 'total' },
+    { label: 'Last 10 Games', key: 'lasttengames' },
     { label: 'Streak', key: 'streak' },
-    { label: 'Last 10 Games', key: 'lasttengames' }
+    // Overtime/Shootout standings
+    { label: 'OT Losses', key: 'otlosses' },
+    { label: 'Overtime Wins', key: 'overtimewins' },
+    { label: 'Shootout Losses', key: 'shootoutlosses' },
+    { label: 'Shootout Wins', key: 'shootoutwins' },
+    // Regulation
+    { label: 'Regulation Losses', key: 'reglosses' },
+    { label: 'Regulation Wins', key: 'regwins' },
+    { label: 'ROT Losses', key: 'rotlosses' },
+    { label: 'ROT Wins', key: 'rotwins' },
+    // Playoff
+    { label: 'Playoff Seed', key: 'playoffseed' },
+    // Game Stats
+    { label: 'Games', key: 'games' },
+    { label: 'Time On Ice', key: 'timeOnIce' },
+    { label: 'Time On Ice/Game', key: 'timeOnIcePerGame' },
+    { label: 'Plus/Minus', key: 'plusMinus' },
+    { label: 'Production', key: 'production' },
+    { label: 'Shifts', key: 'shifts' },
+    // Offensive Stats
+    { label: 'Goals', key: 'goals' },
+    { label: 'Assists', key: 'assists' },
+    { label: 'Points', key: 'points' },
+    { label: 'Faceoffs Won', key: 'faceoffsWon' },
+    { label: 'Faceoffs Lost', key: 'faceoffsLost' },
+    { label: 'Faceoff %', key: 'faceoffPercent' },
+    { label: 'Game Winning Goals', key: 'gameWinningGoals' },
+    { label: 'Power Play Goals', key: 'powerPlayGoals' },
+    { label: 'Power Play Assists', key: 'powerPlayAssists' },
+    { label: 'Short Handed Goals', key: 'shortHandedGoals' },
+    { label: 'Short Handed Assists', key: 'shortHandedAssists' },
+    { label: 'Shots', key: 'shotsTotal' },
+    { label: 'Shooting %', key: 'shootingPct' },
+    { label: 'Shootout Attempts', key: 'shootoutAttempts' },
+    { label: 'Shootout Goals', key: 'shootoutGoals' },
+    { label: 'Shootout Shot %', key: 'shootoutShotPct' },
+    // Defensive Stats
+    { label: 'Goals Against Avg', key: 'avgGoalsAgainst' },
+    { label: 'Goals Against', key: 'goalsAgainst' },
+    { label: 'Saves', key: 'saves' },
+    { label: 'Save %', key: 'savePct' },
+    { label: 'Shots Against', key: 'shotsAgainst' },
+    { label: 'Overtime Losses', key: 'overtimeLosses' },
+    { label: 'Shootout Saves', key: 'shootoutSaves' },
+    { label: 'Shootout Shots Against', key: 'shootoutShotsAgainst' },
+    { label: 'Shootout Save %', key: 'shootoutSavePct' },
+    // Penalties
+    { label: 'Penalty Minutes', key: 'penaltyMinutes' }
   ];
 
   // Map for team stats by league
@@ -489,8 +605,8 @@ const Navbar = ({
   };
 
   const handleLeagueClick = (leagueName) => {
-    // Show coming soon modal for NBA and NHL only
-    if (['NBA', 'NHL'].includes(leagueName)) {
+    // Show coming soon modal - currently none
+    if ([].includes(leagueName)) {
       setComingSoonLeague(leagueName);
       setShowComingSoon(true);
       return;

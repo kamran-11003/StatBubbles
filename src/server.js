@@ -51,20 +51,28 @@ async function refreshAllStats() {
   try {
     const db = mongoose.connection.db;
     // Teams data processing
+    console.log(`📊 [Execution #${executionId}] Processing NBA teams...`);
+    await nbaTeamsService.processNbaData(db);
     console.log(`📊 [Execution #${executionId}] Processing WNBA teams...`);
     await wnbaTeamsService.processWnbaData(db);
     console.log(`📊 [Execution #${executionId}] Processing MLB teams...`);
     await mlbTeamsService.processMlbData(db);
     console.log(`📊 [Execution #${executionId}] Processing NFL teams...`);
     await nflTeamsService.processNflData(db);
+    console.log(`📊 [Execution #${executionId}] Processing NHL teams...`);
+    await nhlTeamsService.processNhlData(db);
     
     // Player stats processing
+    console.log(`👥 [Execution #${executionId}] Processing NBA players...`);
+    await nbaPlayerStatsService.processNbaPlayersWithStats(db);
     console.log(`👥 [Execution #${executionId}] Processing WNBA players...`);
     await wnbaPlayerStatsService.processWnbaPlayersWithStats(db);
     console.log(`👥 [Execution #${executionId}] Processing MLB players...`);
     await mlbPlayerStatsService.processActiveMlbPlayersWithStats(db);
     console.log(`👥 [Execution #${executionId}] Processing NFL players...`);
     await nflPlayerStatsService.processActiveNflPlayersWithStats(db);
+    console.log(`👥 [Execution #${executionId}] Processing NHL players...`);
+    await nhlPlayerStatsService.processNhlPlayersWithStats(db);
     // Broadcast updates to connected clients
     await socketService.broadcastUpdates();
     dataReady = true;
