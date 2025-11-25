@@ -9,6 +9,9 @@ class SocketService {
     this.io = null;
     this.activeSubscriptions = new Map();
     this.activeTeamSubscriptions = new Map();
+    this.vLeagueSubscriptions = new Map(); // V League subscriptions
+    this.liveScoresService = null; // Will be set by live-scores service
+    this.vLeagueRefreshInterval = null; // Auto-refresh timer for V League
   }
 
   initialize(server) {
@@ -80,6 +83,44 @@ class SocketService {
         this.activeSubscriptions.delete(subscriptionKey);
       });
 
+      // V League subscription (smart socket for sheets)
+      socket.on('subscribeVLeague', async ({ statType }) => {
+        const vLeagueKey = `${socket.id}-VLeague-${statType}`;
+        
+        if (this.vLeagueSubscriptions.has(vLeagueKey)) {
+          return;
+        }
+
+        try {
+          const VLeaguePlayerStatsService = require('./vleague-player-stats.service');
+          const stats = await VLeaguePlayerStatsService.getTopPlayers(statType);
+          socket.emit('vLeagueStats', { statType, data: stats });
+          
+          // Store subscription
+          this.vLeagueSubscriptions.set(vLeagueKey, { statType, socketId: socket.id });
+          console.log(`📊 Client ${socket.id} subscribed to V League ${statType} (Total: ${this.vLeagueSubscriptions.size})`);
+          
+          // Start auto-refresh if this is the first subscription
+          if (this.vLeagueSubscriptions.size === 1) {
+            this.startVLeagueAutoRefresh();
+          }
+        } catch (error) {
+          console.error('Error fetching V League stats:', error);
+          socket.emit('error', { message: `Error fetching V League stats` });
+        }
+      });
+
+      socket.on('unsubscribeVLeague', ({ statType }) => {
+        const vLeagueKey = `${socket.id}-VLeague-${statType}`;
+        this.vLeagueSubscriptions.delete(vLeagueKey);
+        console.log(`📊 Client ${socket.id} unsubscribed from V League ${statType} (Remaining: ${this.vLeagueSubscriptions.size})`);
+        
+        // Stop auto-refresh if no more subscriptions
+        if (this.vLeagueSubscriptions.size === 0) {
+          this.stopVLeagueAutoRefresh();
+        }
+      });
+
       socket.on('disconnect', () => {
         // Clean up subscriptions for disconnected client
         for (const [key] of this.activeSubscriptions) {
@@ -92,6 +133,17 @@ class SocketService {
             this.activeTeamSubscriptions.delete(key);
           }
         }
+        for (const [key] of this.vLeagueSubscriptions) {
+          if (key.startsWith(socket.id)) {
+            this.vLeagueSubscriptions.delete(key);
+          }
+        }
+        
+        // Stop auto-refresh if no more V League subscriptions
+        if (this.vLeagueSubscriptions.size === 0) {
+          this.stopVLeagueAutoRefresh();
+        }
+        
         console.log('Client disconnected:', socket.id);
       });
     });
@@ -149,6 +201,89 @@ class SocketService {
       } catch (error) {
         console.error(`Error broadcasting ${league} teams:`, error);
       }
+    }
+  }
+
+  // Broadcast league live status to all clients
+  broadcastLeagueLiveStatus() {
+    if (!this.io || !this.liveScoresService) return;
+
+    const liveLeagues = {
+      NBA: false,
+      WNBA: false,
+      NFL: false,
+      MLB: false,
+      NHL: false
+    };
+    
+    // Check which leagues have live games
+    for (const [gameId, game] of this.liveScoresService.activeGames) {
+      if (game.Status === 'InProgress') {
+        liveLeagues[game.sport] = true;
+      }
+    }
+    
+    // Emit to all connected clients
+    this.io.emit('leagueLiveStatus', liveLeagues);
+    console.log('📡 Broadcasted league live status:', liveLeagues);
+  }
+
+  // Broadcast V League updates to subscribed clients
+  async broadcastVLeagueUpdate(statType) {
+    if (!this.io) return;
+
+    try {
+      const VLeaguePlayerStatsService = require('./vleague-player-stats.service');
+      const stats = await VLeaguePlayerStatsService.getTopPlayers(statType);
+      
+      // Emit to all clients subscribed to this stat
+      this.io.emit('vLeagueStats', { statType, data: stats });
+      console.log(`📊 Broadcasted V League ${statType} update to all clients`);
+    } catch (error) {
+      console.error(`Error broadcasting V League ${statType}:`, error);
+    }
+  }
+
+  // Manual trigger for V League refresh (call this from an API endpoint or admin)
+  async refreshVLeague() {
+    if (!this.io) return;
+
+    console.log('🔄 Refreshing V League data for all active subscriptions...');
+    
+    // Get unique stat types from subscriptions
+    const statTypes = new Set();
+    for (const [key, subscription] of this.vLeagueSubscriptions) {
+      statTypes.add(subscription.statType);
+    }
+
+    // Broadcast updates for each stat type
+    for (const statType of statTypes) {
+      await this.broadcastVLeagueUpdate(statType);
+    }
+  }
+
+  // Start automatic V League refresh (every 2 minutes when users are subscribed)
+  startVLeagueAutoRefresh() {
+    // Don't start if already running
+    if (this.vLeagueRefreshInterval) return;
+
+    console.log('📊 Starting V League auto-refresh (every 1 minutes)...');
+    
+    this.vLeagueRefreshInterval = setInterval(async () => {
+      // Only refresh if there are active subscriptions
+      if (this.vLeagueSubscriptions.size > 0) {
+        console.log(`🔄 Auto-refreshing V League (${this.vLeagueSubscriptions.size} subscriptions active)`);
+        await this.refreshVLeague();
+      }
+    },  60 * 1000); // Every minutes
+  }
+
+  // Stop automatic V League refresh
+  stopVLeagueAutoRefresh() {
+    if (this.vLeagueRefreshInterval) {
+      clearInterval(this.vLeagueRefreshInterval);
+      this.vLeagueRefreshInterval = null;
+      console.log('📊 Stopped V League auto-refresh');
     }
   }
 }

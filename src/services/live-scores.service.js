@@ -18,6 +18,9 @@ class LiveScoresService {
     this.lastUpdate = new Map();
     this.leagueRefreshIntervals = new Map(); // Per-league intervals
     this.leagueGameStatus = new Map(); // Track status per league
+    
+    // Set reference in socket service for live status broadcasting
+    socketService.liveScoresService = this;
   }
 
   /**
@@ -253,6 +256,8 @@ class LiveScoresService {
         console.log(`🔄 ${league} game status changed, updating refresh intervals...`);
         this.updateLeagueGameStatus();
         this.startPerLeagueRefresh();
+        // Broadcast live status to all clients
+        socketService.broadcastLeagueLiveStatus();
       }
 
     } catch (error) {

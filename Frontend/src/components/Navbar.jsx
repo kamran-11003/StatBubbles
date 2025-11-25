@@ -3,7 +3,7 @@ import LiveView from './LiveView';
 import ComingSoonModal from './ComingSoonModal';
 import DesktopNavigation from './Navbar/DesktopNavigation';
 import MobileNavigation from './Navbar/MobileNavigation';
-import { leagueStatsData, teamStatsByLeagueData } from './Navbar/constants';
+import { leagueStatsData, teamStatsByLeagueData, leagues as importedLeagues } from './Navbar/constants';
 
 const Navbar = ({ 
   selectedStat,
@@ -30,13 +30,7 @@ const Navbar = ({
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [comingSoonLeague, setComingSoonLeague] = useState('');
 
-  const leagues = [
-    { name: 'NBA' },
-    { name: 'WNBA' },
-    { name: 'NFL' },
-    { name: 'MLB' },
-    { name: 'NHL' }
-  ];
+  const leagues = importedLeagues;
   
   const playerCounts = [
     { label: 'Top 10', value: '10' },
@@ -74,8 +68,8 @@ const Navbar = ({
   };
 
   const handleLeagueClick = (leagueName) => {
-    // Show coming soon modal - currently none
-    if ([].includes(leagueName)) {
+    // Show coming soon modal for NBA and NHL
+    if (['NBA', 'NHL'].includes(leagueName)) {
       setComingSoonLeague(leagueName);
       setShowComingSoon(true);
       return;

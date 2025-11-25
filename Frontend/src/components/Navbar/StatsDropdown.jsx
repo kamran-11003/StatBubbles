@@ -115,6 +115,35 @@ const StatsDropdown = ({
       );
     }
     
+    if (selectedLeague === 'V League') {
+      return (
+        <>
+          {['Scoring', 'Shooting', 'Rebounding', 'Playmaking', 'Defense', 'Other'].map(category => (
+            <div key={category}>
+              <div className="px-3 py-1 border-b border-gray-200 dark:border-gray-700">
+                <h3 className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {category}
+                </h3>
+              </div>
+              {statList.filter(stat => stat.category === category).map(stat => (
+                <button
+                  key={stat.key}
+                  className={`block w-full text-left px-4 py-2 text-xs ${
+                    selectedStat === stat.key 
+                      ? (isDark ? 'bg-gray-700 text-white' : 'bg-gray-100 text-blue-600') 
+                      : (isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')
+                  }`}
+                  onClick={() => onStatSelect(stat.key)}
+                >
+                  {stat.label}
+                </button>
+              ))}
+            </div>
+          ))}
+        </>
+      );
+    }
+    
     return null;
   };
 

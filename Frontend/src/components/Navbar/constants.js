@@ -3,7 +3,8 @@ export const leagues = [
   { name: 'WNBA' },
   { name: 'NFL' },
   { name: 'MLB' },
-  { name: 'NHL' }
+  { name: 'NHL' },
+  { name: 'V League' }
 ];
 
 export const playerCounts = [
@@ -206,6 +207,26 @@ export const leagueStatsData = {
     { label: 'Blown Saves', key: 'pitching_blownSaves', category: 'Pitching' },
     { label: 'ERA', key: 'pitching_ERA', category: 'Pitching' },
     { label: 'WHIP', key: 'pitching_WHIP', category: 'Pitching' }
+  ],
+  'V League': [
+    // Player stats
+    { label: 'Points', key: 'PTS', category: 'Scoring' },
+    { label: 'Field Goals Made', key: 'FGM', category: 'Shooting' },
+    { label: 'Field Goals Attempted', key: 'FGA', category: 'Shooting' },
+    { label: 'Field Goal %', key: 'FG%', category: 'Shooting' },
+    { label: '3-Pointers Made', key: '3PM', category: 'Shooting' },
+    { label: '3-Pointers Attempted', key: '3PA', category: 'Shooting' },
+    { label: '3-Point %', key: '3P%', category: 'Shooting' },
+    { label: 'Free Throws Made', key: 'FTM', category: 'Shooting' },
+    { label: 'Free Throws Attempted', key: 'FTA', category: 'Shooting' },
+    { label: 'Free Throw %', key: 'FT%', category: 'Shooting' },
+    { label: 'Offensive Rebounds', key: 'OREB', category: 'Rebounding' },
+    { label: 'Defensive Rebounds', key: 'DREB', category: 'Rebounding' },
+    { label: 'Total Rebounds', key: 'REB', category: 'Rebounding' },
+    { label: 'Assists', key: 'AST', category: 'Playmaking' },
+    { label: 'Steals', key: 'STL', category: 'Defense' },
+    { label: 'Blocks', key: 'BLK', category: 'Defense' },
+    { label: 'Turnovers', key: 'TOV', category: 'Other' }
   ],
   NFL: [
     // General Stats
@@ -527,11 +548,38 @@ export const nhlTeamStats = [
   { label: 'Penalty Minutes', key: 'penaltyMinutes' }
 ];
 
+export const vLeagueTeamStats = [
+  { label: 'Team', key: 'Team' },
+  { label: 'Wins', key: 'W' },
+  { label: 'Losses', key: 'L' },
+  { label: 'Win %', key: 'WIN%' },
+  { label: 'Points', key: 'PTS' },
+  { label: 'Field Goals Made', key: 'FGM' },
+  { label: 'Field Goals Attempted', key: 'FGA' },
+  { label: 'Field Goal %', key: 'FG%' },
+  { label: '3-Pointers Made', key: '3PM' },
+  { label: '3-Pointers Attempted', key: '3PA' },
+  { label: '3-Point %', key: '3P%' },
+  { label: 'Free Throws Made', key: 'FTM' },
+  { label: 'Free Throws Attempted', key: 'FTA' },
+  { label: 'Free Throw %', key: 'FT%' },
+  { label: 'Offensive Rebounds', key: 'OREB' },
+  { label: 'Defensive Rebounds', key: 'DREB' },
+  { label: 'Total Rebounds', key: 'REB' },
+  { label: 'Assists', key: 'AST' },
+  { label: 'Turnovers', key: 'TOV' },
+  { label: 'Steals', key: 'STL' },
+  { label: 'Blocks', key: 'BLK' },
+  { label: 'Personal Fouls', key: 'PF' },
+  { label: 'Fouls Drawn', key: 'PFD' }
+];
+
 export const teamStatsByLeagueData = {
   NBA: nbaTeamStats,
   WNBA: wnbaTeamStats,
   NFL: nflTeamStats,
   MLB: mlbTeamStats,
-  NHL: nhlTeamStats
+  NHL: nhlTeamStats,
+  'V League': vLeagueTeamStats
 };
 

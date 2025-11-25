@@ -5,10 +5,10 @@ export const apiConfig = {
   baseURL: API_BASE_URL,
   endpoints: {
     // Stats endpoints
-    stats: (league, stat) => `/api/stats/${league}/${stat}`,
+    stats: (league, stat) => `/api/stats/${encodeURIComponent(league)}/${encodeURIComponent(stat)}`,
     statsSearch: (league, query) => `/api/stats/${league}/search?name=${encodeURIComponent(query)}`,
     teamStats: (league, teamId, stat, limit) => {
-      let url = `/api/stats/${league}/team/${teamId}/${stat}`;
+      let url = `/api/stats/${encodeURIComponent(league)}/team/${encodeURIComponent(teamId)}/${encodeURIComponent(stat)}`;
       if (limit) url += `?limit=${limit}`;
       return url;
     },

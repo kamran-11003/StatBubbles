@@ -16,12 +16,12 @@ const ComingSoonModal = ({ isOpen, onClose, leagueName, isDark }) => {
         
         <div className="text-center">
           <div className="text-6xl mb-4">🚧</div>
-          <h2 className="text-2xl font-bold mb-2">Coming Soon!</h2>
+          <h2 className="text-2xl font-bold mb-2">Under Construction</h2>
           <p className="text-lg mb-4">
-            {leagueName} statistics are currently under development.
+            {leagueName} statistics are currently under construction.
           </p>
           <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            We're working hard to bring you comprehensive {leagueName} data. 
+            We're working hard to bring you comprehensive {leagueName} player and team data. 
             Check back soon for updates!
           </p>
           

@@ -3,6 +3,7 @@ const WnbaPlayerStatsService = require('../services/wnba-player-stats.service');
 const MlbPlayerStatsService = require('../services/mlb-player-stats.service');
 const NflPlayerStatsService = require('../services/nfl-player-stats.service');
 const NhlPlayerStatsService = require('../services/nhl-player-stats.service');
+const VLeaguePlayerStatsService = require('../services/vleague-player-stats.service');
 
 const validStats = {
   NBA: [
@@ -111,15 +112,25 @@ const validStats = {
     'goals', 'assists', 'points', 'plusMinus', 'penaltyMinutes', 'shotsTotal',
     'powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists',
     'gameWinningGoals', 'timeOnIcePerGame', 'production'
+  ],
+  'V League': [
+    'PTS', 'FGM', 'FGA', 'FG%', '3PM', '3PA', '3P%', 
+    'FTM', 'FTA', 'FT%', 'OREB', 'DREB', 'REB', 
+    'AST', 'STL', 'BLK', 'TOV'
   ]
 };
 
-const validSports = ['NBA', 'WNBA', 'MLB', 'NFL', 'NHL'];
+const validSports = ['NBA', 'WNBA', 'MLB', 'NFL', 'NHL', 'V League'];
 
 class StatsController {
   async getStats(req, res) {
-    const { sport, statType } = req.params;
-    
+    let { sport, statType } = req.params;
+    // Try to decode if it's encoded, otherwise use as-is (Express auto-decodes)
+    try {
+      statType = decodeURIComponent(statType);
+    } catch (e) {
+      // Already decoded or malformed - use as is
+    }
     
     if (!validStats[sport] || !validStats[sport].includes(statType)) {
       return res.status(400).json({ 
@@ -139,6 +150,8 @@ class StatsController {
         topPlayers = await NflPlayerStatsService.getTopPlayers(statType);
       } else if (sport === 'NHL') {
         topPlayers = await NhlPlayerStatsService.getTopPlayers(statType);
+      } else if (sport === 'V League') {
+        topPlayers = await VLeaguePlayerStatsService.getTopPlayers(statType);
       } else {
         topPlayers = await StatsService.getTopPlayers(sport, statType);
       }
@@ -176,6 +189,8 @@ class StatsController {
         players = await NflPlayerStatsService.searchPlayers(name);
       } else if (sport === 'NHL') {
         players = await NhlPlayerStatsService.searchPlayers(name);
+      } else if (sport === 'V League') {
+        players = await VLeaguePlayerStatsService.searchPlayers(name);
       } else {
         players = await StatsService.searchPlayers(sport, name);
       }
@@ -186,8 +201,15 @@ class StatsController {
   }
 
   async getTeamPlayers(req, res) {
-    const { sport, teamId, statType } = req.params;
+    let { sport, teamId, statType } = req.params;
     const { limit = 100 } = req.query;
+    // Try to decode if encoded, otherwise use as-is (Express auto-decodes)
+    try {
+      statType = decodeURIComponent(statType);
+      teamId = decodeURIComponent(teamId);
+    } catch (e) {
+      // Already decoded or malformed - use as is
+    }
     
     if (!validSports.includes(sport)) {
       return res.status(400).json({ 
@@ -219,6 +241,8 @@ class StatsController {
         teamPlayers = await NflPlayerStatsService.getTeamPlayers(teamId, statType, parseInt(limit));
       } else if (sport === 'NHL') {
         teamPlayers = await NhlPlayerStatsService.getTeamPlayers(teamId, statType, parseInt(limit));
+      } else if (sport === 'V League') {
+        teamPlayers = await VLeaguePlayerStatsService.getTeamPlayers(teamId, statType, parseInt(limit));
       } else {
         teamPlayers = await StatsService.getTeamPlayers(sport, teamId, statType, parseInt(limit));
       }

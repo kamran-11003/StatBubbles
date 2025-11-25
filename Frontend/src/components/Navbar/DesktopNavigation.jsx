@@ -61,7 +61,7 @@ const DesktopNavigation = ({
               {selectedLeague === league.name && (
                 <div className="flex items-center ml-3 gap-3">
                   {/* Players/Teams toggle for all leagues */}
-                  {['NBA', 'WNBA', 'MLB', 'NFL', 'NHL'].includes(selectedLeague) && (
+                  {['NBA', 'WNBA', 'MLB', 'NFL', 'NHL', 'V League'].includes(selectedLeague) && (
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onViewModeChange('Players')}

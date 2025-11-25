@@ -185,18 +185,33 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         'lasttengames', 'streak', 'otlosses', 'overtimewins', 'shootoutlosses', 'shootoutwins',
         'reglosses', 'regwins', 'rotlosses', 'rotwins', 'playoffseed'
       ]
+    },
+    { 
+      name: 'V League', 
+      color: '#059669', // darker green
+      value: 100,
+      description: 'V League basketball player and team statistics',
+      defaultStat: 'PTS', // Most important player stat for V League
+      stats: [
+        // Player stats
+        'PTS', 'FGM', 'FGA', 'FG%', '3PM', '3PA', '3P%', 'FTM', 'FTA', 'FT%',
+        'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV',
+        // Team stats
+        'W', 'L', 'WIN%'
+      ]
     }
   ];
 
   // Function to create random sample data for the background bubbles
   const createSampleData = () => {
-    const leagues = ['NBA', 'WNBA', 'NFL', 'MLB', 'NHL'];
+    const leagues = ['NBA', 'WNBA', 'NFL', 'MLB', 'NHL', 'V League'];
     const teamColors = [
       '#991B1B', // darker red
       '#BE185D', // darker pink
       '#1E40AF', // darker blue
       '#C2410C', // darker orange
       '#6D28D9', // darker purple
+      '#059669', // darker green (V League)
       '#B45309', // darker amber
       '#4338CA', // darker indigo
       '#0F766E', // darker teal
@@ -842,8 +857,8 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   }, [leagueData]); // Add full leagueData dependency
 
   const handleLeagueSelect = (leagueName) => {
-    // Show coming soon modal - currently none
-    if ([].includes(leagueName)) {
+    // Show coming soon modal for NBA and NHL
+    if (['NBA', 'NHL'].includes(leagueName)) {
       setComingSoonLeague(leagueName);
       setShowComingSoon(true);
       return;

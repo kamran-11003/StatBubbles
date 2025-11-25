@@ -23,6 +23,18 @@ function App() {
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [showLiveInNav, setShowLiveInNav] = useState(false); // Track if live view is open
   const socketRef = useRef(null);
+  const pollIntervalRef = useRef(null); // For smart polling
+  const [leagueLiveStatus, setLeagueLiveStatus] = useState({
+    NBA: false,
+    WNBA: false,
+    NFL: false,
+    MLB: false,
+    NHL: false
+  }); // Track which leagues have live games
+  
+  // Refs to track current state for socket callbacks
+  const currentLeagueRef = useRef(activeLeague);
+  const currentStatRef = useRef(selectedStat);
   
   // Add debounce for search
   const searchTimeoutRef = useRef(null);
@@ -104,6 +116,12 @@ function App() {
     }
   }, [searchQuery, activeLeague, viewMode]);
 
+  // Keep refs updated for socket callbacks
+  useEffect(() => {
+    currentLeagueRef.current = activeLeague;
+    currentStatRef.current = selectedStat;
+  }, [activeLeague, selectedStat]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -148,9 +166,30 @@ function App() {
       }
     });
 
+    // Listen for league live status updates
+    socketRef.current.on('leagueLiveStatus', (status) => {
+      console.log('📡 League live status update:', status);
+      setLeagueLiveStatus(status);
+    });
+
+    // Listen for V League updates
+    socketRef.current.on('vLeagueStats', ({ statType, data }) => {
+      console.log('📊 V League update received for stat:', statType, 'Data count:', data.length);
+      console.log('📊 Current league:', currentLeagueRef.current, 'Current stat:', currentStatRef.current);
+      
+      // Update only if we're currently viewing V League with this stat
+      if (currentLeagueRef.current === 'V League' && currentStatRef.current === statType) {
+        console.log('✅ Updating players with new V League data');
+        setPlayers(data);
+      }
+    });
+
     return () => {
       socketRef.current.disconnect();
       socketRef.current = null;
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
     };
   }, []); 
 
@@ -159,7 +198,14 @@ function App() {
 
     // Only fetch player stats when in Players view mode
     if (activeLeague && selectedStat && viewMode === 'Players') {
-      socketRef.current.emit('subscribe', { sport: activeLeague, statType: selectedStat });
+      // Handle V League with Socket.IO subscription
+      if (activeLeague === 'V League') {
+        socketRef.current.emit('subscribeVLeague', { statType: selectedStat });
+        console.log('📊 Subscribed to V League:', selectedStat);
+      } else {
+        socketRef.current.emit('subscribe', { sport: activeLeague, statType: selectedStat });
+      }
+      
       if (!selectedStat) {
         switch (activeLeague) {
           case 'NBA':
@@ -176,6 +222,9 @@ function App() {
             break;
           case 'NFL':
             setSelectedStat('touchdowns');
+            break;
+          case 'V League':
+            setSelectedStat('PTS');
             break;
         }
       }
@@ -199,10 +248,58 @@ function App() {
 
     return () => {
       if (socketRef.current && activeLeague && selectedStat) {
-        socketRef.current.emit('unsubscribe', { sport: activeLeague, statType: selectedStat });
+        if (activeLeague === 'V League') {
+          socketRef.current.emit('unsubscribeVLeague', { statType: selectedStat });
+          console.log('📊 Unsubscribed from V League:', selectedStat);
+        } else {
+          socketRef.current.emit('unsubscribe', { sport: activeLeague, statType: selectedStat });
+        }
       }
     };
   }, [activeLeague, selectedStat, viewMode]);
+
+  // Smart polling: Only poll when league has live games (for 5 ESPN leagues)
+  useEffect(() => {
+    // Clear any existing interval
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    
+    // Only poll for the 5 ESPN leagues (not V League - it uses socket.IO)
+    const espnLeagues = ['NBA', 'WNBA', 'NFL', 'MLB', 'NHL'];
+    
+    if (activeLeague && 
+        espnLeagues.includes(activeLeague) && 
+        leagueLiveStatus[activeLeague] && 
+        viewMode === 'Players' && 
+        selectedStat) {
+      
+      console.log(`🔄 Starting live polling for ${activeLeague} ${selectedStat} (Game is LIVE)`);
+      
+      // Poll every 30 seconds ONLY during live games
+      pollIntervalRef.current = setInterval(() => {
+        console.log(`🔄 Refreshing ${activeLeague} ${selectedStat} (LIVE game)`);
+        fetch(buildApiUrl(apiConfig.endpoints.stats(activeLeague, selectedStat)))
+          .then(res => res.json())
+          .then(data => {
+            setPlayers(data);
+          })
+          .catch(error => {
+            console.error('Error refreshing stats:', error);
+          });
+      }, 30000); // 30 seconds
+    } else if (activeLeague && espnLeagues.includes(activeLeague) && !leagueLiveStatus[activeLeague]) {
+      console.log(`⏸️ No live games for ${activeLeague}, polling stopped`);
+    }
+    
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [activeLeague, leagueLiveStatus, viewMode, selectedStat]);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -244,6 +341,9 @@ function App() {
       case 'NFL':
         setSelectedStat('passYards'); // Default NFL player stat
         break;
+      case 'V League':
+        setSelectedStat('PTS'); // Default V League player stat
+        break;
     }
   };
 
@@ -278,6 +378,8 @@ function App() {
         setSelectedStat('wins'); // Default to wins for teams
       } else if (activeLeague === 'NFL') {
         setSelectedStat('netPassingYards'); // Default NFL team stat (Offense > Passing Yards)
+      } else if (activeLeague === 'V League') {
+        setSelectedStat('W'); // Default V League team stat (Wins)
       }
     }
   }, [viewMode, activeLeague]);
@@ -435,6 +537,9 @@ function App() {
       case 'NFL':
         defaultPlayerStat = 'passYards';
         break;
+      case 'V League':
+        defaultPlayerStat = 'PTS';
+        break;
     }
     // If the current stat is not a player stat, set it
     const playerStats = ['points','avgPoints','rebounds','avgRebounds','offensiveRebounds','defensiveRebounds','assists','avgAssists','blocks','avgBlocks','steals','avgSteals','turnovers','avgTurnovers','fouls','avgFouls','fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','threePointFieldGoalsMade','threePointFieldGoalsAttempted','threePointFieldGoalPct','freeThrowsMade','freeThrowsAttempted','freeThrowPct','minutes','avgMinutes','gamesPlayed','gamesStarted','doubleDouble','tripleDouble','goals','plusMinus','penaltyMinutes','shotsTotal','powerPlayGoals','powerPlayAssists','shortHandedGoals','shortHandedAssists','gameWinningGoals','timeOnIcePerGame','production','strikeouts','touchdowns','passYards','rushYards','receivingYards','completionPercentage','interceptions','sacks','receptions','passAttempts','passCompletions','rushingAttempts','rushingYards'];
@@ -442,7 +547,10 @@ function App() {
     // Add MLB-specific stats to the player stats list
     const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
     
-    const allPlayerStats = [...playerStats, ...mlbPlayerStats];
+    // Add V League-specific player stats
+    const vLeaguePlayerStats = ['PTS','FGM','FGA','FG%','3PM','3PA','3P%','FTM','FTA','FT%','OREB','DREB','REB','AST','STL','BLK','TOV'];
+    
+    const allPlayerStats = [...playerStats, ...mlbPlayerStats, ...vLeaguePlayerStats];
     
     if (!allPlayerStats.includes(selectedStat)) {
       setSelectedStat(defaultPlayerStat);
@@ -468,7 +576,9 @@ function App() {
           // NFL special teams stats
           'fieldGoalsMade','fieldGoalsAttempted','fieldGoalPct','extraPointsMade','extraPointsAttempted','extraPointPct','puntAverage','netPuntAverage','puntsInside20','kickReturnAverage','puntReturnAverage','specialTeamsTDs','blockedKicks',
           // NFL penalties stats
-          'totalPenalties','penaltyYards','penaltiesPerGame'
+          'totalPenalties','penaltyYards','penaltiesPerGame',
+          // V League team stats
+          'Team','W','L','WIN%','PTS','FGM','FGA','FG%','3PM','3PA','3P%','FTM','FTA','FT%','OREB','DREB','REB','AST','TOV','STL','BLK','PF','PFD'
         ];
         if (!validTeamStats.includes(selectedStat)) {
           setSelectedStat(getDefaultTeamStat(activeLeague));
@@ -480,7 +590,9 @@ function App() {
           // NFL-specific - 2025 Season API Structure
           'gamesPlayed','passCompletions','passAttempts','completionPercentage','passYards','yardsPerPassAttempt','passTouchdowns','interceptions','longestPass','sacksTaken','sackYards','passerRating','qbr','rushingAttempts','rushingYards','yardsPerRushAttempt','rushTouchdowns','longestRush','rushingFirstDowns','rushingFumbles','rushingFumblesLost','receptions','receivingTargets','receivingYards','yardsPerReception','receivingYardsPerGame','receivingTouchdowns','longestReception','receivingFirstDowns','receivingFumbles','receivingFumblesLost','catchPercentage','totalTackles','soloTackles','assistedTackles','sacks','forcedFumbles','fumbleRecoveries','fumbleRecoveryYards','defensiveInterceptions','interceptionYards','avgInterceptionYards','interceptionTouchdowns','longestInterception','passesDefended','stuffs','stuffYards','kicksBlocked','safeties','passingTouchdowns','rushingTouchdowns','receivingTouchdowns','returnTouchdowns','totalTouchdowns','totalTwoPointConvs','kickExtraPoints','fieldGoals','totalPoints','fieldGoalsMade','fieldGoalAttempts','fieldGoalPercentage','fieldGoalsMade1_19','fieldGoalsMade20_29','fieldGoalsMade30_39','fieldGoalsMade40_49','fieldGoalsMade50','longFieldGoalMade','extraPointsMade','extraPointAttempts','extraPointPercentage','totalKickingPoints','punts','puntYards','grossAvgPuntYards','netAvgPuntYards','puntsInside20','puntTouchbacks','longestPunt','blockedPunts','kickReturnAttempts','kickReturnYards','kickReturnAverage','kickReturnTouchdowns','longestKickReturn','kickReturnFairCatches','puntReturnAttempts','puntReturnYards','puntReturnAverage','puntReturnTouchdowns','longestPuntReturn','puntReturnFairCatches',
           // MLB-specific
-          'batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'
+          'batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts',
+          // V League-specific
+          'PTS','FGM','FGA','FG%','3PM','3PA','3P%','FTM','FTA','FT%','OREB','DREB','REB','AST','STL','BLK','TOV'
         ];
         if (!playerStats.includes(selectedStat)) {
           setSelectedStat(getDefaultPlayerStat(activeLeague));
@@ -511,6 +623,9 @@ function App() {
       
       // Add MLB-specific stats to the player stats list
       const mlbPlayerStats = ['batting_gamesPlayed','batting_atBats','batting_runs','batting_hits','batting_doubles','batting_triples','batting_homeRuns','batting_RBIs','batting_stolenBases','batting_caughtStealing','batting_walks','batting_strikeouts','batting_avg','batting_onBasePct','batting_slugAvg','fielding_gamesPlayed','fielding_gamesStarted','fielding_putOuts','fielding_assists','fielding_errors','fielding_fieldingPct','pitching_gamesPlayed','pitching_gamesStarted','pitching_completeGames','pitching_shutouts','pitching_innings','pitching_hits','pitching_runs','pitching_earnedRuns','pitching_homeRuns','pitching_walks','pitching_strikeouts'];
+      
+      // Add V League-specific player stats
+      const vLeaguePlayerStats = ['PTS','FGM','FGA','FG%','3PM','3PA','3P%','FTM','FTA','FT%','OREB','DREB','REB','AST','STL','BLK','TOV'];
       
       // Add NFL-specific stats to the player stats list (updated with all new fields)
       const nflPlayerStats = [
@@ -552,7 +667,7 @@ function App() {
         'puntReturnAttempts','puntReturnYards','puntReturnAverage','puntReturnTouchdowns','longestPuntReturn','puntReturnFairCatches'
       ];
       
-      const allPlayerStats = [...playerStats, ...mlbPlayerStats, ...nflPlayerStats];
+      const allPlayerStats = [...playerStats, ...mlbPlayerStats, ...nflPlayerStats, ...vLeaguePlayerStats];
       
       if (!allPlayerStats.includes(selectedStat)) {
         let defaultPlayerStat = '';
@@ -570,6 +685,9 @@ function App() {
           case 'NFL':
             defaultPlayerStat = 'passYards';
             break;
+          case 'V League':
+            defaultPlayerStat = 'PTS';
+            break;
         }
         setSelectedStat(defaultPlayerStat);
       }
@@ -580,7 +698,10 @@ function App() {
       // Add NFL-specific team stats
       const nflTeamStats = ['totalPointsPerGame','totalPoints','totalTouchdowns','totalFirstDowns','rushingFirstDowns','passingFirstDowns','firstDownsByPenalty','thirdDownConversionPct','fourthDownConversionPct','completions','netPassingYards','yardsPerPassAttempt','netPassingYardsPerGame','passingTouchdowns','interceptions','sackYardsLost','rushingAttempts','rushingYards','yardsPerRushAttempt','rushingYardsPerGame','rushingTouchdowns','totalOffensivePlays','totalYards','yardsPerGame','kickReturns','avgKickoffReturnYards','puntReturns','avgPuntReturnYards','defensiveInterceptions','avgInterceptionYards','netAvgPuntYards','puntYards','fieldGoalsMade','touchbackPct','totalPenaltyYards','totalPenalties','possessionTimeSeconds','fumblesLost','turnoverDifferential'];
       
-      const allTeamStats = [...teamStats, ...nflTeamStats];
+      // Add V League-specific team stats
+      const vLeagueTeamStats = ['Team','W','L','WIN%','PTS','FGM','FGA','FG%','3PM','3PA','3P%','FTM','FTA','FT%','OREB','DREB','REB','AST','TOV','STL','BLK','PF','PFD'];
+      
+      const allTeamStats = [...teamStats, ...nflTeamStats, ...vLeagueTeamStats];
       
       if (!allTeamStats.includes(selectedStat)) {
         let defaultTeamStat = '';
@@ -593,6 +714,9 @@ function App() {
             break;
           case 'NFL':
             defaultTeamStat = 'totalPointsPerGame';
+            break;
+          case 'V League':
+            defaultTeamStat = 'W';
             break;
         }
         setSelectedStat(defaultTeamStat);
