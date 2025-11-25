@@ -10,22 +10,39 @@ const TEAM_RANGE = 'A:AC'; // Columns A to AC (includes all extra fields)
 async function getGoogleSheetsClient() {
   let auth;
   
-  // Check if credentials are in base64 format (for production/Render)
-  if (process.env.GOOGLE_CREDENTIALS_BASE64) {
-    const credentials = JSON.parse(
-      Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8')
-    );
-    
-    auth = new google.auth.GoogleAuth({
-      credentials: credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
-  } else {
-    // Use keyFile for local development
-    auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_SHEETS_KEY_FILE || './google-credentials.json',
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
+  try {
+    // Priority 1: Direct JSON credentials (easiest for Render)
+    if (process.env.GOOGLE_CREDENTIALS_JSON) {
+      console.log('📄 Using GOOGLE_CREDENTIALS_JSON environment variable');
+      const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+      
+      auth = new google.auth.GoogleAuth({
+        credentials: credentials,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+      });
+    }
+    // Priority 2: Base64 encoded credentials
+    else if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+      console.log('📦 Using GOOGLE_CREDENTIALS_BASE64 environment variable');
+      const decoded = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8');
+      const credentials = JSON.parse(decoded);
+      
+      auth = new google.auth.GoogleAuth({
+        credentials: credentials,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+      });
+    }
+    // Priority 3: Use keyFile for local development
+    else {
+      console.log('📁 Using google-credentials.json file');
+      auth = new google.auth.GoogleAuth({
+        keyFile: process.env.GOOGLE_SHEETS_KEY_FILE || './google-credentials.json',
+        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error parsing Google credentials:', error.message);
+    throw new Error(`Failed to initialize Google Sheets client: ${error.message}`);
   }
   
   const authClient = await auth.getClient();
