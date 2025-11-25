@@ -8,10 +8,25 @@ const TEAM_RANGE = 'A:AC'; // Columns A to AC (includes all extra fields)
 
 // Initialize Google Sheets API
 async function getGoogleSheetsClient() {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: process.env.GOOGLE_SHEETS_KEY_FILE || './google-credentials.json',
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-  });
+  let auth;
+  
+  // Check if credentials are in base64 format (for production/Render)
+  if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+    const credentials = JSON.parse(
+      Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf-8')
+    );
+    
+    auth = new google.auth.GoogleAuth({
+      credentials: credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    });
+  } else {
+    // Use keyFile for local development
+    auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_SHEETS_KEY_FILE || './google-credentials.json',
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    });
+  }
   
   const authClient = await auth.getClient();
   return google.sheets({ version: 'v4', auth: authClient });
