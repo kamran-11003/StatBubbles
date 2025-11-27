@@ -113,6 +113,7 @@ function generatePlayers() {
         position: position,
         headshot: 'https://a.espncdn.com/i/headshots/mlb/players/full/40926.png',
         // Stats
+        GP: 25, // Games played
         PTS: Math.round(points * 10) / 10,
         FGM: Math.round(fgMakes * 10) / 10,
         FGA: Math.round(fgAttempts * 10) / 10,
@@ -247,16 +248,19 @@ async function populateSheets() {
     console.log('📝 Populating Players sheet...');
     
     // Headers for Players sheet (with extra fields)
+    // Order: Team, Player Name, GP, PTS, FGA, FGM, FG%, 3PA, 3PM, 3P%, FTA, FTM, FT%, 
+    //        OREB, DREB, REB, AST, STL, BLK, TOV, Short Name, Display Name, First Name, 
+    //        Last Name, Jersey Number, Position, Headshot URL, Team Short Name, Team Color, Team Logo
     const playerHeaders = [
-      'Team', 'Player Name', 'PTS', 'FGM', 'FGA', 'FG%', '3PM', '3PA', '3P%', 
-      'FTM', 'FTA', 'FT%', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV',
+      'Team', 'Player Name', 'GP', 'PTS', 'FGA', 'FGM', 'FG%', '3PA', '3PM', '3P%', 
+      'FTA', 'FTM', 'FT%', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV',
       'Short Name', 'Display Name', 'First Name', 'Last Name', 'Jersey Number', 
       'Position', 'Headshot URL', 'Team Short Name', 'Team Color', 'Team Logo'
     ];
     
     const playerRows = players.map(p => [
-      p.team, p.playerName, p.PTS, p.FGM, p.FGA, p['FG%'], p['3PM'], p['3PA'], p['3P%'],
-      p.FTM, p.FTA, p['FT%'], p.OREB, p.DREB, p.REB, p.AST, p.STL, p.BLK, p.TOV,
+      p.team, p.playerName, p.GP || 25, p.PTS, p.FGA, p.FGM, p['FG%'], p['3PA'], p['3PM'], p['3P%'],
+      p.FTA, p.FTM, p['FT%'], p.OREB, p.DREB, p.REB, p.AST, p.STL, p.BLK, p.TOV,
       p.shortName, p.displayName, p.firstName, p.lastName, p.jerseyNumber,
       p.position, p.headshot, p.teamShortName, p.teamColor, p.teamLogo
     ]);

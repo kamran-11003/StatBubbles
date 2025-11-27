@@ -605,6 +605,7 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         if (!event.active) leagueSimulationRef.current.alphaTarget(0.3).restart();
         d.fx = d.x;
         d.fy = d.y;
+        d3.select(event.sourceEvent.target.parentNode).style('cursor', 'grabbing');
       })
       .on('drag', (event, d) => {
         d.fx = event.x;
@@ -614,6 +615,7 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         if (!event.active) leagueSimulationRef.current.alphaTarget(0);
         d.fx = null;
         d.fy = null;
+        d3.select(event.sourceEvent.target.parentNode).style('cursor', 'grab');
       });
     
     // Create league nodes with drag functionality
@@ -802,36 +804,46 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       d.vy = (Math.random() - 0.5) * 2;
     });
     
-    // Set up forces for more realistic physics with adjusted strengths
+    // Set up forces for continuous floating motion like stat bubbles
     leagueSimulationRef.current = d3.forceSimulation(leagueData)
-      .force('charge', d3.forceManyBody().strength(-200)) // Increased repulsion
-      .force('collide', d3.forceCollide().radius(bubbleSize + 5).strength(1).iterations(10))
-      .force('x', d3.forceX().x(d => d.x).strength(0.5)) // Reduced x-positioning strength
-      .force('y', d3.forceY().y(d => d.y).strength(0.5)) // Reduced y-positioning strength
-      .velocityDecay(0.4) // Less damping
-      .alphaDecay(0.02) // Slightly faster settling
-      .alpha(0.8) // Higher initial energy
-      .alphaTarget(0); // Let it settle completely
+      .force('charge', d3.forceManyBody().strength(-300)) // Strong repulsion to keep bubbles apart
+      .force('collide', d3.forceCollide().radius(bubbleSize + 10).strength(1).iterations(3))
+      .force('x', d3.forceX(containerWidth / 2).strength(0.05)) // Very weak center force for X
+      .force('y', d3.forceY(containerHeight / 2).strength(0.05)) // Very weak center force for Y
+      .velocityDecay(0.2) // Less friction for more movement
+      .alphaDecay(0.001) // Very slow decay to keep motion going
+      .alpha(1) // Start with full energy
+      .alphaTarget(0.3); // Keep simulation running continuously
     
-    // Update positions on tick
+    // Add random velocity kicks to keep bubbles moving
+    let tickCount = 0;
     leagueSimulationRef.current.on('tick', () => {
+      // Periodically add random velocity to keep things interesting
+      tickCount++;
+      if (tickCount % 100 === 0) {
+        leagueData.forEach(d => {
+          d.vx += (Math.random() - 0.5) * 1.5;
+          d.vy += (Math.random() - 0.5) * 1.5;
+        });
+      }
+      
       leagueNodes.attr('transform', d => {
         // Keep bubbles within container bounds with bouncing effect
         if (d.x < bubbleSize) {
           d.x = bubbleSize;
-          if (d.vx < 0) d.vx = -d.vx * 0.5; // Bounce with damping
+          if (d.vx < 0) d.vx = -d.vx * 0.6; // Bounce with some damping
         }
         if (d.x > containerWidth - bubbleSize) {
           d.x = containerWidth - bubbleSize;
-          if (d.vx > 0) d.vx = -d.vx * 0.5; // Bounce with damping
+          if (d.vx > 0) d.vx = -d.vx * 0.6; // Bounce with some damping
         }
         if (d.y < bubbleSize) {
           d.y = bubbleSize;
-          if (d.vy < 0) d.vy = -d.vy * 0.5; // Bounce with damping
+          if (d.vy < 0) d.vy = -d.vy * 0.6; // Bounce with some damping
         }
         if (d.y > containerHeight - bubbleSize) {
           d.y = containerHeight - bubbleSize;
-          if (d.vy > 0) d.vy = -d.vy * 0.5; // Bounce with damping
+          if (d.vy > 0) d.vy = -d.vy * 0.6; // Bounce with some damping
         }
         
         return `translate(${d.x}, ${d.y})`;

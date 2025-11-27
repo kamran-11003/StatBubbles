@@ -87,6 +87,9 @@ class VLeaguePlayerStatsService {
       const dataRows = rows.slice(1);
       
       // Process each player row
+      // Headers: Team, Player Name, GP, PTS, FGA, FGM, FG%, 3PA, 3PM, 3P%, FTA, FTM, FT%, 
+      //          OREB, DREB, REB, AST, STL, BLK, TOV, Short Name, Display Name, First Name, 
+      //          Last Name, Jersey Number, Position, Headshot URL, Team Short Name, Team Color, Team Logo
       const players = [];
       for (const row of dataRows) {
         if (!row[0] || !row[1]) continue; // Skip if Team or PlayerName is missing
@@ -94,34 +97,35 @@ class VLeaguePlayerStatsService {
         const playerData = {
           Team: row[0],
           PlayerName: row[1],
-          PTS: parseNumber(row[2]),
-          FGM: parseNumber(row[3]),
+          GP: parseNumber(row[2]),
+          PTS: parseNumber(row[3]),
           FGA: parseNumber(row[4]),
-          'FG%': parsePercentage(row[5]),
-          '3PM': parseNumber(row[6]),
+          FGM: parseNumber(row[5]),
+          'FG%': parsePercentage(row[6]),
           '3PA': parseNumber(row[7]),
-          '3P%': parsePercentage(row[8]),
-          FTM: parseNumber(row[9]),
+          '3PM': parseNumber(row[8]),
+          '3P%': parsePercentage(row[9]),
           FTA: parseNumber(row[10]),
-          'FT%': parsePercentage(row[11]),
-          OREB: parseNumber(row[12]),
-          DREB: parseNumber(row[13]),
-          REB: parseNumber(row[14]),
-          AST: parseNumber(row[15]),
-          STL: parseNumber(row[16]),
-          BLK: parseNumber(row[17]),
-          TOV: parseNumber(row[18]),
-          // Extra fields (columns 19-28)
-          shortName: row[19] || '',
-          displayName: row[20] || row[1],
-          firstName: row[21] || '',
-          lastName: row[22] || '',
-          jerseyNumber: row[23] || '',
-          position: row[24] || '',
-          headshot: row[25] ? { href: row[25], alt: row[1] } : null,
-          teamShortName: row[26] || '',
-          teamColor: row[27] || '',
-          teamLogo: row[28] || ''
+          FTM: parseNumber(row[11]),
+          'FT%': parsePercentage(row[12]),
+          OREB: parseNumber(row[13]),
+          DREB: parseNumber(row[14]),
+          REB: parseNumber(row[15]),
+          AST: parseNumber(row[16]),
+          STL: parseNumber(row[17]),
+          BLK: parseNumber(row[18]),
+          TOV: parseNumber(row[19]),
+          // Extra fields (columns 20-29)
+          shortName: row[20] || '',
+          displayName: row[21] || row[1],
+          firstName: row[22] || '',
+          lastName: row[23] || '',
+          jerseyNumber: row[24] || '',
+          position: row[25] || '',
+          headshot: row[26] ? { href: row[26], alt: row[1] } : null,
+          teamShortName: row[27] || '',
+          teamColor: row[28] || '',
+          teamLogo: row[29] || ''
         };
         
         players.push(playerData);

@@ -210,6 +210,7 @@ export const leagueStatsData = {
   ],
   'V League': [
     // Player stats
+    { label: 'Games Played', key: 'GP', category: 'General' },
     { label: 'Points', key: 'PTS', category: 'Scoring' },
     { label: 'Field Goals Made', key: 'FGM', category: 'Shooting' },
     { label: 'Field Goals Attempted', key: 'FGA', category: 'Shooting' },
