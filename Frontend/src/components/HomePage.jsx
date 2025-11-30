@@ -422,7 +422,7 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
     }
 
     const containerWidth = leagueBubblesRef.current.clientWidth;
-    const containerHeight = 400; // Increased height for better spacing
+    const containerHeight = window.innerHeight * 0.85; // Use 85% of viewport height
     
     const svg = d3
       .select(leagueBubblesRef.current)
@@ -433,99 +433,36 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       
     const defs = svg.append('defs');
     
-    // Create league bubble gradients with enhanced glass effect
+    // EXACT copy from bubbleVisualization.js lines 400-422
     leagueData.forEach((league, i) => {
       const gradientId = `league-bubble-gradient-${i}`;
       const baseColor = league.color;
       
-      // Main radial gradient for bubble base
       const gradient = defs.append('radialGradient')
         .attr('id', gradientId)
-        .attr('cx', '30%')
-        .attr('cy', '30%')
-        .attr('r', '70%')
-        .attr('fx', '25%')
-        .attr('fy', '25%');
+        .attr('cx', '35%')
+        .attr('cy', '35%')
+        .attr('r', '60%')
+        .attr('fx', '35%')
+        .attr('fy', '35%');
       
       gradient.append('stop')
         .attr('offset', '0%')
         .attr('stop-color', 'rgba(255, 255, 255, 0.95)');
       
       gradient.append('stop')
-        .attr('offset', '35%')
-        .attr('stop-color', `${baseColor}aa`);
+        .attr('offset', '40%')
+        .attr('stop-color', `${baseColor}cc`);
       
       gradient.append('stop')
         .attr('offset', '80%')
-        .attr('stop-color', `${baseColor}dd`);
+        .attr('stop-color', `${baseColor}ee`);
       
       gradient.append('stop')
         .attr('offset', '100%')
         .attr('stop-color', `${baseColor}`);
       
-      // Highlight gradient for glossy effect (top-left to bottom-right)
-      const highlightId = `league-bubble-highlight-${i}`;
-      const highlight = defs.append('radialGradient')
-        .attr('id', highlightId)
-        .attr('cx', '20%')
-        .attr('cy', '20%')
-        .attr('r', '60%')
-        .attr('fx', '15%')
-        .attr('fy', '15%');
-      
-      highlight.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', 'rgba(255, 255, 255, 1)');
-      
-      highlight.append('stop')
-        .attr('offset', '40%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0.5)');
-        
-      highlight.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0)');
-      
-      // Create another highlight for bottom-right (specular highlight)
-      const highlightBottomId = `league-bubble-highlight-bottom-${i}`;
-      const highlightBottom = defs.append('radialGradient')
-        .attr('id', highlightBottomId)
-        .attr('cx', '85%')
-        .attr('cy', '85%')
-        .attr('r', '40%')
-        .attr('fx', '85%')
-        .attr('fy', '85%');
-        
-      highlightBottom.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0.6)');
-        
-      highlightBottom.append('stop')
-        .attr('offset', '50%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0.2)');
-        
-      highlightBottom.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0)');
-        
-      // Create a third smaller highlight for extra realism
-      const highlightSpecId = `league-bubble-highlight-spec-${i}`;
-      const highlightSpec = defs.append('radialGradient')
-        .attr('id', highlightSpecId)
-        .attr('cx', '40%')
-        .attr('cy', '30%')
-        .attr('r', '15%')
-        .attr('fx', '40%')
-        .attr('fy', '30%');
-        
-      highlightSpec.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0.9)');
-        
-      highlightSpec.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', 'rgba(255, 255, 255, 0)');
-        
-      // Add filter for enhanced glass effect
+      // Filter EXACTLY matching stat bubbles from bubbleVisualization.js
       const filterId = `league-bubble-filter-${i}`;
       const filter = defs.append('filter')
         .attr('id', filterId)
@@ -537,67 +474,34 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         .attr('primitiveUnits', 'userSpaceOnUse')
         .attr('color-interpolation-filters', 'sRGB');
       
-      // Create glass-like refraction effect
-      filter.append('feGaussianBlur')
+      filter.append('feComposite')
         .attr('in', 'SourceGraphic')
-        .attr('stdDeviation', '1.5')
-        .attr('result', 'blur');
-        
-      // Add slight chromatic aberration for realistic glass effect
-      const colorMatrix = filter.append('feColorMatrix')
-        .attr('in', 'blur')
-        .attr('type', 'matrix')
-        .attr('values', `
-          1 0 0 0 0
-          0 1 0 0 0
-          0 0 1 0 0
-          0 0 0 18 -7
-        `)
-        .attr('result', 'colorMatrix');
-      
-      // Create shadow
-      const dropShadow = filter.append('feDropShadow')
-        .attr('dx', '0')
-        .attr('dy', '6')
-        .attr('stdDeviation', '5')
-        .attr('flood-color', '#000000')
-        .attr('flood-opacity', '0.3')
-        .attr('result', 'shadow');
-      
-      // Create a subtle inner glow
-      const innerGlow = filter.append('feGaussianBlur')
-        .attr('in', 'SourceAlpha')
-        .attr('stdDeviation', '1.2')
-        .attr('result', 'alpha_blur');
-      
-      const compInner = filter.append('feComposite')
-        .attr('in', 'alpha_blur')
         .attr('in2', 'SourceAlpha')
         .attr('operator', 'in')
-        .attr('result', 'inner_glow');
+        .attr('result', 'composite1');
       
-      const innerColorMatrix = filter.append('feColorMatrix')
-        .attr('in', 'inner_glow')
-        .attr('type', 'matrix')
-        .attr('values', '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.8 0')
-        .attr('result', 'inner_glow_colored');
-        
-      // Combine all effects
-      const mergeAll = filter.append('feMerge')
-        .attr('result', 'final_image');
+      filter.append('feGaussianBlur')
+        .attr('in', 'composite1')
+        .attr('stdDeviation', '1')
+        .attr('result', 'blur');
       
-      mergeAll.append('feMergeNode')
-        .attr('in', 'shadow');
+      filter.append('feDropShadow')
+        .attr('dx', '0')
+        .attr('dy', '4')
+        .attr('stdDeviation', '4')
+        .attr('flood-color', '#000000')
+        .attr('flood-opacity', '0.3')
+        .attr('result', 'dropShadow');
         
-      mergeAll.append('feMergeNode')
-        .attr('in', 'SourceGraphic');
-        
-      mergeAll.append('feMergeNode')
-        .attr('in', 'inner_glow_colored');
+      filter.append('feComposite')
+        .attr('in', 'blur')
+        .attr('in2', 'dropShadow')
+        .attr('operator', 'over')
+        .attr('result', 'finalImage');
     });
     
-    // Fixed bubble size for leagues
-    const bubbleSize = 70; // Slightly smaller bubbles for better fit
+    // Fixed bubble size for leagues - larger for better visibility
+    const bubbleSize = 90; // Larger bubbles for better presence
     
     // Drag behavior for bubbles
     const drag = d3.drag()
@@ -633,163 +537,63 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         }
       })
       .on('mouseover', function(event, d) {
-        // Prevent event propagation to stop flickering
-        event.stopPropagation();
+        // Hover effect EXACTLY like stat bubbles
+        const bubble = d3.select(this).select('.bubble-main');
         
-        // Set hovered league only if it's different to avoid re-renders
-        if (!hoveredLeague || hoveredLeague.name !== d.name) {
-          setHoveredLeague(d);
-        }
-        
-        // Apply visual changes directly with D3 without re-renders
-        d3.select(this).select('.bubble-main')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 1.1);
-          
-        d3.select(this).select('.bubble-highlight')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 1.1 * 0.9);
-          
-        d3.select(this).select('.bubble-highlight-bottom')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 1.1 * 0.5);
-          
-        d3.select(this).select('.bubble-highlight-spec')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 1.1 * 0.25)
-          .style('opacity', 1);
-          
-        d3.select(this).select('.bubble-stroke')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 1.1)
+        bubble
           .attr('stroke', 'rgba(255, 255, 255, 0.8)')
-          .attr('stroke-width', 2);
+          .attr('stroke-width', 2)
+          .style('opacity', '1')
+          .transition()
+          .duration(300)
+          .attr('r', bubbleSize * 1.05);
           
         // Bring this bubble to front
         this.parentNode.appendChild(this);
       })
       .on('mouseout', function(event, d) {
-        // Prevent event propagation
-        event.stopPropagation();
-        
-        // Clear hovered league with a small delay to prevent flickering
-        setTimeout(() => {
-          // Only clear if we're not hovering over the tooltip
-          const tooltipEl = document.querySelector('.league-tooltip');
-          if (tooltipEl && !tooltipEl.matches(':hover')) {
-            setHoveredLeague(null);
-          }
-        }, 50);
-        
         d3.select(this).select('.bubble-main')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize);
-          
-        d3.select(this).select('.bubble-highlight')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 0.9);
-          
-        d3.select(this).select('.bubble-highlight-bottom')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 0.5);
-          
-        d3.select(this).select('.bubble-highlight-spec')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize * 0.25)
-          .style('opacity', 0.9);
-          
-        d3.select(this).select('.bubble-stroke')
-          .transition()
-          .duration(300)
-          .ease(d3.easeCubicOut)
-          .attr('r', bubbleSize)
           .attr('stroke', 'rgba(255, 255, 255, 0.5)')
-          .attr('stroke-width', 1.5);
+          .attr('stroke-width', 1.5)
+          .style('opacity', '1')
+          .transition()
+          .duration(300)
+          .attr('r', bubbleSize);
       });
     
-    // Add bubble circles with multiple layers for realistic glass effect
+    // Add bubble circles - EXACTLY like stat bubbles with dark background for text
     leagueNodes.each(function(d, i) {
       const g = d3.select(this);
       
-      // Main bubble fill
+      // Main bubble fill - matching stat bubbles exactly
       g.append('circle')
         .attr('class', 'bubble-main')
         .attr('r', bubbleSize)
         .attr('fill', `url(#league-bubble-gradient-${i})`)
-        .style('filter', `url(#league-bubble-filter-${i})`);
-      
-      // Top-left highlight (primary light reflection)
-      g.append('circle')
-        .attr('class', 'bubble-highlight')
-        .attr('r', bubbleSize * 0.9)
-        .attr('fill', `url(#league-bubble-highlight-${i})`)
-        .style('pointer-events', 'none')
-        .style('opacity', 0.8);
-      
-      // Bottom-right subtle highlight (secondary light reflection)
-      g.append('circle')
-        .attr('class', 'bubble-highlight-bottom')
-        .attr('r', bubbleSize * 0.5)
-        .attr('fill', `url(#league-bubble-highlight-bottom-${i})`)
-        .style('pointer-events', 'none')
-        .style('opacity', 0.6);
-        
-      // Small specular highlight for extra realism
-      g.append('circle')
-        .attr('class', 'bubble-highlight-spec')
-        .attr('r', bubbleSize * 0.25)
-        .attr('fill', `url(#league-bubble-highlight-spec-${i})`)
-        .style('pointer-events', 'none')
-        .style('opacity', 0.9);
-      
-      // Stroke layer (on top) for edge definition
-      g.append('circle')
-        .attr('class', 'bubble-stroke')
-        .attr('r', bubbleSize)
-        .attr('fill', 'none')
         .attr('stroke', 'rgba(255, 255, 255, 0.5)')
-        .attr('stroke-width', 1.5);
+        .attr('stroke-width', 1.5)
+        .style('filter', `url(#league-bubble-filter-${i})`)
+        .style('cursor', 'pointer')
+        .style('opacity', '1');
+      
+      // Dark background circle for text - EXACTLY like stat bubbles (line 559-562)
+      g.append('circle')
+        .attr('class', 'text-background')
+        .attr('r', bubbleSize * 0.7)
+        .attr('fill', 'rgba(0, 0, 0, 0.3)')
+        .style('pointer-events', 'none');
     });
     
-    // Add league name text
+    // Add league name text only
     leagueNodes.append('text')
       .attr('text-anchor', 'middle')
-      .attr('dy', '-0.5em')
+      .attr('dy', '.35em')
       .style('fill', '#ffffff')
-      .style('font-size', '24px')
-      .style('font-weight', 'bold')
+      .style('font-size', '20px')
+      .style('font-weight', '600')
       .style('pointer-events', 'none')
-      .style('text-shadow', '0 0 5px rgba(0,0,0,0.7)')
+      .style('text-shadow', '0 2px 4px rgba(0,0,0,0.8)')
       .text(d => d.name);
-      
-    // Add stat count text  
-    leagueNodes.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '1.4em')
-      .style('fill', '#ffffff')
-      .style('font-size', '16px')
-      .style('font-weight', 'bold')
-      .style('pointer-events', 'none')
-      .style('text-shadow', '0 0 5px rgba(0,0,0,0.7)')
-      .text(d => `${d.stats.length} stats`);
     
     // Position league bubbles evenly
     const spacing = Math.min(containerWidth / (leagueData.length + 1), 200); // Adjusted spacing calculation
@@ -804,46 +608,58 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       d.vy = (Math.random() - 0.5) * 2;
     });
     
-    // Set up forces for continuous floating motion like stat bubbles
+    // Set up forces for continuous, dynamic floating motion
     leagueSimulationRef.current = d3.forceSimulation(leagueData)
-      .force('charge', d3.forceManyBody().strength(-300)) // Strong repulsion to keep bubbles apart
-      .force('collide', d3.forceCollide().radius(bubbleSize + 10).strength(1).iterations(3))
-      .force('x', d3.forceX(containerWidth / 2).strength(0.05)) // Very weak center force for X
-      .force('y', d3.forceY(containerHeight / 2).strength(0.05)) // Very weak center force for Y
-      .velocityDecay(0.2) // Less friction for more movement
-      .alphaDecay(0.001) // Very slow decay to keep motion going
+      .force('charge', d3.forceManyBody().strength(-500)) // Stronger repulsion for more movement
+      .force('collide', d3.forceCollide().radius(bubbleSize + 15).strength(1).iterations(2))
+      .force('x', d3.forceX(containerWidth / 2).strength(0.02)) // Very weak center force
+      .force('y', d3.forceY(containerHeight / 2).strength(0.02)) // Very weak center force
+      .velocityDecay(0.1) // Much less friction for continuous movement
+      .alphaDecay(0.0005) // Almost no decay to maintain energy
       .alpha(1) // Start with full energy
-      .alphaTarget(0.3); // Keep simulation running continuously
+      .alphaTarget(0.5); // Higher target to keep it very active
     
-    // Add random velocity kicks to keep bubbles moving
+    // Add continuous random velocity kicks to keep bubbles moving dynamically
     let tickCount = 0;
     leagueSimulationRef.current.on('tick', () => {
-      // Periodically add random velocity to keep things interesting
+      // Add random velocity MORE frequently for constant motion
       tickCount++;
-      if (tickCount % 100 === 0) {
+      if (tickCount % 50 === 0) { // Every 50 ticks instead of 100
         leagueData.forEach(d => {
-          d.vx += (Math.random() - 0.5) * 1.5;
-          d.vy += (Math.random() - 0.5) * 1.5;
+          // Larger random kicks for more dramatic movement
+          d.vx += (Math.random() - 0.5) * 3;
+          d.vy += (Math.random() - 0.5) * 3;
+        });
+      }
+      
+      // Add gentle swirling motion
+      if (tickCount % 20 === 0) {
+        leagueData.forEach((d, i) => {
+          const angle = (Date.now() / 5000) + (i * Math.PI / 3); // Rotating angle
+          d.vx += Math.cos(angle) * 0.5;
+          d.vy += Math.sin(angle) * 0.5;
         });
       }
       
       leagueNodes.attr('transform', d => {
-        // Keep bubbles within container bounds with bouncing effect
+        // Keep bubbles within container bounds with energetic bouncing
+        const bounceDamping = 0.8; // Higher value = more bouncy
+        
         if (d.x < bubbleSize) {
           d.x = bubbleSize;
-          if (d.vx < 0) d.vx = -d.vx * 0.6; // Bounce with some damping
+          if (d.vx < 0) d.vx = -d.vx * bounceDamping;
         }
         if (d.x > containerWidth - bubbleSize) {
           d.x = containerWidth - bubbleSize;
-          if (d.vx > 0) d.vx = -d.vx * 0.6; // Bounce with some damping
+          if (d.vx > 0) d.vx = -d.vx * bounceDamping;
         }
         if (d.y < bubbleSize) {
           d.y = bubbleSize;
-          if (d.vy < 0) d.vy = -d.vy * 0.6; // Bounce with some damping
+          if (d.vy < 0) d.vy = -d.vy * bounceDamping;
         }
         if (d.y > containerHeight - bubbleSize) {
           d.y = containerHeight - bubbleSize;
-          if (d.vy > 0) d.vy = -d.vy * 0.6; // Bounce with some damping
+          if (d.vy > 0) d.vy = -d.vy * bounceDamping;
         }
         
         return `translate(${d.x}, ${d.y})`;
@@ -901,66 +717,8 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       {/* Content overlay */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center p-4">
         <div className="text-center w-full">
-          <h1 className="text-4xl font-bold mb-4 text-shadow-lg">
-            <span className={`${isDark ? 'text-white' : 'text-gray-800'}`}>Welcome to </span>
-            <span className={`${isDark ? 'text-white' : 'text-gray-800'}`}>Stat </span>
-            <span className={`${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Bubbles</span>
-          </h1>
-          <p className={`text-xl mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'} text-shadow-md`}>
-            Select a league to view player statistics
-          </p>
-          
           {/* League bubbles container */}
-          <div className="mb-6 h-[400px]" ref={leagueBubblesRef}></div>
-          
-          {/* League info tooltip - shown when hovering over a league bubble */}
-          <div 
-            className={`league-tooltip fixed left-1/2 transform -translate-x-1/2 max-w-md transition-all duration-300 ease-in-out ${hoveredLeague ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-            style={{
-              top: hoveredLeague ? '65%' : '63%',
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
-              background: isDark ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-              borderRadius: '0.5rem',
-              padding: '1rem',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-              border: isDark ? '1px solid rgba(75, 85, 99, 0.5)' : '1px solid rgba(209, 213, 219, 0.5)',
-              zIndex: 50,
-            }}
-            onMouseEnter={() => {
-              if (hoveredLeague) {
-                // Keep the same state to prevent re-renders
-              }
-            }}
-            onMouseLeave={() => {
-              setHoveredLeague(null);
-            }}
-          >
-            {hoveredLeague && (
-              <>
-                <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                  {hoveredLeague.name}
-                </h3>
-                <p className={`text-sm my-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {hoveredLeague.description}
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mt-2">
-                  {hoveredLeague.stats.map((stat, index) => (
-                    <span 
-                      key={index}
-                      className={`text-xs px-2 py-1 rounded-full ${isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                      {stat}
-                    </span>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-          
-          <p className={`text-sm ${isDark ? 'text-white/70' : 'text-gray-700/80'} text-shadow-sm mt-4`}>
-            Click on a league bubble to explore player statistics
-          </p>
+          <div className="h-full" ref={leagueBubblesRef}></div>
         </div>
       </div>
 
