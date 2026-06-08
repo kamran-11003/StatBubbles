@@ -1,12 +1,13 @@
 const axios = require('axios');
 const NFLPlayer = require('../models/nfl-player.model');
+const { getCurrentSeason } = require('./season-resolver');
 
 /**
- * NFL Player Stats Service - 2025 Season ONLY
+ * NFL Player Stats Service - Dynamic Season
  * 
- * Handles extraction of individual player statistics from a single ESPN API endpoint for the 2025 NFL regular season.
- * Endpoint: https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/athletes/{athleteId}/statistics/0
- * Filters to 2025 season data (seasontype=2) and maps stats to the NFLPlayer schema based on provided ESPN stat breakdown.
+ * Handles extraction of individual player statistics from ESPN API endpoint for the current NFL regular season.
+ * Endpoint: https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/{year}/types/2/athletes/{athleteId}/statistics/0
+ * Dynamically resolves the current season and maps stats to the NFLPlayer schema based on provided ESPN stat breakdown.
  * Handles combined fields (e.g., 'fieldGoalsMade-fieldGoalAttempts') and derives fields (e.g., YPG, catch %).
  * Ensures proper data types: integers for counts (e.g., completions), floats for percentages/averages (e.g., completionPct).
  * 
@@ -22,6 +23,10 @@ const NFLPlayer = require('../models/nfl-player.model');
 
 async function processActiveNflPlayersWithStats(db) {
   const collection = db.collection('nflplayers');
+
+  // Dynamically resolve the current NFL season
+  const currentSeason = await getCurrentSeason('nfl');
+  console.log(`🏈 NFL: Using season ${currentSeason} for stats`);
 
   try {
     const teamsRes = await axios.get('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
@@ -247,7 +252,7 @@ async function processActiveNflPlayersWithStats(db) {
           let statsFound = false;
 
           try {
-            const endpoint = `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/athletes/${athleteId}/statistics/0`;
+            const endpoint = `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${currentSeason}/types/2/athletes/${athleteId}/statistics/0`;
             const statsRes = await axios.get(endpoint);
             const statsData = statsRes.data;
 
@@ -1247,7 +1252,7 @@ async function processActiveNflPlayersWithStats(db) {
 
             if (Object.keys(extractedStats).length > 0) {
               statsFound = true;
-              console.log(`✅ 2025 season stats loaded for ${player.displayName}: ${Object.keys(extractedStats).length} stats`);
+              console.log(`✅ ${currentSeason} season stats loaded for ${player.displayName}: ${Object.keys(extractedStats).length} stats`);
               console.log(`📊 Sample mapped stats:`, {
                 passYards: playerDoc.passYards,
                 rushingYards: playerDoc.rushingYards,
@@ -1258,7 +1263,7 @@ async function processActiveNflPlayersWithStats(db) {
                 kickReturnYards: playerDoc.kickReturnYards
               });
             } else {
-              console.log(`⚠️ No 2025 season stats found for ${player.displayName} - using default values (0)`);
+              console.log(`⚠️ No ${currentSeason} season stats found for ${player.displayName} - using default values (0)`);
             }
 
           } catch (err) {

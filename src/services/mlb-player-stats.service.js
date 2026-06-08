@@ -1,5 +1,6 @@
 const axios = require('axios');
 const MLBPlayer = require('../models/mlb-player.model');
+const { getCurrentSeason } = require('./season-resolver');
 
 const desiredStats = [
   'gamesPlayed', 'gamesStarted', 'completeGames', 'shutouts',
@@ -46,42 +47,13 @@ function calculateQualifications(stats) {
   return qualifications;
 }
 
-async function getLatestSeasonId() {
-  const seasonsUrl = `https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/seasons`;
-  try {
-    const response = await axios.get(seasonsUrl);
-    const items = response.data.items || [];
-    const now = new Date();
-
-    const startedSeasons = items
-      .map(item => {
-        const seasonIdMatch = item.$ref.match(/\/seasons\/(\d+)/);
-        if (!seasonIdMatch) return null;
-        const seasonId = parseInt(seasonIdMatch[1]);
-        const approxStartDate = new Date(seasonId, 2, 25); // March 25 of season year
-        return (approxStartDate <= now && seasonId >= 2020) ? seasonId : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => b - a);
-
-    if (startedSeasons.length > 0) {
-      console.log(`✅ Latest started MLB season: ${startedSeasons[0]}`);
-      return startedSeasons[0]; // 2025 now, 2026 after March 2026
-    }
-    console.log(`⚠ No started seasons found. Defaulting to 2025.`);
-    return 2025;
-  } catch (error) {
-    console.log("⚠ Error fetching seasons. Defaulting to 2025.", error.message);
-    return 2025;
-  }
-}
-
 async function processActiveMlbPlayersWithStats(db) {
   const collection = db.collection('mlbplayers');
 
   try {
-    // Step 1: Get latest season
-    const latestSeasonId = await getLatestSeasonId();
+    // Step 1: Get latest season dynamically
+    const latestSeasonId = await getCurrentSeason('mlb');
+    console.log(`⚾ MLB: Using season ${latestSeasonId} for stats`);
 
     // Step 2: Get all teams
     const teamsRes = await axios.get(

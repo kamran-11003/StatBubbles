@@ -1,6 +1,7 @@
 const axios = require('axios');
 const WNBAPlayer = require('../models/wnba.model');
 const mongoose = require('mongoose');
+const { getCurrentSeason } = require('./season-resolver');
 
 // ESPN API endpoints
 const athletesListUrl = 'https://sports.core.api.espn.com/v2/sports/basketball/leagues/wnba/athletes?limit=1000&page=1';
@@ -34,6 +35,9 @@ function getDefaultStats() {
 
 async function processWnbaPlayersWithStats(db) {
   try {
+    // Dynamically resolve the current WNBA season
+    const currentSeason = await getCurrentSeason('wnba');
+    console.log(`🏀 WNBA: Using season ${currentSeason} for stats`);
     // Use Mongoose model instead of raw collection
     // const collection = db.collection('wnbapayers');
 
@@ -107,14 +111,14 @@ async function processWnbaPlayersWithStats(db) {
           const statsLogResponse = await axios.get(athlete.statisticslog.$ref);
           const statsLogEntries = statsLogResponse.data.entries;
 
-          // Find 2024 season entry (WNBA season format)
-          const season2025Entry = statsLogEntries.find(entry => 
-            entry.season.$ref.includes('/seasons/2025')
+          // Find current season entry (WNBA season format)
+          const seasonEntry = statsLogEntries.find(entry => 
+            entry.season.$ref.includes(`/seasons/${currentSeason}`)
           );
 
-          if (season2025Entry) {
+          if (seasonEntry) {
             // Find total statistics
-            const totalStats = season2025Entry.statistics.find(stat => stat.type === 'total');
+            const totalStats = seasonEntry.statistics.find(stat => stat.type === 'total');
             if (totalStats && totalStats.statistics.$ref) {
               const statsResponse = await axios.get(totalStats.statistics.$ref);
               const statsData = statsResponse.data;
@@ -136,7 +140,7 @@ async function processWnbaPlayersWithStats(db) {
               console.log(`No total stats found for player ID: ${athleteId}`);
             }
           } else {
-            console.log(`No 2025 season stats found for player ID: ${athleteId}`);
+            console.log(`No ${currentSeason} season stats found for player ID: ${athleteId}`);
           }
         } catch (statsError) {
           console.log(`Error fetching stats for player ID: ${athleteId}: ${statsError.message}`);
@@ -186,6 +190,8 @@ async function processWnbaPlayersWithStats(db) {
 // Function to refresh players for a specific team
 async function refreshTeamPlayers(teamId, db) {
   try {
+    // Dynamically resolve the current WNBA season
+    const currentSeason = await getCurrentSeason('wnba');
     // Use provided db or fallback to mongoose connection
     const dbConn = db || mongoose.connection.db;
     // Find all players with the specified team ID
@@ -263,13 +269,13 @@ async function refreshTeamPlayers(teamId, db) {
           const statsLogResponse = await axios.get(athlete.statisticslog.$ref);
           const statsLogEntries = statsLogResponse.data.entries;
 
-          const season2025Entry = statsLogEntries.find(entry => 
-            entry.season.$ref.includes('/seasons/2025')
+          const seasonEntry = statsLogEntries.find(entry => 
+            entry.season.$ref.includes(`/seasons/${currentSeason}`)
           );
 
-          if (season2025Entry) {
+          if (seasonEntry) {
             // Find total statistics
-            const totalStats = season2025Entry.statistics.find(stat => stat.type === 'total');
+            const totalStats = seasonEntry.statistics.find(stat => stat.type === 'total');
             if (totalStats && totalStats.statistics.$ref) {
               const statsResponse = await axios.get(totalStats.statistics.$ref);
               const statsData = statsResponse.data;
@@ -291,7 +297,7 @@ async function refreshTeamPlayers(teamId, db) {
               console.log(`No total stats found for player ID: ${athleteId}`);
             }
           } else {
-            console.log(`No 2025 season stats found for player ID: ${athleteId}`);
+            console.log(`No ${currentSeason} season stats found for player ID: ${athleteId}`);
           }
         } catch (statsError) {
           console.log(`Error fetching stats for player ID: ${athleteId}: ${statsError.message}`);

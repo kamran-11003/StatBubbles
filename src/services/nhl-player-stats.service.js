@@ -1,12 +1,13 @@
 const axios = require('axios');
 const NHLPlayer = require('../models/nhl-player.model');
+const { getCurrentSeason } = require('./season-resolver');
 
 /**
- * NHL Player Stats Service - 2025 Season ONLY
+ * NHL Player Stats Service - Dynamic Season
  * 
- * Handles extraction of individual player statistics from ESPN API endpoint for the 2025 NHL regular season.
- * Endpoint: https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/seasons/2025/types/2/athletes/{athleteId}/statistics/0
- * Filters to 2025 season data (seasontype=2) and maps stats to the NHLPlayer schema.
+ * Handles extraction of individual player statistics from ESPN API endpoint for the current NHL regular season.
+ * Endpoint: https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/seasons/{year}/types/2/athletes/{athleteId}/statistics/0
+ * Dynamically resolves the current season and maps stats to the NHLPlayer schema.
  * Handles both skating players and goaltenders with comprehensive stats.
  * 
  * Supported Categories:
@@ -18,6 +19,10 @@ const NHLPlayer = require('../models/nhl-player.model');
 
 async function processNhlPlayersWithStats(db) {
   const collection = db.collection('nhlplayers');
+
+  // Dynamically resolve the current NHL season
+  const currentSeason = await getCurrentSeason('nhl');
+  console.log(`🏒 NHL: Using season ${currentSeason} for stats`);
 
   try {
     const teamsRes = await axios.get('https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams');
@@ -169,7 +174,7 @@ async function processNhlPlayersWithStats(db) {
           let statsFound = false;
 
           try {
-            const endpoint = `https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/seasons/2025/types/2/athletes/${athleteId}/statistics/0`;
+            const endpoint = `https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/seasons/${currentSeason}/types/2/athletes/${athleteId}/statistics/0`;
             const statsRes = await axios.get(endpoint);
             const statsData = statsRes.data;
 
@@ -278,7 +283,7 @@ async function processNhlPlayersWithStats(db) {
 
             if (Object.keys(extractedStats).length > 0) {
                   statsFound = true;
-              console.log(`✅ 2025 season stats loaded for ${player.displayName}: ${Object.keys(extractedStats).length} stats`);
+              console.log(`✅ ${currentSeason} season stats loaded for ${player.displayName}: ${Object.keys(extractedStats).length} stats`);
               console.log(`📊 Sample mapped stats:`, {
                 games: playerDoc.games,
                 goals: playerDoc.goals,
@@ -289,7 +294,7 @@ async function processNhlPlayersWithStats(db) {
                 position: player.position?.abbreviation
               });
             } else {
-              console.log(`⚠️ No 2025 season stats found for ${player.displayName} - using default values (0)`);
+              console.log(`⚠️ No ${currentSeason} season stats found for ${player.displayName} - using default values (0)`);
             }
 
           } catch (err) {

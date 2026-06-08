@@ -8,6 +8,7 @@ const connectDB = require('./config/database');
 const liveScoresRoutes = require('./routes/live-scores.routes');
 const LiveScoresService = require('./services/live-scores.service');
 const socketService = require('./services/socket.service');
+const { checkForSeasonChanges, clearSeasonCache } = require('./services/season-resolver');
 const nbaTeamsService = require('./services/nba-teams.service');
 const wnbaTeamsService = require('./services/wnba-teams.service');
 const mlbTeamsService = require('./services/mlb-teams.service');
@@ -50,6 +51,14 @@ async function refreshAllStats() {
   console.log(`🔄 [Execution #${executionId}] Starting refreshAllStats...`, new Date().toISOString());
   try {
     const db = mongoose.connection.db;
+
+    // Check for season changes before refreshing data
+    console.log(`🔍 [Execution #${executionId}] Checking for season changes...`);
+    const changedSports = await checkForSeasonChanges(db);
+    if (changedSports.length > 0) {
+      console.log(`🆕 [Execution #${executionId}] Season changes detected for: ${changedSports.join(', ')} — stale data has been cleaned`);
+    }
+
     // Teams data processing
     console.log(`📊 [Execution #${executionId}] Processing NBA teams...`);
     await nbaTeamsService.processNbaData(db);
@@ -119,6 +128,8 @@ function scheduleMidnightRefresh() {
     setTimeout(async () => {
       console.log('🕛 Running scheduled midnight stats refresh...');
       dataReady = false;
+      // Clear season cache so seasons are re-resolved from ESPN API
+      clearSeasonCache();
       await refreshAllStats();
       console.log('✅ Midnight stats refresh completed');
       // Schedule the next refresh (24 hours later)
