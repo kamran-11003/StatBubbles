@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 
 /**
  * Season Resolver — Centralized Dynamic Season Detection
@@ -10,8 +8,6 @@ const path = require('path');
  * automatic database cleanup.
  */
 
-// Path to persist season state across restarts
-const SEASON_STATE_FILE = path.join(__dirname, '../../season-state.json');
 
 // In-memory cache: { nba: 2025, wnba: 2026, nfl: 2025, nhl: 2026, mlb: 2026 }
 const seasonCache = {};
@@ -57,30 +53,35 @@ const SPORT_CONFIG = {
 };
 
 /**
- * Load persisted season state from disk.
+ * Load persisted season state from MongoDB.
  * Returns an object like { nba: 2025, wnba: 2025, ... } or empty object.
  */
-function loadSeasonState() {
+async function loadSeasonState(db) {
   try {
-    if (fs.existsSync(SEASON_STATE_FILE)) {
-      const data = fs.readFileSync(SEASON_STATE_FILE, 'utf-8');
-      return JSON.parse(data);
+    const doc = await db.collection('season_state').findOne({ _id: 'global' });
+    if (doc) {
+      const { _id, ...state } = doc;
+      return state;
     }
   } catch (err) {
-    console.log(`⚠️ [SeasonResolver] Could not read season state file: ${err.message}`);
+    console.error(`⚠️ [SeasonResolver] Could not read season state from DB: ${err.message}`);
   }
   return {};
 }
 
 /**
- * Save season state to disk.
+ * Save season state to MongoDB.
  */
-function saveSeasonState(state) {
+async function saveSeasonState(db, state) {
   try {
-    fs.writeFileSync(SEASON_STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
-    console.log(`💾 [SeasonResolver] Season state saved to ${SEASON_STATE_FILE}`);
+    await db.collection('season_state').updateOne(
+      { _id: 'global' },
+      { $set: state },
+      { upsert: true }
+    );
+    console.log(`💾 [SeasonResolver] Season state saved to MongoDB`);
   } catch (err) {
-    console.error(`❌ [SeasonResolver] Could not save season state: ${err.message}`);
+    console.error(`❌ [SeasonResolver] Could not save season state to DB: ${err.message}`);
   }
 }
 
@@ -187,7 +188,7 @@ function clearSeasonCache() {
 async function checkForSeasonChanges(db) {
   console.log('🔍 [SeasonResolver] Checking for season changes...');
   
-  const previousState = loadSeasonState();
+  const previousState = await loadSeasonState(db);
   const currentState = {};
   const changedSports = [];
 
@@ -234,7 +235,7 @@ async function checkForSeasonChanges(db) {
   }
 
   // Save updated state
-  saveSeasonState(currentState);
+  await saveSeasonState(db, currentState);
 
   if (changedSports.length > 0) {
     console.log(`🔄 [SeasonResolver] Season changes detected for: ${changedSports.map(s => s.toUpperCase()).join(', ')}`);
