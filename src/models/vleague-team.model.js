@@ -44,8 +44,6 @@ const vLeagueTeamSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Index for faster queries
-vLeagueTeamSchema.index({ Team: 1 });
 
 module.exports = mongoose.model('VLeagueTeam', vLeagueTeamSchema, 'vleagueteams');
 

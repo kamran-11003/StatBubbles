@@ -23,9 +23,6 @@ const playerSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Index for athleteId
-playerSchema.index({ athleteId: 1 });
-
 // Index for displayName for search
 playerSchema.index({ displayName: 1 });
 

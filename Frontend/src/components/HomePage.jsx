@@ -509,17 +509,61 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
         if (!event.active) leagueSimulationRef.current.alphaTarget(0.3).restart();
         d.fx = d.x;
         d.fy = d.y;
-        d3.select(event.sourceEvent.target.parentNode).style('cursor', 'grabbing');
+        
+        const source = event.sourceEvent;
+        if (source) {
+          d.startX = source.touches ? source.touches[0].clientX : source.clientX;
+          d.startY = source.touches ? source.touches[0].clientY : source.clientY;
+        } else {
+          d.startX = event.x;
+          d.startY = event.y;
+        }
+        d.dragMoved = false;
+        
+        console.log(`[D3 Drag Start] ${d.name} at screen: (${d.startX}, ${d.startY})`);
+        
+        if (event.sourceEvent && event.sourceEvent.target) {
+          const parent = event.sourceEvent.target.parentNode;
+          if (parent) {
+            d3.select(parent).style('cursor', 'grabbing');
+          }
+        }
       })
       .on('drag', (event, d) => {
         d.fx = event.x;
         d.fy = event.y;
+        
+        const source = event.sourceEvent;
+        if (source && d.startX !== undefined) {
+          const currentX = source.touches ? source.touches[0].clientX : source.clientX;
+          const currentY = source.touches ? source.touches[0].clientY : source.clientY;
+          const dist = Math.sqrt(Math.pow(currentX - d.startX, 2) + Math.pow(currentY - d.startY, 2));
+          console.log(`[D3 Drag Move] ${d.name} dist: ${dist.toFixed(1)}px`);
+          if (dist > 8) {
+            d.dragMoved = true;
+          }
+        } else {
+          d.dragMoved = true;
+        }
       })
       .on('end', (event, d) => {
         if (!event.active) leagueSimulationRef.current.alphaTarget(0);
         d.fx = null;
         d.fy = null;
-        d3.select(event.sourceEvent.target.parentNode).style('cursor', 'grab');
+        if (event.sourceEvent && event.sourceEvent.target) {
+          const parent = event.sourceEvent.target.parentNode;
+          if (parent) {
+            d3.select(parent).style('cursor', 'grab');
+          }
+        }
+        
+        console.log(`[D3 Drag End] ${d.name} dragMoved: ${d.dragMoved}`);
+        
+        // If it was a click (not a drag), navigate!
+        if (!d.dragMoved) {
+          console.log(`[D3 Select League] Triggering navigation for: ${d.name}`);
+          handleLeagueSelect(d.name);
+        }
       });
     
     // Create league nodes with drag functionality
@@ -528,13 +572,10 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
       .enter()
       .append('g')
       .attr('class', 'league-node')
-      .style('cursor', 'grab')
+      .style('cursor', 'pointer')
       .call(drag)
       .on('click', (event, d) => {
-        // Only navigate if it's a click, not a drag
-        if (!event.defaultPrevented) {
-          handleLeagueSelect(d.name);
-        }
+        console.log('[D3 Click Event Fired] (Normally suppressed by drag if moved)', d.name);
       })
       .on('mouseover', function(event, d) {
         // Hover effect EXACTLY like stat bubbles
@@ -685,13 +726,6 @@ const HomePage = ({ isDark, onLeagueSelect, onStatSelect }) => {
   }, [leagueData]); // Add full leagueData dependency
 
   const handleLeagueSelect = (leagueName) => {
-    // Show coming soon modal for NBA and NHL
-    if (['NBA', 'NHL'].includes(leagueName)) {
-      setComingSoonLeague(leagueName);
-      setShowComingSoon(true);
-      return;
-    }
-    
     // Find the league data and get its default stat
     const league = leagueData.find(l => l.name === leagueName);
     const defaultStat = league?.defaultStat || 'points';

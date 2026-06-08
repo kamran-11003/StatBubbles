@@ -4,8 +4,7 @@ const nhlPlayerSchema = new mongoose.Schema({
   playerId: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   uid: {
     type: String,
@@ -172,7 +171,6 @@ const nhlPlayerSchema = new mongoose.Schema({
 });
 
 // Index for efficient queries
-nhlPlayerSchema.index({ playerId: 1 });
 nhlPlayerSchema.index({ teamId: 1 });
 nhlPlayerSchema.index({ displayName: 1 });
 
