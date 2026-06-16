@@ -32,7 +32,7 @@ const BubbleChart = ({ chartRef, players, selectedStat, isDark, setSelectedPlaye
   }, [players, selectedStat, isDark]);
 
   return (
-    <div ref={chartRef} className="w-full h-full bg-transparent mb-[-25px]" />
+    <div ref={chartRef} className="w-full h-full bg-transparent" />
   );
 };
 

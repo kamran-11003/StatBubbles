@@ -148,7 +148,7 @@ const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, pla
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full flex flex-col relative">
       {/* Back Button */}
       <div className="absolute top-6 left-6 z-10">
         <button
@@ -208,7 +208,7 @@ const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, pla
       </div>
 
       {/* Bubble Chart */}
-      <div className="w-full h-full bg-transparent overflow-hidden">
+      <div className="flex-1 min-h-0 w-full bg-transparent overflow-hidden">
         <BubbleChart
           chartRef={chartRef}
           players={teamPlayers}
@@ -228,16 +228,8 @@ const TeamPlayersView = ({ team, selectedStat, isDark, onBack, activeLeague, pla
       </div>
       
       {/* RSS Ticker Section */}
-      <div className={`absolute ${
-        hasLiveGames && showLiveInNav 
-          ? 'bottom-48 md:bottom-16'  // Live dropdown open - move way up
-          : hasLiveGames 
-            ? 'bottom-32 md:bottom-16'  // Live button visible - move up a bit
-            : 'bottom-24 md:bottom-16'  // No live games - normal position
-      } left-0 w-full overflow-hidden bg-transparent transition-all duration-300`}>
-        <div 
-          className={`flex items-center h-10 ${isDark ? 'bg-gray-800/40' : 'bg-white/40'} backdrop-blur-sm`}
-        >
+      <div className="w-full h-10 flex-shrink-0 z-10 bg-transparent overflow-hidden">
+        <div className="flex items-center h-full bg-transparent">
           <rssapp-ticker id="_2vryjAEB5aMg4ix6"></rssapp-ticker>
         </div>
       </div>

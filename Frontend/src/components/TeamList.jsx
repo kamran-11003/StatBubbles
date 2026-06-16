@@ -61,10 +61,10 @@ const TeamList = ({ teams, selectedStat, isDark, activeLeague, playerCount, show
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full flex flex-col relative">
       <div 
         ref={chartRef}
-        className="w-full h-full"
+        className="flex-1 min-h-0 w-full"
         style={{ background: isDark ? '#111827' : '#f0ece3' }}
       />
       
@@ -78,16 +78,8 @@ const TeamList = ({ teams, selectedStat, isDark, activeLeague, playerCount, show
       )}
 
       {/* RSS Ticker Section */}
-      <div className={`absolute ${
-        hasLiveGames && showLiveInNav 
-          ? 'bottom-48 md:bottom-16'  // Live dropdown open - move way up
-          : hasLiveGames 
-            ? 'bottom-32 md:bottom-16'  // Live button visible - move up a bit
-            : 'bottom-24 md:bottom-16'  // No live games - normal position
-      } left-0 w-full overflow-hidden bg-transparent transition-all duration-300`}>
-        <div 
-          className={`flex items-center h-10 ${isDark ? 'bg-gray-800/40' : 'bg-white/40'} backdrop-blur-sm`}
-        >
+      <div className="w-full h-10 flex-shrink-0 z-10 bg-transparent overflow-hidden">
+        <div className="flex items-center h-full bg-transparent">
           <rssapp-ticker id="_2vryjAEB5aMg4ix6"></rssapp-ticker>
         </div>
       </div>

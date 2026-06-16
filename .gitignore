@@ -5,3 +5,4 @@ test.py
 nfl_stats_defensive.json
 google-credentials.json
 google.json
+*.zip

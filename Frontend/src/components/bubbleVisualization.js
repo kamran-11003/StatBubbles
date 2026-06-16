@@ -15,7 +15,7 @@ export const createBubbleVisualization = ({
   }
 
   const width = chartRef.current.clientWidth;
-  const height = chartRef.current.clientHeight - 25;
+  const height = chartRef.current.clientHeight;
   
   const isMobile = width < 768;
   
@@ -247,9 +247,7 @@ export const createBubbleVisualization = ({
     .attr('width', width)
     .attr('height', height)
     .attr('fill', `url(#${bgGradientId})`)
-    .attr('opacity', 0.6)
-    .attr('rx', 20)
-    .attr('ry', 20);
+    .attr('opacity', 0.6);
 
   const bringToFront = (element) => element.raise();
 
@@ -531,10 +529,29 @@ export const createBubbleVisualization = ({
       `;
       
       tooltip
-        .style('left', (event.pageX + 10) + 'px')
-        .style('top', (event.pageY - 10) + 'px')
         .html(tooltipContent)
         .classed('hidden', false);
+        
+      const [localX, localY] = d3.pointer(event, chartRef.current);
+      const containerHeight = chartRef.current.clientHeight;
+      const containerWidth = chartRef.current.clientWidth;
+      
+      // Position tooltip above the cursor by default
+      let top = event.pageY - 110;
+      let left = event.pageX + 10;
+      
+      // If it overflows the top of the container, render it below the cursor
+      if (localY < 110) {
+        top = event.pageY + 15;
+      }
+      // If it overflows the right edge, render it to the left
+      if (localX + 160 > containerWidth) {
+        left = event.pageX - 160;
+      }
+      
+      tooltip
+        .style('left', left + 'px')
+        .style('top', top + 'px');
     })
     .on('mouseout', function(event, d) {
       d3.select(this)
@@ -549,9 +566,23 @@ export const createBubbleVisualization = ({
       tooltip.classed('hidden', true);
     })
     .on('mousemove', function(event) {
+      const [localX, localY] = d3.pointer(event, chartRef.current);
+      const containerHeight = chartRef.current.clientHeight;
+      const containerWidth = chartRef.current.clientWidth;
+      
+      let top = event.pageY - 110;
+      let left = event.pageX + 10;
+      
+      if (localY < 110) {
+        top = event.pageY + 15;
+      }
+      if (localX + 160 > containerWidth) {
+        left = event.pageX - 160;
+      }
+      
       tooltip
-        .style('left', (event.pageX + 10) + 'px')
-        .style('top', (event.pageY - 10) + 'px');
+        .style('left', left + 'px')
+        .style('top', top + 'px');
     });
 
   const texts = node.append('g').attr('class', 'texts');

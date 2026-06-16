@@ -763,7 +763,7 @@ function App() {
   }, [activeLeague, liveGames]);
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-[#f0ece3]'} transition-colors duration-200`}>
+    <div className={`h-screen flex flex-col ${isDark ? 'bg-gray-900' : 'bg-[#f0ece3]'} transition-colors duration-200 overflow-hidden`}>
       <Navbar 
         selectedStat={selectedStat}
         onStatSelect={setSelectedStat}
@@ -783,7 +783,7 @@ function App() {
         showLiveInNav={showLiveInNav}
         setShowLiveInNav={setShowLiveInNav}
       />
-      <div className="h-[calc(100vh-56px)]">
+      <div className="flex-1 min-h-0">
         {activeLeague ? (
           teamPlayersViewTeam ? (
             <TeamPlayersView

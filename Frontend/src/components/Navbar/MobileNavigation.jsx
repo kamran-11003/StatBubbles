@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Search, Moon, Sun, ChevronDown, Users } from 'lucide-react';
+import ViewModeToggle from './ViewModeToggle';
 
 const MobileNavigation = ({
   handleLogoClick,
@@ -105,15 +106,17 @@ const MobileNavigation = ({
                 setStatsDropdownOpen(false);
                 setPlayerCountDropdownOpen(false);
               }}
-              className={`flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              className={`flex items-center h-9 px-3.5 rounded-full text-xs font-semibold border transition-all duration-300 ${
+                isDark 
+                  ? 'bg-[#121214] border-neutral-850 text-[#ececed] hover:bg-[#1a1a1f]' 
+                  : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50 shadow-sm'
               }`}
             >
               <span className="mr-1">{selectedLeague}</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={12} className="text-gray-400" />
             </button>
             {leagueDropdownOpen && (
-              <div className={`absolute left-0 top-full mt-1 py-2 w-32 rounded-md shadow-lg ${
+              <div className={`absolute left-0 top-full mt-2 py-2 w-32 rounded-xl shadow-lg ${
                 isDark ? 'bg-gray-800' : 'bg-white'
               } ring-1 ring-black ring-opacity-5 z-[100]`}>
                 {leagues.map((league) => (
@@ -138,28 +141,11 @@ const MobileNavigation = ({
           </div>
 
           {/* Player/Team Toggle */}
-          <div className="flex gap-1">
-            <button
-              onClick={() => onViewModeChange('Players')}
-              className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                viewMode === 'Players'
-                  ? isDark ? 'bg-blue-300 text-blue-900' : 'bg-blue-100 text-blue-700'
-                  : isDark ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-100'
-              }`}
-            >
-              Players
-            </button>
-            <button
-              onClick={() => onViewModeChange('Teams')}
-              className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                viewMode === 'Teams'
-                  ? isDark ? 'bg-blue-300 text-blue-900' : 'bg-blue-100 text-blue-700'
-                  : isDark ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-100'
-              }`}
-            >
-              Teams
-            </button>
-          </div>
+          <ViewModeToggle 
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            isDark={isDark}
+          />
 
           {/* Stats Dropdown */}
           <div ref={statsDropdownRef} className="relative" onClick={e => e.stopPropagation()}>
@@ -171,8 +157,10 @@ const MobileNavigation = ({
                 setLeagueDropdownOpen(false);
                 setShowLiveInNav(false);
               }}
-              className={`flex items-center px-2 py-1 rounded text-xs ${
-                isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              className={`flex items-center h-9 px-3.5 rounded-full text-xs font-semibold border transition-all duration-300 ${
+                isDark 
+                  ? 'bg-[#121214] border-neutral-850 text-[#ececed] hover:bg-[#1a1a1f]' 
+                  : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50 shadow-sm'
               } focus:outline-none whitespace-nowrap`}
             >
               <span className="font-medium mr-1 truncate max-w-[80px]">
@@ -181,10 +169,10 @@ const MobileNavigation = ({
                   : leagueStats[selectedLeague]?.find(stat => stat.key === selectedStat)?.label || 'Stat'
                 }
               </span>
-              <ChevronDown size={12} />
+              <ChevronDown size={12} className="text-gray-400" />
             </button>
             {statsDropdownOpen && (
-              <div className={`absolute left-0 top-full mt-1 py-2 w-48 rounded-md shadow-lg max-h-60 overflow-y-auto ${
+              <div className={`absolute left-0 top-full mt-2 py-2 w-48 rounded-xl shadow-lg max-h-60 overflow-y-auto ${
                 isDark ? 'bg-gray-800' : 'bg-white'
               } ring-1 ring-black ring-opacity-5 z-[100]`}>
                 {(navContext === 'teams' ? teamStatsByLeague[selectedLeague] : leagueStats[selectedLeague])?.map(stat => (
@@ -218,18 +206,20 @@ const MobileNavigation = ({
                   setLeagueDropdownOpen(false);
                   setShowLiveInNav(false);
                 }}
-                className={`flex items-center px-2 py-1 rounded text-xs ${
-                  isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+                className={`flex items-center h-9 px-3.5 rounded-full text-xs font-semibold border transition-all duration-300 ${
+                  isDark 
+                    ? 'bg-[#121214] border-neutral-850 text-[#ececed] hover:bg-[#1a1a1f]' 
+                    : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50 shadow-sm'
                 } focus:outline-none whitespace-nowrap`}
               >
-                <Users className="mr-1" size={12} />
+                <Users className="mr-1 text-gray-400" size={12} />
                 <span className="font-medium mr-1 truncate max-w-[60px]">
                   {playerCounts.find(p => p.value === playerCount)?.label || 'All'}
                 </span>
-                <ChevronDown size={12} />
+                <ChevronDown size={12} className="text-gray-400" />
               </button>
               {playerCountDropdownOpen && (
-                <div className={`absolute left-0 top-full mt-1 py-2 w-32 rounded-md shadow-lg ${
+                <div className={`absolute left-0 top-full mt-2 py-2 w-32 rounded-xl shadow-lg ${
                   isDark ? 'bg-gray-800' : 'bg-white'
                 } ring-1 ring-black ring-opacity-5 z-[100]`}>
                   {playerCounts.map(option => (
@@ -262,8 +252,10 @@ const MobileNavigation = ({
             <button
               key={league.name}
               onClick={() => handleLeagueClick(league.name)}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                isDark ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-100'
+              className={`px-4 py-1.5 rounded-full font-semibold text-xs border transition-all duration-300 ${
+                isDark 
+                  ? 'bg-[#121214] border-neutral-850 text-[#ececed] hover:bg-[#1a1a1f]' 
+                  : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50 shadow-sm'
               }`}
             >
               {league.name}
